@@ -156,6 +156,9 @@ model IntervieweeProfile {
   phone             String?
   whatsappNumber    String?  @map("whatsapp_number")
   linkedinUrl       String?  @map("linkedin_url")
+  facebookUrl       String?  @map("facebook_url")
+  instagramUrl      String?  @map("instagram_url")
+  rednoteUrl        String?  @map("rednote_url")
   resumeUrl         String?  @map("resume_url")
   bankName          String?  @map("bank_name")
   bankAccountNumber String?  @map("bank_account_number")
@@ -205,6 +208,11 @@ model CompanyProfile {
   description               String?
   website                   String?
   contactEmail              String      @map("contact_email")
+  phone                     String?
+  whatsappNumber            String?     @map("whatsapp_number")
+  ssm                       String?
+  linkedinUrl               String?     @map("linkedin_url")
+  isSelfEmployed            Boolean     @default(false) @map("is_self_employed")
   plan                      CompanyPlan @default(FREE)
   planStatus                String      @default("active") @map("plan_status")
   billingStart              DateTime?   @map("billing_start")
@@ -235,6 +243,11 @@ model JobListing {
   sellingPoint1   String        @map("selling_point_1")
   sellingPoint2   String        @map("selling_point_2")
   sellingPoint3   String        @map("selling_point_3")
+  requiresExp     Boolean       @default(false) @map("requires_exp")
+  yearsExpFrom    Int?          @map("years_exp_from")
+  yearsExpTo      Int?          @map("years_exp_to")
+  benefits        String?       @db.Text
+  questions       String?       @db.Text
   hideCompanyInfo Boolean       @default(false) @map("hide_company_info")
   status          ListingStatus @default(DRAFT)
   createdAt       DateTime      @default(now()) @map("created_at")
@@ -375,4 +388,35 @@ model AdminNote {
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("admin_notes")
+}
+
+// ─── CMS ──────────────────────────────────────────────────────────────────────
+
+model BlogPost {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  summary        String
+  content        String   @db.Text
+  category       String
+  author         String   @default("IT Hire Team")
+  authorInitials String   @default("IH") @map("author_initials")
+  readTime       String   @default("5 min read") @map("read_time")
+  coverGradient  String?  @map("cover_gradient")
+  featured       Boolean  @default(false)
+  published      Boolean  @default(false)
+  metaTitle      String?  @map("meta_title")
+  metaDesc       String?  @map("meta_desc")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("blog_posts")
+}
+
+model CmsContent {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("cms_content")
 }

@@ -71,9 +71,21 @@ export default async function AdminPage() {
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Admin Panel</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Platform overview</p>
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Admin Panel</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Platform overview</p>
+          </div>
+          <div className="flex gap-3">
+            <Link href="/admin/blog"
+              className="bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold px-4 py-2 rounded-[11px] shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors">
+              Blog CMS
+            </Link>
+            <Link href="/admin/cms"
+              className="border border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED] text-sm font-bold px-4 py-2 rounded-[11px] transition-colors">
+              Content CMS
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}

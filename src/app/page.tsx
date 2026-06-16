@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import type { BoostType, BoostStatus } from "@/generated/prisma/enums"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import JobCard from "@/components/job-card"
@@ -42,14 +43,16 @@ async function getListings(q?: string, location?: string, workType?: string, pag
     ...workTypeFilter,
   }
 
+  const boostFilter = { boostType: "PINNED_SEARCH" as BoostType, status: "ACTIVE" as BoostStatus, expiresAt: { gt: now } }
+
   const boostedWhere = {
     ...baseWhere,
-    boostAds: { some: { boostType: "PINNED_SEARCH", status: "ACTIVE", expiresAt: { gt: now } } },
+    boostAds: { some: boostFilter },
   }
 
   const regularWhere = {
     ...baseWhere,
-    boostAds: { none: { boostType: "PINNED_SEARCH", status: "ACTIVE", expiresAt: { gt: now } } },
+    boostAds: { none: boostFilter },
   }
 
   const boosted = page === 1

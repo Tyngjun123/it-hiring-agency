@@ -2,18 +2,31 @@ import { notFound } from "next/navigation"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
-import { posts } from "@/data/posts"
+import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog"
+import type { Metadata } from "next"
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const posts = await getAllBlogPosts()
   return posts.map((p) => ({ slug: p.slug }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getBlogPostBySlug(slug)
+  if (!post) return {}
+  return {
+    title: post.title + " | IT Hire Blog",
+    description: post.summary,
+  }
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = posts.find((p) => p.slug === slug)
+  const post = await getBlogPostBySlug(slug)
   if (!post) notFound()
 
-  const related = posts
+  const allPosts = await getAllBlogPosts()
+  const related = allPosts
     .filter((p) => p.slug !== slug && p.category === post.category)
     .slice(0, 3)
 
@@ -64,10 +77,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {/* Author row */}
               <div className="flex items-center gap-3 mb-7">
                 <div className="w-[42px] h-[42px] rounded-full bg-[#FFF7ED] text-[#C2410C] flex items-center justify-center font-bold text-[15px] shrink-0">
-                  {post.authorInitials ?? "??"}
+                  {post.authorInitials}
                 </div>
                 <div>
-                  <p className="text-[14px] font-bold text-[#1C1C1E]">{post.author ?? "IT Hire"}</p>
+                  <p className="text-[14px] font-bold text-[#1C1C1E]">{post.author}</p>
                   <p className="text-[12.5px] text-[#9CA3AF]">
                     {new Date(post.date).toLocaleDateString("en-MY", { day: "numeric", month: "long", year: "numeric" })}
                     {post.readTime ? ` · ${post.readTime}` : ""}

@@ -15,7 +15,7 @@ export default function RoleSelectionPage() {
     if (!role) return
     setLoading(true)
     await setUserRole(role)
-    router.push("/onboarding/preferences")
+    router.push(role === "COMPANY" ? "/company/setup" : "/onboarding/preferences")
   }
 
   return (

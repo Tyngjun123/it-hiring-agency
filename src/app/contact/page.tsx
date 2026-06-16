@@ -1,12 +1,35 @@
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import ContactForm from "./contact-form"
+import { prisma } from "@/lib/prisma"
+import type { Metadata } from "next"
 
-const INFO_CARDS = [
-  { icon: "✉", label: "EMAIL", value: "hello@ithire.my", href: "mailto:hello@ithire.my" },
-  { icon: "💬", label: "WHATSAPP", value: "Chat on WhatsApp →", href: "https://wa.me/60123456789" },
-  { icon: "🕐", label: "HOURS", value: "Mon–Fri, 9am–6pm MYT", href: null },
-]
+const CMS_DEFAULTS: Record<string, string> = {
+  contact_email: "hello@ithire.my",
+  contact_whatsapp: "https://wa.me/60123456789",
+  contact_whatsapp_label: "Chat on WhatsApp →",
+  contact_hours: "Mon–Fri, 9am–6pm MYT",
+  contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
+  meta_contact_title: "Contact IT Hire | Malaysia's IT Job Platform",
+  meta_contact_desc: "Get in touch with the IT Hire team for job posting, billing or partnership enquiries.",
+}
+
+async function getCms() {
+  const rows = await prisma.cmsContent.findMany({
+    where: { key: { in: Object.keys(CMS_DEFAULTS) } },
+  })
+  const map: Record<string, string> = { ...CMS_DEFAULTS }
+  for (const row of rows) map[row.key] = row.value
+  return map
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cms = await getCms()
+  return {
+    title: cms.meta_contact_title,
+    description: cms.meta_contact_desc,
+  }
+}
 
 export default async function ContactPage({
   searchParams,
@@ -14,6 +37,13 @@ export default async function ContactPage({
   searchParams: Promise<{ sent?: string; error?: string }>
 }) {
   const { sent, error } = await searchParams
+  const cms = await getCms()
+
+  const INFO_CARDS = [
+    { icon: "✉", label: "EMAIL", value: cms.contact_email, href: `mailto:${cms.contact_email}` },
+    { icon: "💬", label: "WHATSAPP", value: cms.contact_whatsapp_label, href: cms.contact_whatsapp },
+    { icon: "🕐", label: "HOURS", value: cms.contact_hours, href: null },
+  ]
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
@@ -63,10 +93,8 @@ export default async function ContactPage({
               {/* Office */}
               <div className="mt-7 pt-6 border-t border-[#FAD9B8]">
                 <p className="text-[13px] font-bold text-[#9A968C] uppercase tracking-[.05em] mb-3">Office</p>
-                <p className="text-[14.5px] text-[#3A3A3C] leading-relaxed">
-                  Level 12, Menara Tech<br />
-                  Jalan Sultan Ismail, 50250<br />
-                  Kuala Lumpur, Malaysia
+                <p className="text-[14.5px] text-[#3A3A3C] leading-relaxed whitespace-pre-line">
+                  {cms.contact_address}
                 </p>
               </div>
             </div>

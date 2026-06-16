@@ -19,19 +19,19 @@ export async function updateIntervieweeProfile(formData: FormData) {
     data: { name: formData.get("name") as string },
   })
 
+  const socialData = {
+    phone: (formData.get("phone") as string) || null,
+    whatsappNumber: (formData.get("whatsappNumber") as string) || null,
+    linkedinUrl: (formData.get("linkedinUrl") as string) || null,
+    facebookUrl: (formData.get("facebookUrl") as string) || null,
+    instagramUrl: (formData.get("instagramUrl") as string) || null,
+    rednoteUrl: (formData.get("rednoteUrl") as string) || null,
+  }
+
   await prisma.intervieweeProfile.upsert({
     where: { userId: session.user.id },
-    update: {
-      phone: formData.get("phone") as string,
-      whatsappNumber: formData.get("whatsappNumber") as string,
-      linkedinUrl: formData.get("linkedinUrl") as string,
-    },
-    create: {
-      userId: session.user.id,
-      phone: formData.get("phone") as string,
-      whatsappNumber: formData.get("whatsappNumber") as string,
-      linkedinUrl: formData.get("linkedinUrl") as string,
-    },
+    update: socialData,
+    create: { userId: session.user.id, ...socialData },
   })
 
   redirect("/profile?saved=1")

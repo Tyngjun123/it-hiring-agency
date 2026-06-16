@@ -16,14 +16,26 @@ async function getCompanyProfile() {
   return { userId: session.user.id, profile }
 }
 
-export async function setupCompanyProfile(formData: FormData) {
+export async function setupCompanyProfile(_prev: unknown, formData: FormData) {
   const { userId } = await getCompanyProfile()
 
+  const companyName = (formData.get("companyName") as string)?.trim()
+  const contactEmail = (formData.get("contactEmail") as string)?.trim()
+  if (!companyName || !contactEmail) {
+    return { error: "Company name and contact email are required." }
+  }
+
+  const isSelfEmployed = formData.get("isSelfEmployed") === "on"
+
   const data = {
-    companyName: formData.get("companyName") as string,
-    description: formData.get("description") as string,
-    website: formData.get("website") as string,
-    contactEmail: formData.get("contactEmail") as string,
+    companyName,
+    contactEmail,
+    description: (formData.get("description") as string) || null,
+    website: (formData.get("website") as string) || null,
+    ssm: (formData.get("ssm") as string) || null,
+    linkedinUrl: (formData.get("linkedinUrl") as string) || null,
+    isSelfEmployed,
+    whatsappNumber: isSelfEmployed ? (formData.get("whatsappNumber") as string) || null : null,
   }
 
   await prisma.companyProfile.upsert({
@@ -49,6 +61,8 @@ export async function createJobListing(formData: FormData) {
     }
   }
 
+  const requiresExp = formData.get("requiresExp") === "on"
+
   await prisma.jobListing.create({
     data: {
       companyId: profile.id,
@@ -62,6 +76,11 @@ export async function createJobListing(formData: FormData) {
       sellingPoint1: formData.get("sellingPoint1") as string,
       sellingPoint2: formData.get("sellingPoint2") as string,
       sellingPoint3: formData.get("sellingPoint3") as string,
+      requiresExp,
+      yearsExpFrom: requiresExp ? Number(formData.get("yearsExpFrom")) || null : null,
+      yearsExpTo: requiresExp ? Number(formData.get("yearsExpTo")) || null : null,
+      benefits: (formData.get("benefits") as string) || null,
+      questions: (formData.get("questions") as string) || null,
       hideCompanyInfo: formData.get("hideCompanyInfo") === "on",
       status: "ACTIVE",
     },
@@ -76,6 +95,8 @@ export async function updateJobListing(id: string, formData: FormData) {
   const { profile } = await getCompanyProfile()
   if (!profile) redirect("/company/setup")
 
+  const requiresExp = formData.get("requiresExp") === "on"
+
   await prisma.jobListing.update({
     where: { id, companyId: profile.id },
     data: {
@@ -89,6 +110,11 @@ export async function updateJobListing(id: string, formData: FormData) {
       sellingPoint1: formData.get("sellingPoint1") as string,
       sellingPoint2: formData.get("sellingPoint2") as string,
       sellingPoint3: formData.get("sellingPoint3") as string,
+      requiresExp,
+      yearsExpFrom: requiresExp ? Number(formData.get("yearsExpFrom")) || null : null,
+      yearsExpTo: requiresExp ? Number(formData.get("yearsExpTo")) || null : null,
+      benefits: (formData.get("benefits") as string) || null,
+      questions: (formData.get("questions") as string) || null,
       hideCompanyInfo: formData.get("hideCompanyInfo") === "on",
     },
   })
@@ -131,6 +157,11 @@ export async function duplicateJob(id: string) {
       sellingPoint1: job.sellingPoint1,
       sellingPoint2: job.sellingPoint2,
       sellingPoint3: job.sellingPoint3,
+      requiresExp: job.requiresExp,
+      yearsExpFrom: job.yearsExpFrom,
+      yearsExpTo: job.yearsExpTo,
+      benefits: job.benefits,
+      questions: job.questions,
       hideCompanyInfo: job.hideCompanyInfo,
       status: "DRAFT",
     },

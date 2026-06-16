@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { updateIntervieweeProfile } from "@/app/actions/profile"
 import { replaceSkills } from "@/app/actions/profile"
 import TechSkillSelector from "@/components/tech-skill-selector"
+import ResumeSection from "@/components/resume-section"
 
 function getInitials(name: string | null | undefined) {
   if (!name) return "?"
@@ -91,13 +92,32 @@ export default async function ProfilePage({
                     <Input id="whatsappNumber" name="whatsappNumber" defaultValue={profile?.whatsappNumber ?? ""} placeholder="60123456789"
                       className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
                   </div>
+
+                  <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider pt-1">Social links</p>
+
                   <div className="space-y-1">
-                    <Label htmlFor="linkedinUrl" className="text-xs text-[#6B7280]">LinkedIn URL</Label>
+                    <Label htmlFor="linkedinUrl" className="text-xs text-[#6B7280]">LinkedIn</Label>
                     <Input id="linkedinUrl" name="linkedinUrl" defaultValue={profile?.linkedinUrl ?? ""} placeholder="https://linkedin.com/in/..."
                       className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
                   </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="facebookUrl" className="text-xs text-[#6B7280]">Facebook</Label>
+                    <Input id="facebookUrl" name="facebookUrl" defaultValue={profile?.facebookUrl ?? ""} placeholder="https://facebook.com/..."
+                      className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="instagramUrl" className="text-xs text-[#6B7280]">Instagram</Label>
+                    <Input id="instagramUrl" name="instagramUrl" defaultValue={profile?.instagramUrl ?? ""} placeholder="https://instagram.com/..."
+                      className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="rednoteUrl" className="text-xs text-[#6B7280]">Rednote (小红书)</Label>
+                    <Input id="rednoteUrl" name="rednoteUrl" defaultValue={profile?.rednoteUrl ?? ""} placeholder="https://xiaohongshu.com/..."
+                      className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
+                  </div>
+
                   <button type="submit"
-                    className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold py-2.5 rounded-[11px] transition-colors">
+                    className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold py-2.5 rounded-[11px] transition-colors mt-1">
                     Save changes
                   </button>
                 </form>
@@ -112,40 +132,7 @@ export default async function ProfilePage({
             {/* Resume / CV */}
             <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
               <p className="text-base font-bold text-[#1C1C1E] mb-4">Resume / CV</p>
-
-              {/* Drop zone */}
-              <Link href="/onboarding/resume"
-                className="block border-2 border-dashed border-[#F7C99A] bg-[#FFFBF5] rounded-xl p-6 text-center hover:border-[#F97316] transition-colors">
-                <div className="w-11 h-11 rounded-xl bg-[#FFF7ED] flex items-center justify-center mx-auto mb-3 text-[#F97316] text-xl">
-                  ↑
-                </div>
-                <p className="text-sm font-bold text-[#1C1C1E]">
-                  Drop your CV here, or <span className="text-[#F97316]">browse</span>
-                </p>
-                <p className="text-xs text-[#9CA3AF] mt-1">PDF or DOCX, up to 5 MB</p>
-              </Link>
-
-              {/* Existing resume */}
-              {profile?.resumeUrl && (
-                <div className="flex items-center justify-between mt-3 bg-[#F6F4EE] rounded-xl px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-[9px] bg-[#FEE2E2] text-[#DC2626] flex items-center justify-center text-[10px] font-extrabold">
-                      PDF
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-[#1C1C1E]">Resume.pdf</p>
-                      <p className="text-xs text-[#9CA3AF]">Uploaded</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer"
-                      className="text-xs font-bold text-[#F97316] hover:underline">View</a>
-                    <Link href="/onboarding/resume" className="text-xs font-bold text-[#DC2626] hover:underline">
-                      Replace
-                    </Link>
-                  </div>
-                </div>
-              )}
+              <ResumeSection resumeUrl={profile?.resumeUrl} />
             </div>
 
             {/* Tech skills */}

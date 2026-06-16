@@ -1,7 +1,8 @@
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
-import { posts, BLOG_CATEGORIES } from "@/data/posts"
+import { BLOG_CATEGORIES } from "@/data/posts"
+import { getAllBlogPosts } from "@/lib/blog"
 
 export default async function BlogPage({
   searchParams,
@@ -11,13 +12,13 @@ export default async function BlogPage({
   const { cat } = await searchParams
   const activeCat = cat && BLOG_CATEGORIES.includes(cat) ? cat : "All"
 
-  const featured = posts.find((p) => p.featured)
-  const allSorted = [...posts].sort((a, b) => b.date.localeCompare(a.date))
+  const allPosts = await getAllBlogPosts()
+  const featured = allPosts.find((p) => p.featured)
 
   const gridPosts =
     activeCat === "All"
-      ? allSorted.filter((p) => !p.featured)
-      : allSorted.filter((p) => p.category === activeCat)
+      ? allPosts.filter((p) => !p.featured)
+      : allPosts.filter((p) => p.category === activeCat)
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
@@ -74,7 +75,7 @@ export default async function BlogPage({
               <p className="text-[14.5px] text-[#6B7280] leading-relaxed mb-5">{featured.summary}</p>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-9 h-9 rounded-full bg-[#FFF7ED] text-[#C2410C] flex items-center justify-center font-bold text-[13px] shrink-0">
-                  {featured.authorInitials ?? "??"}
+                  {featured.authorInitials}
                 </div>
                 <div>
                   <p className="text-[13.5px] font-bold text-[#1C1C1E]">{featured.author}</p>
