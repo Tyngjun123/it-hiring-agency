@@ -8,6 +8,20 @@ function createPrismaClient() {
   return new PrismaClient({ adapter })
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+// In development, recreate the client if the cached one is missing new models
+// (happens after prisma generate while dev server is running).
+function getOrCreatePrisma(): PrismaClient {
+  if (globalForPrisma.prisma) {
+    // Check if the cached client has the blogPost model; if not, recreate.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((globalForPrisma.prisma as any).blogPost === undefined) {
+      globalForPrisma.prisma = createPrismaClient()
+    }
+    return globalForPrisma.prisma
+  }
+  return createPrismaClient()
+}
+
+export const prisma = getOrCreatePrisma()
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma

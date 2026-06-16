@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { setUserRole } from "@/app/actions/onboarding"
@@ -10,11 +11,15 @@ export default function RoleSelectionPage() {
   const [role, setRole] = useState<"INTERVIEWEE" | "COMPANY" | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { update } = useSession()
 
   async function handleContinue() {
     if (!role) return
     setLoading(true)
     await setUserRole(role)
+    // Refresh the JWT so the new role is in the session cookie before we navigate.
+    // The company layout checks session.user.role === "COMPANY", so we must update first.
+    await update()
     router.push(role === "COMPANY" ? "/company/setup" : "/onboarding/preferences")
   }
 
