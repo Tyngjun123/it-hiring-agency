@@ -2,15 +2,20 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { updateJobStatus, duplicateJob } from "@/app/actions/company"
 
-const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: "bg-green-100 text-green-700",
-  PAUSED: "bg-yellow-100 text-yellow-700",
-  CLOSED: "bg-gray-100 text-gray-500",
-  DRAFT: "bg-blue-100 text-blue-700",
+const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
+  ACTIVE: { label: "Active",  dot: "bg-[#10B981]", bg: "bg-[#ECFDF5]", text: "text-[#047857]" },
+  PAUSED: { label: "Paused",  dot: "bg-[#F59E0B]", bg: "bg-[#FFFBEB]", text: "text-[#92400E]" },
+  DRAFT:  { label: "Draft",   dot: "bg-[#9CA3AF]", bg: "bg-[#F3F4F6]", text: "text-[#6B7280]" },
+  CLOSED: { label: "Closed",  dot: "bg-[#EF4444]", bg: "bg-[#FEF2F2]", text: "text-[#DC2626]" },
+}
+
+function daysAgo(date: Date): string {
+  const days = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24))
+  if (days === 0) return "Today"
+  if (days === 1) return "Yesterday"
+  return `${days}d ago`
 }
 
 export default async function CompanyJobsPage() {
@@ -30,82 +35,174 @@ export default async function CompanyJobsPage() {
   if (!profile) redirect("/company/setup")
 
   const activeCount = profile.jobListings.filter((j) => j.status === "ACTIVE").length
+  const totalApplicants = profile.jobListings.reduce((sum, j) => sum + j._count.applications, 0)
+  const isPro = profile.plan === "PRO"
+  const canPost = isPro || activeCount < 10
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">My Jobs</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {activeCount} / {profile.plan === "FREE" ? "10" : "∞"} active listings
-            {profile.plan === "FREE" && activeCount >= 10 && (
-              <span className="ml-2 text-amber-600 font-medium">— Limit reached</span>
-            )}
-          </p>
+          <h1 className="text-2xl font-extrabold text-[#1C1C1E] tracking-tight">My Jobs</h1>
+          <p className="text-sm text-[#6B7280] mt-0.5">Manage your listings and track applicants</p>
         </div>
-        <Link href="/company/jobs/new">
-          <Button>Post a Job</Button>
-        </Link>
+        {canPost ? (
+          <Link href="/company/jobs/new"
+            className="bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold px-4 py-2.5 rounded-[11px] shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors flex items-center gap-1.5 shrink-0">
+            <span className="text-base leading-none">+</span> Post a Job
+          </Link>
+        ) : (
+          <Link href="/company/billing"
+            className="bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold px-4 py-2.5 rounded-[11px] shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors shrink-0">
+            Upgrade to post more
+          </Link>
+        )}
       </div>
 
+      {/* Stat cards */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          {
+            label: "Active Jobs",
+            value: activeCount,
+            sub: isPro ? "Unlimited" : `of 10 slots`,
+            orange: true,
+          },
+          {
+            label: "Total Applicants",
+            value: totalApplicants,
+            sub: "across all listings",
+            orange: true,
+          },
+          {
+            label: "Total Listings",
+            value: profile.jobListings.length,
+            sub: "all time",
+            orange: false,
+          },
+        ].map(({ label, value, sub, orange }) => (
+          <div key={label} className="bg-white border border-[#EEEBE3] rounded-2xl p-5 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+            <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest">{label}</p>
+            <p className={`text-3xl font-extrabold mt-2 ${orange ? "text-[#F97316]" : "text-[#1C1C1E]"}`}>{value}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-1">{sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Table */}
       {profile.jobListings.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <p>No jobs posted yet</p>
-          <Link href="/company/jobs/new" className="text-sm text-gray-900 font-medium mt-2 block hover:underline">
-            Post your first job →
+        <div className="bg-white border border-[#EEEBE3] rounded-2xl py-20 text-center shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+          <p className="text-[15px] font-bold text-[#1C1C1E]">No jobs posted yet</p>
+          <p className="text-sm text-[#9CA3AF] mt-1 mb-5">Post your first job to start receiving applicants</p>
+          <Link href="/company/jobs/new"
+            className="inline-flex items-center gap-1.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold px-4 py-2.5 rounded-[11px] shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors">
+            <span className="text-base leading-none">+</span> Post a Job
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
-          {profile.jobListings.map((job) => (
-            <div key={job.id} className="bg-white border border-gray-100 rounded-xl p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-medium text-gray-900">{job.title}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[job.status]}`}>
-                      {job.status}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-0.5">{job.location} · RM {job.payRangeFrom.toLocaleString()} – {job.payRangeTo.toLocaleString()}</p>
-                  <p className="text-sm text-gray-400 mt-1">{job._count.applications} applicant{job._count.applications !== 1 ? "s" : ""}</p>
+        <div className="bg-white border border-[#EEEBE3] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+          {/* Table header */}
+          <div className="grid grid-cols-[1fr_120px_100px_72px_44px] items-center px-5 py-3 bg-[#FBFAF6] border-b border-[#F0EEE8]">
+            <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest">Job Title</span>
+            <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest">Status</span>
+            <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest">Applicants</span>
+            <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest">Posted</span>
+            <span />
+          </div>
+
+          {profile.jobListings.map((job, idx) => {
+            const sc = STATUS_CONFIG[job.status] ?? STATUS_CONFIG.DRAFT
+            return (
+              <div key={job.id}
+                className={`grid grid-cols-[1fr_120px_100px_72px_44px] items-center px-5 py-4 hover:bg-[#FDFCFA] transition-colors ${
+                  idx !== profile.jobListings.length - 1 ? "border-b border-[#F4F1EA]" : ""
+                }`}>
+
+                {/* Title + location */}
+                <div className="min-w-0 pr-4">
+                  <Link href={`/company/jobs/${job.id}/edit`}
+                    className="text-[14px] font-bold text-[#1C1C1E] hover:text-[#F97316] truncate block transition-colors">
+                    {job.title}
+                  </Link>
+                  <p className="text-[12px] text-[#9CA3AF] truncate mt-0.5">{job.location}</p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                  <Link href={`/company/jobs/${job.id}/applicants`}>
-                    <Button variant="outline" size="sm">Applicants</Button>
-                  </Link>
-                  <Link href={`/company/jobs/${job.id}/edit`}>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </Link>
+                {/* Status badge */}
+                <div>
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full ${sc.bg} ${sc.text}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${sc.dot}`} />
+                    {sc.label}
+                  </span>
+                </div>
 
-                  {job.status === "ACTIVE" && (
-                    <form action={async () => { "use server"; await updateJobStatus(job.id, "PAUSED") }}>
-                      <Button variant="outline" size="sm" type="submit">Pause</Button>
-                    </form>
-                  )}
-                  {job.status === "PAUSED" && (
-                    <form action={async () => { "use server"; await updateJobStatus(job.id, "ACTIVE") }}>
-                      <Button variant="outline" size="sm" type="submit">Activate</Button>
-                    </form>
-                  )}
-                  {job.status !== "CLOSED" && (
-                    <form action={async () => { "use server"; await updateJobStatus(job.id, "CLOSED") }}>
-                      <Button variant="outline" size="sm" type="submit" className="text-red-500 hover:text-red-600">Close</Button>
-                    </form>
-                  )}
-                  <form action={async () => { "use server"; await duplicateJob(job.id) }}>
-                    <Button variant="outline" size="sm" type="submit">Duplicate</Button>
-                  </form>
-                  {job.status === "ACTIVE" && (
-                    <Link href={`/company/jobs/${job.id}/boost`}>
-                      <Button variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50">Boost</Button>
-                    </Link>
-                  )}
+                {/* Applicants */}
+                <div>
+                  <Link href={`/company/jobs/${job.id}/applicants`}
+                    className="text-[14px] font-bold text-[#F97316] hover:underline">
+                    {job._count.applications}
+                  </Link>
+                </div>
+
+                {/* Posted */}
+                <div>
+                  <span className="text-[12px] text-[#9CA3AF]">{daysAgo(job.createdAt)}</span>
+                </div>
+
+                {/* ··· menu */}
+                <div className="relative flex justify-end">
+                  <details className="group">
+                    <summary className="list-none cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F4F2EC] transition-colors text-[#C7C3B9] font-bold text-[18px] leading-none select-none">
+                      ···
+                    </summary>
+                    <div className="absolute right-0 top-9 z-20 bg-white border border-[#EAE8E2] rounded-xl shadow-[0_4px_16px_rgba(28,28,30,0.12)] p-1 min-w-[150px]">
+                      <Link href={`/company/jobs/${job.id}/applicants`}
+                        className="flex items-center text-sm font-semibold text-[#1C1C1E] px-3 py-2 rounded-lg hover:bg-[#F4F2EC] transition-colors">
+                        Applicants
+                      </Link>
+                      <Link href={`/company/jobs/${job.id}/edit`}
+                        className="flex items-center text-sm font-semibold text-[#1C1C1E] px-3 py-2 rounded-lg hover:bg-[#F4F2EC] transition-colors">
+                        Edit
+                      </Link>
+                      {job.status === "ACTIVE" && (
+                        <form action={async () => { "use server"; await updateJobStatus(job.id, "PAUSED") }}>
+                          <button type="submit" className="w-full text-left text-sm font-semibold text-[#1C1C1E] px-3 py-2 rounded-lg hover:bg-[#F4F2EC] transition-colors">
+                            Pause
+                          </button>
+                        </form>
+                      )}
+                      {job.status === "PAUSED" && (
+                        <form action={async () => { "use server"; await updateJobStatus(job.id, "ACTIVE") }}>
+                          <button type="submit" className="w-full text-left text-sm font-semibold text-[#1C1C1E] px-3 py-2 rounded-lg hover:bg-[#F4F2EC] transition-colors">
+                            Activate
+                          </button>
+                        </form>
+                      )}
+                      <form action={async () => { "use server"; await duplicateJob(job.id) }}>
+                        <button type="submit" className="w-full text-left text-sm font-semibold text-[#1C1C1E] px-3 py-2 rounded-lg hover:bg-[#F4F2EC] transition-colors">
+                          Duplicate
+                        </button>
+                      </form>
+                      {job.status === "ACTIVE" && (
+                        <Link href={`/company/jobs/${job.id}/boost`}
+                          className="flex items-center text-sm font-semibold text-[#EA580C] px-3 py-2 rounded-lg hover:bg-[#FFF7ED] transition-colors">
+                          Boost ↑
+                        </Link>
+                      )}
+                      {job.status !== "CLOSED" && (
+                        <form action={async () => { "use server"; await updateJobStatus(job.id, "CLOSED") }}>
+                          <button type="submit" className="w-full text-left text-sm font-semibold text-[#DC2626] px-3 py-2 rounded-lg hover:bg-[#FEF2F2] transition-colors">
+                            Close
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </details>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

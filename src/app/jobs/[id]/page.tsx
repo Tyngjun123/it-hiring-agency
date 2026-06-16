@@ -3,15 +3,30 @@ import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
-import { Button } from "@/components/ui/button"
+import Footer from "@/components/footer"
 import { applyToJob } from "@/app/actions/jobs"
 
-function formatPay(from: number, to: number) {
-  return `RM ${from.toLocaleString()} – RM ${to.toLocaleString()}`
+const AVATAR_PALETTE = [
+  { bg: "#E8FBEF", fg: "#067647" },
+  { bg: "#FFF7ED", fg: "#EA580C" },
+  { bg: "#EFF6FF", fg: "#1D4ED8" },
+  { bg: "#FEF2F2", fg: "#DC2626" },
+  { bg: "#F5F3FF", fg: "#7C3AED" },
+  { bg: "#ECFDF5", fg: "#059669" },
+]
+
+function avatarFor(name: string) {
+  return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length]
 }
 
 const WORK_TYPE_LABEL: Record<string, string> = {
   ONSITE: "On-site", REMOTE: "Remote", HYBRID: "Hybrid",
+}
+
+const WORK_TYPE_STYLE: Record<string, string> = {
+  REMOTE: "bg-[#ECFDF5] text-[#047857]",
+  HYBRID: "bg-[#EFF6FF] text-[#1D4ED8]",
+  ONSITE: "bg-[#F3F4F6] text-[#4B5563]",
 }
 
 const PAY_TYPE_LABEL: Record<string, string> = {
@@ -32,6 +47,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             take: 3,
             include: { reviewer: { include: { user: { select: { name: true } } } } },
           },
+          _count: { select: { jobListings: { where: { status: "ACTIVE" } } } },
         },
       },
     },
@@ -39,7 +55,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   if (!job) notFound()
 
-  // Check if already applied
   let alreadyApplied = false
   if (session?.user?.id && session.user.role === "INTERVIEWEE") {
     const profile = await prisma.intervieweeProfile.findUnique({
@@ -53,118 +68,176 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     }
   }
 
-  const avgRating = job.company.reviews.length > 0
-    ? (job.company.reviews.reduce((sum, r) => sum + r.rating, 0) / job.company.reviews.length).toFixed(1)
-    : null
+  const avgRating =
+    job.company.reviews.length > 0
+      ? (job.company.reviews.reduce((sum, r) => sum + r.rating, 0) / job.company.reviews.length).toFixed(1)
+      : null
 
   const applyAction = async () => {
     "use server"
     await applyToJob(id)
   }
 
+  const av = avatarFor(job.company.companyName)
+  const workBadge = WORK_TYPE_STYLE[job.workType] ?? "bg-[#F3F4F6] text-[#4B5563]"
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
 
         {/* Back */}
-        <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">← Back to jobs</Link>
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#9CA3AF] hover:text-[#1C1C1E] transition-colors mb-6">
+          ← Back to jobs
+        </Link>
 
-        {/* Job header */}
-        <div className="bg-white border border-gray-100 rounded-xl p-6 space-y-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">{job.title}</h1>
-            {!job.hideCompanyInfo && (
-              <p className="text-gray-500 mt-1">{job.company.companyName}</p>
-            )}
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
 
-          <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-            <span>{job.location}</span>
-            <span>·</span>
-            <span>{WORK_TYPE_LABEL[job.workType]}</span>
-            <span>·</span>
-            <span className="font-medium text-gray-900">
-              {formatPay(job.payRangeFrom, job.payRangeTo)} {PAY_TYPE_LABEL[job.payType]}
-            </span>
-          </div>
+          {/* ── Left: main content ── */}
+          <div className="space-y-4">
 
-          {/* Selling points */}
-          <div className="flex flex-wrap gap-2">
-            {[job.sellingPoint1, job.sellingPoint2, job.sellingPoint3].map((point, i) => (
-              <span key={i} className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                {point}
-              </span>
-            ))}
-          </div>
+            {/* Job header card */}
+            <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
 
-          {/* Apply button */}
-          {session?.user?.role === "INTERVIEWEE" && (
-            alreadyApplied ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
-                ✓ You have applied for this role
+              {/* Company row */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-11 h-11 rounded-[13px] flex items-center justify-center font-extrabold text-lg shrink-0"
+                  style={{ background: av.bg, color: av.fg }}>
+                  {job.company.companyName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <Link href={`/companies/${job.company.id}`}
+                    className="text-sm font-bold text-[#6B7280] hover:text-[#F97316] transition-colors">
+                    {job.hideCompanyInfo ? "Confidential company" : job.company.companyName}
+                  </Link>
+                  {avgRating && (
+                    <p className="text-xs text-[#9CA3AF]">★ {avgRating} · {job.company.reviews.length} review{job.company.reviews.length !== 1 ? "s" : ""}</p>
+                  )}
+                </div>
               </div>
-            ) : (
-              <form action={applyAction}>
-                <Button type="submit" className="w-full sm:w-auto">Apply Now</Button>
-              </form>
-            )
-          )}
-          {!session?.user && (
-            <Link href={`/login?callbackUrl=/jobs/${id}`}>
-              <Button className="w-full sm:w-auto">Sign in to Apply</Button>
-            </Link>
-          )}
-        </div>
 
-        {/* Description */}
-        <div className="bg-white border border-gray-100 rounded-xl p-6 space-y-3">
-          <h2 className="font-semibold text-gray-900">Job Description</h2>
-          <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {job.description}
-          </div>
-        </div>
+              {/* Title */}
+              <h1 className="text-2xl font-extrabold text-[#1C1C1E] tracking-tight leading-tight">{job.title}</h1>
 
-        {/* Company info */}
-        {!job.hideCompanyInfo && (
-          <div className="bg-white border border-gray-100 rounded-xl p-6 space-y-3">
-            <h2 className="font-semibold text-gray-900">About {job.company.companyName}</h2>
-            {job.company.description && (
-              <p className="text-sm text-gray-600">{job.company.description}</p>
-            )}
-            {job.company.website && (
-              <a href={job.company.website} target="_blank" rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:underline">
-                {job.company.website}
-              </a>
-            )}
-            {avgRating && (
-              <p className="text-sm text-gray-500">
-                ★ {avgRating} · {job.company.reviews.length} review{job.company.reviews.length !== 1 ? "s" : ""}
-              </p>
-            )}
+              {/* Badges row */}
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${workBadge}`}>
+                  {WORK_TYPE_LABEL[job.workType]}
+                </span>
+                <span className="text-xs font-bold bg-[#F3F4F6] text-[#4B5563] px-2.5 py-1 rounded-full">
+                  {job.location}
+                </span>
+              </div>
 
-            {job.company.reviews.length > 0 && (
-              <div className="space-y-3 pt-2 border-t border-gray-100">
-                {job.company.reviews.map((r) => (
-                  <div key={r.id}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">{r.title}</span>
-                      <span className="text-xs text-gray-400">{"★".repeat(r.rating)}</span>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-0.5">{r.body}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {r.reviewer.user.name ?? "Anonymous"}
-                    </p>
-                  </div>
+              {/* Salary highlight */}
+              <div className="mt-4 bg-[#FFF7ED] border border-[#FBDDBE] rounded-xl px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-[#C2410C] uppercase tracking-widest">Monthly Salary</p>
+                  <p className="text-xl font-extrabold text-[#F97316] mt-0.5">
+                    RM {job.payRangeFrom.toLocaleString()} – RM {job.payRangeTo.toLocaleString()}
+                  </p>
+                </div>
+                <span className="text-xs text-[#C2410C] font-medium">{PAY_TYPE_LABEL[job.payType]}</span>
+              </div>
+
+              {/* Selling point pills */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                {[job.sellingPoint1, job.sellingPoint2, job.sellingPoint3].filter(Boolean).map((point, i) => (
+                  <span key={i} className="text-xs font-semibold bg-[#FFF7ED] text-[#C2410C] border border-[#FBDDBE] px-3 py-1 rounded-full">
+                    {point}
+                  </span>
                 ))}
               </div>
-            )}
+            </div>
+
+            {/* Description */}
+            <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+              <h2 className="text-base font-bold text-[#1C1C1E] mb-4">Job Description</h2>
+              <div className="text-sm text-[#4B5563] whitespace-pre-wrap leading-relaxed">
+                {job.description}
+              </div>
+            </div>
+
           </div>
-        )}
+
+          {/* ── Right: sticky sidebar ── */}
+          <div className="space-y-4 lg:sticky lg:top-6">
+
+            {/* Apply card */}
+            <div className="bg-white border border-[#EEEBE3] rounded-2xl p-5 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+              <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-3">Apply for this role</p>
+
+              {session?.user?.role === "INTERVIEWEE" ? (
+                alreadyApplied ? (
+                  <div className="bg-[#ECFDF5] border border-[#A7F3D0] rounded-xl px-4 py-3 text-sm font-bold text-[#047857] text-center">
+                    ✓ Applied
+                  </div>
+                ) : (
+                  <form action={applyAction}>
+                    <button type="submit"
+                      className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors text-sm">
+                      Apply Now
+                    </button>
+                  </form>
+                )
+              ) : session?.user?.role === "COMPANY" ? (
+                <p className="text-xs text-[#9CA3AF] text-center">Company accounts cannot apply</p>
+              ) : (
+                <Link href={`/login?callbackUrl=/jobs/${id}`}
+                  className="block w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors text-sm text-center">
+                  Sign in to Apply
+                </Link>
+              )}
+
+              <Link href={`/companies/${job.company.id}`}
+                className="block mt-3 text-center text-xs font-semibold text-[#9CA3AF] hover:text-[#F97316] transition-colors">
+                View company profile →
+              </Link>
+            </div>
+
+            {/* Company card */}
+            {!job.hideCompanyInfo && (
+              <div className="bg-white border border-[#EEEBE3] rounded-2xl p-5 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-[12px] flex items-center justify-center font-extrabold text-lg shrink-0"
+                    style={{ background: av.bg, color: av.fg }}>
+                    {job.company.companyName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#1C1C1E]">{job.company.companyName}</p>
+                    <p className="text-xs text-[#F97316] font-bold">{job.company._count.jobListings} open role{job.company._count.jobListings !== 1 ? "s" : ""}</p>
+                  </div>
+                </div>
+
+                {job.company.description && (
+                  <p className="text-xs text-[#6B7280] leading-relaxed line-clamp-3">{job.company.description}</p>
+                )}
+
+                {job.company.website && (
+                  <a href={job.company.website} target="_blank" rel="noopener noreferrer"
+                    className="mt-2 text-xs font-semibold text-[#F97316] hover:underline block truncate">
+                    {job.company.website.replace(/^https?:\/\//, "")} ↗
+                  </a>
+                )}
+
+                {avgRating && (
+                  <div className="mt-3 pt-3 border-t border-[#F4F1EA]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[#F59E0B] text-sm">★</span>
+                      <span className="text-sm font-bold text-[#1C1C1E]">{avgRating}</span>
+                      <span className="text-xs text-[#9CA3AF]">· {job.company.reviews.length} review{job.company.reviews.length !== 1 ? "s" : ""}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+          </div>
+        </div>
 
       </main>
+      <Footer />
     </div>
   )
 }
