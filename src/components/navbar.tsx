@@ -66,7 +66,7 @@ export default async function Navbar() {
           )}
           <Link href="/blog"
             className="text-sm font-semibold text-[#6B7280] hover:text-[#1C1C1E] hover:bg-[#FAFAF8] px-3 py-1.5 rounded-lg transition-colors">
-            Career Tips
+            Blog
           </Link>
           {isAdmin && (
             <Link href="/admin"
