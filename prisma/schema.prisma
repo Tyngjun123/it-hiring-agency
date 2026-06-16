@@ -1,0 +1,378 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  INTERVIEWEE
+  COMPANY
+}
+
+enum JobType {
+  PROJECT_COORDINATOR
+  BUSINESS_ANALYST
+  QUALITY_ASSURANCE
+  PROJECT_MANAGER
+  APPLICATION_SYSTEM_SUPPORT
+  INFRASTRUCTURE
+  BACKEND_DEVELOPER
+  FRONTEND_DEVELOPER
+  FULLSTACK_DEVELOPER
+  EXPLORING
+}
+
+enum WorkType {
+  ONSITE
+  REMOTE
+  HYBRID
+}
+
+enum PayType {
+  MONTHLY
+  HOURLY
+  CONTRACT
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  SUCCESS
+  FAIL
+}
+
+enum BoostType {
+  PINNED_SEARCH
+  HOMEPAGE_BANNER
+}
+
+enum BoostStatus {
+  ACTIVE
+  EXPIRED
+}
+
+enum RewardStatus {
+  PENDING
+  VERIFIED
+  PAID
+  REJECTED
+}
+
+enum PaymentType {
+  SUBSCRIPTION
+  BOOST_AD
+  SUCCESS_FEE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum CompanyPlan {
+  FREE
+  PRO
+}
+
+// ─── Auth.js Required Models ─────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  name          String?
+  image         String?
+  passwordHash  String?   @map("password_hash")
+  role          Role?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  accounts           Account[]
+  sessions           Session[]
+  intervieweeProfile IntervieweeProfile?
+  companyProfile     CompanyProfile?
+  referralLink       ReferralLink?
+  referralRewards    ReferralReward[] @relation("ReferrerRewards")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── Interviewee ─────────────────────────────────────────────────────────────
+
+model IntervieweeProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique @map("user_id")
+  phone             String?
+  whatsappNumber    String?  @map("whatsapp_number")
+  linkedinUrl       String?  @map("linkedin_url")
+  resumeUrl         String?  @map("resume_url")
+  bankName          String?  @map("bank_name")
+  bankAccountNumber String?  @map("bank_account_number")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobPreferences   JobPreference[]
+  techSkills       TechSkill[]
+  applications     Application[]
+  companyReviews   CompanyReview[]
+  referralTracking ReferralTracking?
+  referralRewards  ReferralReward[]   @relation("ReferredUserRewards")
+
+  @@map("interviewee_profiles")
+}
+
+model JobPreference {
+  id        String  @id @default(cuid())
+  profileId String  @map("profile_id")
+  jobType   JobType @map("job_type")
+  order     Int
+
+  profile IntervieweeProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, jobType])
+  @@map("job_preferences")
+}
+
+model TechSkill {
+  id        String @id @default(cuid())
+  profileId String @map("profile_id")
+  language  String
+  yearsExp  Int    @map("years_exp")
+
+  profile IntervieweeProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("tech_skills")
+}
+
+// ─── Company ──────────────────────────────────────────────────────────────────
+
+model CompanyProfile {
+  id                        String      @id @default(cuid())
+  userId                    String      @unique @map("user_id")
+  companyName               String      @map("company_name")
+  logoUrl                   String?     @map("logo_url")
+  description               String?
+  website                   String?
+  contactEmail              String      @map("contact_email")
+  plan                      CompanyPlan @default(FREE)
+  planStatus                String      @default("active") @map("plan_status")
+  billingStart              DateTime?   @map("billing_start")
+  optedIntoJobHunterService Boolean     @default(false) @map("opted_into_job_hunter_service")
+  createdAt                 DateTime    @default(now()) @map("created_at")
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobListings JobListing[]
+  reviews     CompanyReview[]
+  payments    Payment[]
+  boostAds    BoostAd[]
+
+  @@map("company_profiles")
+}
+
+// ─── Job Listings ─────────────────────────────────────────────────────────────
+
+model JobListing {
+  id              String        @id @default(cuid())
+  companyId       String        @map("company_id")
+  title           String
+  location        String
+  description     String        @db.Text
+  workType        WorkType      @map("work_type")
+  payType         PayType       @default(MONTHLY) @map("pay_type")
+  payRangeFrom    Int           @map("pay_range_from")
+  payRangeTo      Int           @map("pay_range_to")
+  sellingPoint1   String        @map("selling_point_1")
+  sellingPoint2   String        @map("selling_point_2")
+  sellingPoint3   String        @map("selling_point_3")
+  hideCompanyInfo Boolean       @default(false) @map("hide_company_info")
+  status          ListingStatus @default(DRAFT)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  expiresAt       DateTime?     @map("expires_at")
+
+  company      CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications Application[]
+  boostAds     BoostAd[]
+
+  @@map("job_listings")
+}
+
+// ─── Applications ─────────────────────────────────────────────────────────────
+
+model Application {
+  id             String            @id @default(cuid())
+  jobId          String            @map("job_id")
+  intervieweeId  String            @map("interviewee_id")
+  referralCode   String?           @map("referral_code")
+  status         ApplicationStatus @default(PENDING)
+  appliedAt      DateTime          @default(now()) @map("applied_at")
+  followupSentAt DateTime?         @map("followup_sent_at")
+  resultMarkedAt DateTime?         @map("result_marked_at")
+
+  jobListing     JobListing         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  interviewee    IntervieweeProfile @relation(fields: [intervieweeId], references: [id], onDelete: Cascade)
+  referralReward ReferralReward?
+
+  @@unique([jobId, intervieweeId])
+  @@map("applications")
+}
+
+// ─── Reviews ──────────────────────────────────────────────────────────────────
+
+model CompanyReview {
+  id         String   @id @default(cuid())
+  companyId  String   @map("company_id")
+  reviewerId String   @map("reviewer_id")
+  rating     Int
+  title      String
+  body       String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  company  CompanyProfile     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  reviewer IntervieweeProfile @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@map("company_reviews")
+}
+
+// ─── Boost Ads ────────────────────────────────────────────────────────────────
+
+model BoostAd {
+  id           String      @id @default(cuid())
+  jobListingId String      @map("job_listing_id")
+  companyId    String      @map("company_id")
+  boostType    BoostType   @map("boost_type")
+  pricePaid    Decimal     @map("price_paid") @db.Decimal(10, 2)
+  startsAt     DateTime    @map("starts_at")
+  expiresAt    DateTime    @map("expires_at")
+  status       BoostStatus @default(ACTIVE)
+  paymentRef   String?     @map("payment_ref")
+
+  jobListing JobListing     @relation(fields: [jobListingId], references: [id], onDelete: Cascade)
+  company    CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("boost_ads")
+}
+
+// ─── Referral System ──────────────────────────────────────────────────────────
+
+model ReferralLink {
+  id             String   @id @default(cuid())
+  referrerUserId String   @unique @map("referrer_user_id")
+  referralCode   String   @unique @map("referral_code")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  referrer  User               @relation(fields: [referrerUserId], references: [id], onDelete: Cascade)
+  trackings ReferralTracking[]
+
+  @@map("referral_links")
+}
+
+model ReferralTracking {
+  id             String   @id @default(cuid())
+  referralCode   String   @map("referral_code")
+  referredUserId String   @unique @map("referred_user_id")
+  registeredAt   DateTime @default(now()) @map("registered_at")
+
+  referralLink    ReferralLink       @relation(fields: [referralCode], references: [referralCode])
+  referredProfile IntervieweeProfile @relation(fields: [referredUserId], references: [id], onDelete: Cascade)
+
+  @@map("referral_trackings")
+}
+
+model ReferralReward {
+  id                String       @id @default(cuid())
+  referrerUserId    String       @map("referrer_user_id")
+  referredUserId    String       @map("referred_user_id")
+  applicationId     String       @unique @map("application_id")
+  amount            Decimal      @default(100.00) @db.Decimal(10, 2)
+  status            RewardStatus @default(PENDING)
+  triggeredAt       DateTime     @default(now()) @map("triggered_at")
+  holdUntil         DateTime     @map("hold_until")
+  paidAt            DateTime?    @map("paid_at")
+  bankName          String?      @map("bank_name")
+  bankAccountNumber String?      @map("bank_account_number")
+
+  referrer    User               @relation("ReferrerRewards", fields: [referrerUserId], references: [id])
+  referred    IntervieweeProfile @relation("ReferredUserRewards", fields: [referredUserId], references: [id])
+  application Application        @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("referral_rewards")
+}
+
+// ─── Payments ─────────────────────────────────────────────────────────────────
+
+model Payment {
+  id         String        @id @default(cuid())
+  companyId  String        @map("company_id")
+  type       PaymentType
+  amount     Decimal       @db.Decimal(10, 2)
+  billplzRef String?       @map("billplz_ref")
+  status     PaymentStatus @default(PENDING)
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  company CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+
+model AdminNote {
+  id         String   @id @default(cuid())
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  note       String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("admin_notes")
+}
