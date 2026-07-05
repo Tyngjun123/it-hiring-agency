@@ -1,6 +1,6 @@
 "use server"
 
-import { resend } from "@/lib/resend"
+import { resend, FROM_EMAIL } from "@/lib/resend"
 import { redirect } from "next/navigation"
 
 export async function sendContactMessage(formData: FormData) {
@@ -16,7 +16,7 @@ export async function sendContactMessage(formData: FormData) {
 
   try {
     await resend.emails.send({
-      from: "StackTalentx <onboarding@resend.dev>",
+      from: FROM_EMAIL,
       to: "support@stacktalentx.com",
       replyTo: email,
       subject: `[StackTalentx Contact] ${topic} — ${name}`,

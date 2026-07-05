@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { isAdminEmail } from "@/lib/admin"
+import { resend, FROM_EMAIL } from "@/lib/resend"
 
 async function requireAdmin() {
   const session = await auth()
@@ -217,6 +218,47 @@ export async function resetEmailTemplate(key: string) {
   await requireAdmin()
   await prisma.emailTemplate.deleteMany({ where: { key } })
   revalidatePath("/admin/emails")
+}
+
+// ── Test email (verify Resend / sending domain) ───────────────────────────────
+
+export async function sendTestEmail(formData: FormData) {
+  await requireAdmin()
+
+  const to = (formData.get("testEmail") as string)?.trim()
+  if (!to || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
+    redirect("/admin/settings?testemail=invalid")
+  }
+
+  let ok = true
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: "✅ StackTalentx — Test email",
+      html: `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:24px">
+          <h2 style="margin:0 0 12px;color:#1C1C1E">It works! 🎉</h2>
+          <p style="font-size:15px;line-height:1.6;color:#3A3A3C;margin:0 0 12px">
+            This is a test email from your StackTalentx admin panel. If you're reading this,
+            your sending domain is verified and emails are being delivered correctly.
+          </p>
+          <p style="font-size:13px;color:#9CA3AF;margin:0">
+            Sent from <strong>${FROM_EMAIL}</strong>
+          </p>
+        </div>
+      `,
+    })
+    if (error) {
+      console.error("Test email error:", error)
+      ok = false
+    }
+  } catch (err) {
+    console.error("Test email threw:", err)
+    ok = false
+  }
+
+  redirect(`/admin/settings?testemail=${ok ? "sent" : "error"}&to=${encodeURIComponent(to)}`)
 }
 
 // ── Job Moderation ────────────────────────────────────────────────────────────

@@ -1,19 +1,22 @@
 export const dynamic = "force-dynamic"
 
+import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { saveSiteSettings, toggleMaintenanceMode, toggleMaxPlan, toggleProPlan } from "@/app/actions/cms"
+import { FROM_EMAIL } from "@/lib/resend"
+import { saveSiteSettings, toggleMaintenanceMode, toggleMaxPlan, toggleProPlan, sendTestEmail } from "@/app/actions/cms"
 
 export default async function AdminSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; maintenance?: string; maxplan?: string; proplan?: string }>
+  searchParams: Promise<{ saved?: string; maintenance?: string; maxplan?: string; proplan?: string; testemail?: string; to?: string }>
 }) {
-  const { saved, maintenance, maxplan, proplan } = await searchParams
+  const { saved, maintenance, maxplan, proplan, testemail, to } = await searchParams
+  const session = await auth()
   const config = await prisma.siteConfig.findUnique({ where: { id: "singleton" } })
   const isMaintenanceOn = config?.maintenanceMode ?? false
   const isMaxPlanOn = config?.maxPlanEnabled ?? false
@@ -67,6 +70,21 @@ export default async function AdminSettingsPage({
         {proplan === "off" && (
           <div className="bg-[#FFF7ED] border border-[#FBDDBE] rounded-xl px-4 py-3 text-sm text-[#C2410C] font-medium">
             Pro plan is now hidden — public sees &ldquo;Coming soon&rdquo;. The backend stays ready.
+          </div>
+        )}
+        {testemail === "sent" && (
+          <div className="bg-[#ECFDF5] border border-[#A7F3D0] rounded-xl px-4 py-3 text-sm text-[#047857] font-medium">
+            Test email sent to {to}. Check the inbox (and spam folder) in a moment.
+          </div>
+        )}
+        {testemail === "error" && (
+          <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-4 py-3 text-sm text-[#DC2626] font-medium">
+            Failed to send test email to {to}. Check that the Resend domain is verified and RESEND_API_KEY is set.
+          </div>
+        )}
+        {testemail === "invalid" && (
+          <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-4 py-3 text-sm text-[#DC2626] font-medium">
+            Please enter a valid email address.
           </div>
         )}
 
@@ -187,6 +205,32 @@ export default async function AdminSettingsPage({
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Test email — verify the sending domain works */}
+        <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">✉️</div>
+            <h2 className="font-extrabold text-[#1C1C1E]">Send a test email</h2>
+          </div>
+          <p className="text-sm text-[#6B7280]">
+            Sends a test message from <span className="font-semibold text-[#3A3A3C]">{FROM_EMAIL}</span> to
+            the address below, so you can confirm delivery is working.
+          </p>
+          <form action={sendTestEmail} className="flex flex-col sm:flex-row gap-3">
+            <Input
+              name="testEmail"
+              type="email"
+              required
+              placeholder="you@example.com"
+              defaultValue={session?.user?.email ?? ""}
+              className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] flex-1"
+            />
+            <Button type="submit"
+              className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold rounded-[11px] h-11 px-6 shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors shrink-0">
+              Send test
+            </Button>
+          </form>
         </div>
 
         {/* Main settings form */}
