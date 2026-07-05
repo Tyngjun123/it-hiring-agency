@@ -2,20 +2,73 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { getSiteConfig } from "@/lib/site-config"
 
-const FREE_FEATURES = [
-  "Up to 10 active job listings",
-  "Unlimited applicants per listing",
-  "Application inbox with status tracking",
-  "Email notifications on new applicants",
-  "Company profile page",
-]
+type Plan = {
+  name: string
+  price: string
+  period: string
+  tagline: string
+  features: string[]
+  bestFor: string
+  cta: { label: string; href: string }
+  highlight?: boolean
+  badge?: string
+  dark?: boolean
+  flag?: "pro" | "max" // gated behind a site-config enable flag; "Coming soon" until on
+}
 
-const PRO_FEATURES = [
-  "Unlimited active job listings",
-  "Everything in Free",
-  "Priority support",
-  "Early access to new features",
+const PLANS: Plan[] = [
+  {
+    name: "Free",
+    price: "RM 0",
+    period: "Forever free",
+    tagline: "Try the platform with no commitment.",
+    features: [
+      "Up to 10 active job listings",
+      "Unlimited applicants per listing",
+      "Application inbox with status tracking",
+      "Email notifications on new applicants",
+      "Company profile page",
+    ],
+    bestFor: "Companies just getting started",
+    cta: { label: "Get started free", href: "/register?role=COMPANY" },
+  },
+  {
+    name: "Pro",
+    price: "RM 200",
+    period: "per month",
+    tagline: "Perfect for startups & small tech teams hiring regularly.",
+    features: [
+      "Up to 30 job postings per month",
+      "Monthly curated IT talent list (10–20 candidates)",
+      "Access to active candidate updates",
+      "System feedback channel",
+    ],
+    bestFor: "Companies hiring 1–3 roles/month",
+    cta: { label: "Upgrade to Pro", href: "/company/billing" },
+    highlight: true,
+    badge: "Most popular",
+    flag: "pro",
+  },
+  {
+    name: "Max",
+    price: "RM 400",
+    period: "per month",
+    tagline: "Built for teams that want continuous hiring support.",
+    features: [
+      "Unlimited job postings",
+      "50–80 curated IT talents monthly",
+      "Priority access to new candidates (before Pro users)",
+      "Talent matching priority queue",
+      "10 job boost credits / month",
+      "Dedicated account manager support",
+    ],
+    bestFor: "Companies actively scaling tech teams",
+    cta: { label: "Choose Max", href: "/company/billing" },
+    dark: true,
+    flag: "max",
+  },
 ]
 
 const BOOST_FEATURES = [
@@ -25,87 +78,122 @@ const BOOST_FEATURES = [
   "Per listing — no subscription needed",
 ]
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const config = await getSiteConfig()
+  const maxPlanEnabled = config?.maxPlanEnabled ?? false
+  const proPlanEnabled = config?.proPlanEnabled ?? false
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-16 space-y-12">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-16 space-y-12">
 
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Simple, transparent pricing</h1>
-          <p className="text-gray-500">Start free. Upgrade when you&apos;re ready.</p>
+          <h1 className="text-[32px] font-extrabold text-[#1C1C1E] tracking-[-0.03em]">Simple, transparent pricing</h1>
+          <p className="text-[#6B7280]">Start free. Upgrade when you&apos;re ready to hire faster.</p>
         </div>
 
         {/* Plan cards */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          {PLANS.map((plan) => {
+            const locked =
+              (plan.flag === "pro" && !proPlanEnabled) ||
+              (plan.flag === "max" && !maxPlanEnabled)
+            return (
+            <div
+              key={plan.name}
+              className={`relative flex flex-col rounded-2xl p-7 ${
+                plan.dark
+                  ? "bg-[#1C1C1E] text-white"
+                  : plan.highlight
+                    ? "bg-white border-2 border-[#F97316] shadow-[0_18px_44px_rgba(249,115,22,0.16)]"
+                    : "bg-white border border-[#EAE8E2]"
+              }`}
+            >
+              {plan.badge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F97316] text-white text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(249,115,22,0.35)]">
+                  {plan.badge}
+                </div>
+              )}
 
-          {/* Free */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 space-y-6">
-            <div>
-              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Free</p>
-              <p className="text-4xl font-bold text-gray-900 mt-1">RM 0</p>
-              <p className="text-sm text-gray-400 mt-1">Forever free</p>
-            </div>
-            <ul className="space-y-2.5">
-              {FREE_FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-gray-600">
-                  <span className="text-emerald-500 mt-0.5 shrink-0">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/register?role=COMPANY">
-              <Button variant="outline" className="w-full">Get started free</Button>
-            </Link>
-          </div>
+              <div>
+                <p className={`text-xs font-bold uppercase tracking-wide ${plan.dark ? "text-[#F9B179]" : "text-[#C2410C]"}`}>
+                  {plan.name}
+                </p>
+                <p className={`text-[34px] font-extrabold mt-1 ${plan.dark ? "text-white" : "text-[#1C1C1E]"}`}>{plan.price}</p>
+                <p className={`text-sm mt-1 ${plan.dark ? "text-[#9CA3AF]" : "text-[#9CA3AF]"}`}>{plan.period}</p>
+                <p className={`text-[13.5px] leading-relaxed mt-3 ${plan.dark ? "text-[#C7C3B8]" : "text-[#6B7280]"}`}>{plan.tagline}</p>
+              </div>
 
-          {/* Pro */}
-          <div className="bg-gray-900 text-white rounded-2xl p-8 space-y-6 relative overflow-hidden">
-            <div className="absolute top-4 right-4 bg-emerald-500 text-white text-xs font-medium px-2.5 py-1 rounded-full">
-              Most popular
+              <div className={`h-px my-5 ${plan.dark ? "bg-white/10" : "bg-[#F0EEE8]"}`} />
+
+              <p className={`text-[11px] font-bold uppercase tracking-wide mb-3 ${plan.dark ? "text-[#9CA3AF]" : "text-[#9A968C]"}`}>
+                Includes
+              </p>
+              <ul className="space-y-2.5 flex-1">
+                {plan.features.map((f) => (
+                  <li key={f} className={`flex items-start gap-2.5 text-[13.5px] ${plan.dark ? "text-[#E5E2DA]" : "text-[#3A3A3C]"}`}>
+                    <span className={`mt-0.5 shrink-0 font-bold ${plan.dark ? "text-[#F9B179]" : "text-[#F97316]"}`}>✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <p className={`text-[12.5px] mt-5 mb-5 ${plan.dark ? "text-[#9CA3AF]" : "text-[#9A968C]"}`}>
+                <span className="font-bold">Best for:</span> {plan.bestFor}
+              </p>
+
+              {locked ? (
+                <div className="mt-auto">
+                  <button
+                    type="button"
+                    disabled
+                    className={`w-full rounded-md py-2 text-sm font-medium cursor-not-allowed ${
+                      plan.dark ? "bg-white/10 text-white/40" : "bg-[#F4F2EC] text-[#9CA3AF]"
+                    }`}
+                  >
+                    Coming soon
+                  </button>
+                </div>
+              ) : (
+                <Link href={plan.cta.href} className="mt-auto">
+                  {plan.highlight ? (
+                    <Button className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white border-0">{plan.cta.label}</Button>
+                  ) : plan.dark ? (
+                    <Button className="w-full bg-white hover:bg-[#F4F2EC] text-[#1C1C1E] border-0">{plan.cta.label}</Button>
+                  ) : (
+                    <Button variant="outline" className="w-full border-[#E6E2D9] hover:border-[#F97316] hover:text-[#F97316]">{plan.cta.label}</Button>
+                  )}
+                </Link>
+              )}
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-400 uppercase tracking-wide">Pro</p>
-              <p className="text-4xl font-bold mt-1">RM 500</p>
-              <p className="text-sm text-gray-400 mt-1">per month</p>
-            </div>
-            <ul className="space-y-2.5">
-              {PRO_FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-gray-300">
-                  <span className="text-emerald-400 mt-0.5 shrink-0">✓</span> {f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/company/billing">
-              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white border-0">
-                Upgrade to Pro
-              </Button>
-            </Link>
-          </div>
+            )
+          })}
         </div>
 
         {/* Boost add-on */}
-        <div className="bg-white border border-amber-200 rounded-2xl p-8 space-y-6">
+        <div className="bg-white border border-[#FBDDBE] rounded-2xl p-8 space-y-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <p className="text-xs font-medium text-amber-600 uppercase tracking-wide">Add-on · No subscription needed</p>
-              <h2 className="text-xl font-bold text-gray-900 mt-1">Boost a Job Listing</h2>
-              <p className="text-sm text-gray-500 mt-1">Pin any listing to the top of search results for 30 days</p>
+              <p className="text-xs font-bold text-[#C2410C] uppercase tracking-wide">Add-on · No subscription needed</p>
+              <h2 className="text-xl font-extrabold text-[#1C1C1E] mt-1">Boost a Job Listing</h2>
+              <p className="text-sm text-[#6B7280] mt-1">Pin any listing to the top of search results for 30 days. Max plan includes 10 boost credits monthly.</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-3xl font-bold text-gray-900">RM 100</p>
-              <p className="text-sm text-gray-400">per listing / 30 days</p>
+              <p className="text-3xl font-extrabold text-[#1C1C1E]">RM 100</p>
+              <p className="text-sm text-[#9CA3AF]">per listing / 30 days</p>
             </div>
           </div>
           <ul className="grid sm:grid-cols-2 gap-2.5">
             {BOOST_FEATURES.map((f) => (
-              <li key={f} className="flex items-start gap-2.5 text-sm text-gray-600">
-                <span className="text-amber-500 mt-0.5 shrink-0">★</span> {f}
+              <li key={f} className="flex items-start gap-2.5 text-sm text-[#3A3A3C]">
+                <span className="text-[#F97316] mt-0.5 shrink-0">★</span> {f}
               </li>
             ))}
           </ul>
           <Link href="/company/jobs">
-            <Button variant="outline" className="border-amber-300 hover:bg-amber-50">
+            <Button variant="outline" className="border-[#FBDDBE] hover:bg-[#FFF7ED] hover:text-[#C2410C]">
               Boost a listing →
             </Button>
           </Link>
@@ -113,22 +201,22 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Common questions</h2>
+          <h2 className="text-lg font-bold text-[#1C1C1E]">Common questions</h2>
           {[
-            { q: "How do I pay?", a: "We currently accept manual bank transfer (Maybank / CIMB). Contact us after payment with your reference number and we'll activate your plan within 1 business day." },
-            { q: "Can I cancel Pro anytime?", a: "Yes. Your Pro plan runs month-to-month. Contact us before your next billing date to cancel." },
-            { q: "What happens when I hit the 10-job limit on Free?", a: "Your existing listings stay active. You just can't post new ones until you upgrade to Pro or close existing listings." },
-            { q: "Is the Boost add-on separate from Pro?", a: "Yes. Any company (Free or Pro) can purchase a Boost add-on for any individual listing at RM 100 for 30 days." },
+            { q: "How do I pay?", a: "We currently accept manual bank transfer (Maybank). Contact us after payment with your reference number and we'll activate your plan within 1 business day." },
+            { q: "Can I cancel anytime?", a: "Yes. Pro and Max run month-to-month with no lock-in. Contact us before your next billing date to cancel." },
+            { q: "What happens when I hit the listing limit?", a: "Your existing listings stay active. On Free you just can't post new ones until you upgrade or close a listing; Pro covers up to 30 postings/month and Max is unlimited." },
+            { q: "Is the Boost add-on separate from my plan?", a: "Yes. Any company can buy a Boost for an individual listing at RM 100 / 30 days. The Max plan also includes 10 boost credits every month." },
           ].map(({ q, a }) => (
-            <div key={q} className="bg-white border border-gray-100 rounded-xl p-5">
-              <p className="font-medium text-gray-900 text-sm">{q}</p>
-              <p className="text-sm text-gray-500 mt-1.5">{a}</p>
+            <div key={q} className="bg-white border border-[#EEEBE3] rounded-xl p-5">
+              <p className="font-bold text-[#1C1C1E] text-sm">{q}</p>
+              <p className="text-sm text-[#6B7280] mt-1.5">{a}</p>
             </div>
           ))}
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-gray-500">Questions? <Link href="/contact" className="text-blue-600 hover:underline">Contact us →</Link></p>
+          <p className="text-sm text-[#6B7280]">Questions? <Link href="/contact" className="text-[#F97316] hover:underline font-semibold">Contact us →</Link></p>
         </div>
 
       </main>

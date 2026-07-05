@@ -1,7 +1,11 @@
+import { Suspense } from "react"
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md px-4">{children}</div>
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4 py-10">
+      <div className="w-full max-w-[900px]">
+        <Suspense>{children}</Suspense>
+      </div>
     </div>
   )
 }

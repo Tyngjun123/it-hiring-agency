@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { TECH_SKILL_CATEGORIES, YEAR_OPTIONS } from "@/data/tech-skills"
 
 type Skill = { language: string; yearsExp: number }
@@ -13,6 +14,8 @@ type Props = {
   showSkip?: boolean
   skipTo?: string
   submitLabel?: string
+  /** When provided, only these skill categories are shown (collapses unrelated ones). */
+  allowedCategories?: string[] | null
 }
 
 export default function TechSkillSelector({
@@ -22,13 +25,39 @@ export default function TechSkillSelector({
   showSkip,
   skipTo,
   submitLabel = "Save skills",
+  allowedCategories = null,
 }: Props) {
   const router = useRouter()
+
+  const categories = Object.entries(TECH_SKILL_CATEGORIES).filter(
+    ([category]) => !allowedCategories || allowedCategories.includes(category)
+  )
 
   const [selected, setSelected] = useState<Map<string, number>>(
     () => new Map(existing.map((s) => [s.language, s.yearsExp]))
   )
   const [loading, setLoading] = useState(false)
+
+  // Each category is collapsible. Open by default the ones that already have a
+  // selected skill (so existing picks are visible); otherwise open just the first.
+  const [openCats, setOpenCats] = useState<Set<string>>(() => {
+    const open = new Set<string>()
+    const sel = new Set(existing.map((s) => s.language))
+    categories.forEach(([cat, skills]) => {
+      if (skills.some((sk) => sel.has(sk))) open.add(cat)
+    })
+    if (open.size === 0 && categories.length > 0) open.add(categories[0][0])
+    return open
+  })
+
+  function toggleCat(cat: string) {
+    setOpenCats((prev) => {
+      const next = new Set(prev)
+      if (next.has(cat)) next.delete(cat)
+      else next.add(cat)
+      return next
+    })
+  }
 
   function toggle(lang: string) {
     setSelected((prev) => {
@@ -51,6 +80,7 @@ export default function TechSkillSelector({
     setLoading(true)
     const skills = Array.from(selected.entries()).map(([language, yearsExp]) => ({ language, yearsExp }))
     await onSave(skills)
+    toast.success("Skills saved")
     if (redirectAfter) router.push(redirectAfter)
     setLoading(false)
   }
@@ -62,9 +92,26 @@ export default function TechSkillSelector({
 
       {/* Category skill grids — each skill appears ONCE, toggling between selected/unselected */}
       <div className="space-y-4">
-        {Object.entries(TECH_SKILL_CATEGORIES).map(([category, skills]) => (
+        {categories.map(([category, skills]) => {
+          const open = openCats.has(category)
+          const catCount = skills.filter((s) => selected.has(s)).length
+          return (
           <div key={category} className="space-y-2">
-            <p className="text-xs font-bold text-[#9A968C] uppercase tracking-widest">{category}</p>
+            <button type="button" onClick={() => toggleCat(category)}
+              className="w-full flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2">
+                <span className="w-[18px] h-[18px] rounded-[6px] bg-[#FFF1E1] border border-[#F7C99A] flex items-center justify-center text-[9px] text-[#F97316] font-extrabold leading-none">
+                  {open ? "▾" : "▸"}
+                </span>
+                <span className="text-xs font-bold text-[#9A968C] uppercase tracking-widest">{category}</span>
+              </span>
+              {catCount > 0 && (
+                <span className="text-[11px] text-[#9CA3AF]">
+                  <span className="text-[#F97316] font-bold">{catCount}</span> selected
+                </span>
+              )}
+            </button>
+            {open && (
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => {
                 const isSelected = selected.has(skill)
@@ -101,8 +148,10 @@ export default function TechSkillSelector({
                 )
               })}
             </div>
+            )}
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Footer: selected count + save */}

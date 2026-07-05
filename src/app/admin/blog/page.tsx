@@ -1,7 +1,10 @@
+export const dynamic = "force-dynamic"
+
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
-import { toggleBlogPublished, deleteBlogPost } from "@/app/actions/cms"
+import { toggleBlogPublished } from "@/app/actions/cms"
+import DeletePostButton from "@/components/admin/delete-post-button"
 
 export default async function AdminBlogPage() {
   const posts = await prisma.blogPost.findMany({ orderBy: { createdAt: "desc" } })
@@ -79,16 +82,7 @@ export default async function AdminBlogPage() {
                           className="text-xs font-bold text-[#F97316] hover:text-[#EA580C] transition-colors">
                           Edit
                         </Link>
-                        <form action={async () => {
-                          "use server"
-                          await deleteBlogPost(post.id)
-                        }}>
-                          <button type="submit"
-                            className="text-xs font-bold text-[#DC2626] hover:text-[#B91C1C] transition-colors"
-                            onClick={(e) => { if (!confirm("Delete this post?")) e.preventDefault() }}>
-                            Delete
-                          </button>
-                        </form>
+                        <DeletePostButton id={post.id} title={post.title} />
                       </div>
                     </td>
                   </tr>

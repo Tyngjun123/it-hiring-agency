@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { sendResultNotification } from "@/lib/emails"
+import { createNotification } from "@/lib/notifications/notify"
 
 async function getCompanyProfile() {
   const session = await auth()
@@ -18,24 +19,50 @@ async function getCompanyProfile() {
 
 export async function setupCompanyProfile(_prev: unknown, formData: FormData) {
   const { userId } = await getCompanyProfile()
-
-  const companyName = (formData.get("companyName") as string)?.trim()
-  const contactEmail = (formData.get("contactEmail") as string)?.trim()
-  if (!companyName || !contactEmail) {
-    return { error: "Company name and contact email are required." }
-  }
-
   const isSelfEmployed = formData.get("isSelfEmployed") === "on"
 
-  const data = {
-    companyName,
-    contactEmail,
-    description: (formData.get("description") as string) || null,
-    website: (formData.get("website") as string) || null,
-    ssm: (formData.get("ssm") as string) || null,
-    linkedinUrl: (formData.get("linkedinUrl") as string) || null,
-    isSelfEmployed,
-    whatsappNumber: isSelfEmployed ? (formData.get("whatsappNumber") as string) || null : null,
+  let data
+
+  if (isSelfEmployed) {
+    // Self-employed (no SSM): name + WhatsApp drive the listing; no company fields.
+    const personalName = (formData.get("personalName") as string)?.trim()
+    const whatsappNumber = (formData.get("whatsappNumber") as string)?.trim()
+    if (!personalName || !whatsappNumber) {
+      return { error: "Full name and WhatsApp number are required." }
+    }
+    // Contact email: use provided, else fall back to the account email.
+    let contactEmail = (formData.get("contactEmail") as string)?.trim()
+    if (!contactEmail) {
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } })
+      contactEmail = user?.email ?? ""
+    }
+
+    data = {
+      companyName: personalName, // listings show the person's name
+      contactEmail,
+      description: (formData.get("description") as string) || null,
+      website: null,
+      ssm: null,
+      linkedinUrl: null,
+      isSelfEmployed: true,
+      whatsappNumber,
+    }
+  } else {
+    const companyName = (formData.get("companyName") as string)?.trim()
+    const contactEmail = (formData.get("contactEmail") as string)?.trim()
+    if (!companyName || !contactEmail) {
+      return { error: "Company name and contact email are required." }
+    }
+    data = {
+      companyName,
+      contactEmail,
+      description: (formData.get("description") as string) || null,
+      website: (formData.get("website") as string) || null,
+      ssm: (formData.get("ssm") as string) || null,
+      linkedinUrl: (formData.get("linkedinUrl") as string) || null,
+      isSelfEmployed: false,
+      whatsappNumber: null,
+    }
   }
 
   await prisma.companyProfile.upsert({
@@ -44,20 +71,21 @@ export async function setupCompanyProfile(_prev: unknown, formData: FormData) {
     create: { userId, ...data },
   })
 
-  redirect("/company/jobs")
+  redirect("/company/jobs?toast=company_saved")
 }
 
 export async function createJobListing(formData: FormData) {
   const { profile } = await getCompanyProfile()
   if (!profile) redirect("/company/setup")
 
-  // Enforce 10-listing free tier cap
-  if (profile.plan === "FREE") {
+  // Enforce active-listing cap per plan (Free: 10, Pro: 30, Max: unlimited)
+  if (profile.plan !== "MAX") {
+    const cap = profile.plan === "PRO" ? 30 : 10
     const activeCount = await prisma.jobListing.count({
       where: { companyId: profile.id, status: "ACTIVE" },
     })
-    if (activeCount >= 10) {
-      redirect("/company/jobs?error=limit")
+    if (activeCount >= cap) {
+      redirect(`/company/jobs?toastError=${profile.plan === "PRO" ? "pro_limit" : "free_limit"}`)
     }
   }
 
@@ -67,9 +95,10 @@ export async function createJobListing(formData: FormData) {
     data: {
       companyId: profile.id,
       title: formData.get("title") as string,
-      location: formData.get("location") as string,
+      location: (formData.get("location") as string)?.trim() || "",
       description: formData.get("description") as string,
       workType: formData.get("workType") as never,
+      employmentType: (formData.get("employmentType") as string) || "FULL_TIME",
       payType: (formData.get("payType") as never) ?? "MONTHLY",
       payRangeFrom: Number(formData.get("payRangeFrom")),
       payRangeTo: Number(formData.get("payRangeTo")),
@@ -82,13 +111,14 @@ export async function createJobListing(formData: FormData) {
       benefits: (formData.get("benefits") as string) || null,
       questions: (formData.get("questions") as string) || null,
       hideCompanyInfo: formData.get("hideCompanyInfo") === "on",
+      requiredSkills: formData.getAll("requiredSkills") as string[],
       status: "ACTIVE",
     },
   })
 
   revalidatePath("/company/jobs")
   revalidatePath("/")
-  redirect("/company/jobs")
+  redirect("/company/jobs?toast=job_posted")
 }
 
 export async function updateJobListing(id: string, formData: FormData) {
@@ -101,9 +131,10 @@ export async function updateJobListing(id: string, formData: FormData) {
     where: { id, companyId: profile.id },
     data: {
       title: formData.get("title") as string,
-      location: formData.get("location") as string,
+      location: (formData.get("location") as string)?.trim() || "",
       description: formData.get("description") as string,
       workType: formData.get("workType") as never,
+      employmentType: (formData.get("employmentType") as string) || "FULL_TIME",
       payType: formData.get("payType") as never,
       payRangeFrom: Number(formData.get("payRangeFrom")),
       payRangeTo: Number(formData.get("payRangeTo")),
@@ -116,17 +147,34 @@ export async function updateJobListing(id: string, formData: FormData) {
       benefits: (formData.get("benefits") as string) || null,
       questions: (formData.get("questions") as string) || null,
       hideCompanyInfo: formData.get("hideCompanyInfo") === "on",
+      requiredSkills: formData.getAll("requiredSkills") as string[],
     },
   })
 
   revalidatePath("/company/jobs")
   revalidatePath("/")
-  redirect("/company/jobs")
+  redirect("/company/jobs?toast=job_updated")
+}
+
+const JOB_STATUS_TOAST: Record<string, string> = {
+  ACTIVE: "job_activated", PAUSED: "job_paused", CLOSED: "job_closed",
 }
 
 export async function updateJobStatus(id: string, status: "ACTIVE" | "PAUSED" | "CLOSED") {
   const { profile } = await getCompanyProfile()
   if (!profile) return
+
+  // Enforce the active-listing cap when (re)activating a job (Free: 10, Pro: 30,
+  // Max: unlimited) — otherwise a company could exceed the cap by reactivating paused jobs.
+  if (status === "ACTIVE" && profile.plan !== "MAX") {
+    const cap = profile.plan === "PRO" ? 30 : 10
+    const activeCount = await prisma.jobListing.count({
+      where: { companyId: profile.id, status: "ACTIVE", id: { not: id } },
+    })
+    if (activeCount >= cap) {
+      redirect(`/company/jobs?toastError=${profile.plan === "PRO" ? "pro_limit" : "free_limit"}`)
+    }
+  }
 
   await prisma.jobListing.update({
     where: { id, companyId: profile.id },
@@ -135,6 +183,7 @@ export async function updateJobStatus(id: string, status: "ACTIVE" | "PAUSED" | 
 
   revalidatePath("/company/jobs")
   revalidatePath("/")
+  redirect(`/company/jobs?toast=${JOB_STATUS_TOAST[status]}`)
 }
 
 export async function duplicateJob(id: string) {
@@ -168,32 +217,61 @@ export async function duplicateJob(id: string) {
   })
 
   revalidatePath("/company/jobs")
+  redirect("/company/jobs?toast=job_duplicated")
 }
 
 export async function updateApplicationStatus(
   applicationId: string,
-  status: "SUCCESS" | "FAIL"
+  status: "PENDING" | "SHORTLISTED" | "INTERVIEWING" | "SUCCESS" | "FAIL"
 ) {
   const { profile } = await getCompanyProfile()
   if (!profile) return
 
+  // Authorization: only allow updating applications that belong to a job
+  // owned by the calling company. Prevents cross-company status tampering (IDOR).
+  const owned = await prisma.application.findFirst({
+    where: { id: applicationId, jobListing: { companyId: profile.id } },
+    select: { id: true },
+  })
+  if (!owned) return
+
+  const isDecision = status === "SUCCESS" || status === "FAIL"
+
   const application = await prisma.application.update({
     where: { id: applicationId },
-    data: { status, resultMarkedAt: new Date() },
+    data: { status, resultMarkedAt: isDecision ? new Date() : null },
     include: {
       jobListing: { select: { title: true } },
       interviewee: { include: { user: { select: { name: true, email: true } } } },
     },
   })
 
-  // Fire-and-forget email to applicant
-  sendResultNotification({
-    to: application.interviewee.user.email,
-    applicantName: application.interviewee.user.name ?? application.interviewee.user.email,
-    jobTitle: application.jobListing.title,
-    companyName: profile.companyName,
-    status,
-  }).catch(console.error)
+  // In-app 🔔 to the applicant on every status change (fail-safe)
+  const STATUS_LABEL: Record<string, string> = {
+    PENDING: "Under Review", SHORTLISTED: "Shortlisted", INTERVIEWING: "Interviewing",
+    SUCCESS: "Hired", FAIL: "Not Selected",
+  }
+  await createNotification({
+    userId: application.interviewee.userId,
+    type: "APPLICATION_STATUS",
+    title: "Application update",
+    body: `Your application for ${application.jobListing.title} is now ${STATUS_LABEL[status] ?? status}`,
+    link: "/dashboard",
+  })
 
+  // Email the applicant only on a final decision (Hired / Not Selected) — the
+  // intermediate stages (Shortlisted / Interviewing) just update the dashboard.
+  if (isDecision) {
+    sendResultNotification({
+      to: application.interviewee.user.email,
+      applicantName: application.interviewee.user.name ?? application.interviewee.user.email,
+      jobTitle: application.jobListing.title,
+      companyName: profile.companyName,
+      status,
+    }).catch(console.error)
+  }
+
+  revalidatePath(`/company/jobs/${application.jobId}/applicants`)
   revalidatePath("/company/jobs")
+  revalidatePath("/dashboard")
 }

@@ -14,7 +14,7 @@ export async function setUserRole(role: "INTERVIEWEE" | "COMPANY") {
   })
 }
 
-export async function saveResumeUrl(url: string) {
+export async function saveResumeUrl(url: string, phone?: string) {
   const session = await auth()
   if (!session?.user?.id) return { error: "Not authenticated" }
 
@@ -28,9 +28,16 @@ export async function saveResumeUrl(url: string) {
     })
   }
 
+  // Mark onboarding complete regardless of whether a resume was provided.
+  // Store null (not "") when skipped so resumeUrl stays a clean optional value.
+  // Phone is optional — only update it when the user provides one.
   await prisma.intervieweeProfile.update({
     where: { id: profile.id },
-    data: { resumeUrl: url },
+    data: {
+      resumeUrl: url || null,
+      onboardedAt: new Date(),
+      ...(phone && phone.trim() ? { phone: phone.trim() } : {}),
+    },
   })
 }
 
@@ -51,6 +58,12 @@ export async function saveSkills(skills: { language: string; yearsExp: number }[
   await prisma.techSkill.deleteMany({ where: { profileId: profile.id } })
   await prisma.techSkill.createMany({
     data: skills.map((s) => ({ profileId: profile.id, language: s.language, yearsExp: s.yearsExp })),
+  })
+
+  // Mark the skills step as seen (so skipping with no skills doesn't loop).
+  await prisma.intervieweeProfile.update({
+    where: { id: profile.id },
+    data: { skillsPrompted: true },
   })
 }
 

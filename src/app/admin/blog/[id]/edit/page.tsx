@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { updateBlogPost } from "@/app/actions/cms"
 import { BLOG_CATEGORIES } from "@/data/posts"
+import ImageUploader from "@/components/admin/image-uploader"
 
 export default async function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -69,6 +70,13 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
                 </Label>
                 <Textarea name="content" required rows={16} defaultValue={post.content}
                   className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] font-mono text-[13px] resize-y" />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">
+                  Cover image <span className="text-[#9CA3AF] font-normal">(optional)</span>
+                </Label>
+                <ImageUploader name="coverImageUrl" defaultValue={post.coverImageUrl} />
               </div>
             </div>
 

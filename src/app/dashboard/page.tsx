@@ -1,16 +1,24 @@
+export const dynamic = "force-dynamic"
+
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
+import { redirect } from "next/navigation"
+import WithdrawButton from "@/components/withdraw-button"
 
 const STATUS_COLOR: Record<string, string> = {
   PENDING: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+  SHORTLISTED: "bg-blue-50 text-blue-700 border border-blue-200",
+  INTERVIEWING: "bg-orange-50 text-orange-700 border border-orange-200",
   SUCCESS: "bg-green-50 text-green-700 border border-green-200",
   FAIL: "bg-red-50 text-red-600 border border-red-200",
 }
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Under Review",
+  SHORTLISTED: "Shortlisted",
+  INTERVIEWING: "Interviewing",
   SUCCESS: "Hired",
   FAIL: "Not Selected",
 }
@@ -19,11 +27,19 @@ const WORK_TYPE_LABEL: Record<string, string> = {
   ONSITE: "On-site", REMOTE: "Remote", HYBRID: "Hybrid",
 }
 
+function daysAgo(date: Date): string {
+  const diff = Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24))
+  if (diff <= 0) return "today"
+  if (diff === 1) return "1 day ago"
+  return `${diff} days ago`
+}
+
 export default async function DashboardPage() {
   const session = await auth()
+  if (!session?.user?.id) redirect("/login")
 
   const profile = await prisma.intervieweeProfile.findUnique({
-    where: { userId: session!.user!.id! },
+    where: { userId: session.user.id },
     include: {
       techSkills: true,
       jobPreferences: { orderBy: { order: "asc" } },
@@ -38,7 +54,7 @@ export default async function DashboardPage() {
     },
   })
 
-  const pending = profile?.applications.filter((a) => a.status === "PENDING").length ?? 0
+  const inProgress = profile?.applications.filter((a) => a.status !== "SUCCESS" && a.status !== "FAIL").length ?? 0
   const hired = profile?.applications.filter((a) => a.status === "SUCCESS").length ?? 0
   const total = profile?.applications.length ?? 0
 
@@ -47,16 +63,22 @@ export default async function DashboardPage() {
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">My Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{session!.user!.name ?? session!.user!.email}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">My Dashboard</h1>
+            <p className="text-sm text-gray-500 mt-0.5">{session.user.name ?? session.user.email}</p>
+          </div>
+          <Link href="/profile"
+            className="shrink-0 text-sm font-bold text-[#F97316] hover:text-white border border-[#F97316]/40 hover:bg-[#F97316] rounded-[10px] px-4 py-2 transition-colors">
+            Edit profile
+          </Link>
         </div>
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Total Applied", value: total },
-            { label: "Under Review", value: pending },
+            { label: "In Progress", value: inProgress },
             { label: "Hired", value: hired },
           ].map((s) => (
             <div key={s.label} className="bg-white border border-gray-100 rounded-xl p-4 text-center">
@@ -64,35 +86,6 @@ export default async function DashboardPage() {
               <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
             </div>
           ))}
-        </div>
-
-        {/* Profile summary */}
-        <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">My Profile</h2>
-            <Link href="/profile" className="text-sm text-blue-600 hover:underline">Edit</Link>
-          </div>
-
-          {profile?.resumeUrl ? (
-            <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline">
-              View resume →
-            </a>
-          ) : (
-            <Link href="/onboarding/resume" className="text-sm text-gray-400 hover:text-gray-600">
-              + Upload resume
-            </Link>
-          )}
-
-          {profile && profile.techSkills.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {profile.techSkills.map((s) => (
-                <span key={s.id} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                  {s.language} · {s.yearsExp}yr
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Applications list */}
@@ -137,6 +130,7 @@ export default async function DashboardPage() {
                     Applied {new Date(app.appliedAt).toLocaleDateString("en-MY", {
                       day: "numeric", month: "short", year: "numeric"
                     })}
+                    <span className="text-gray-500 font-medium"> · {daysAgo(app.appliedAt)}</span>
                     {app.resultMarkedAt && (
                       <> · Result {new Date(app.resultMarkedAt).toLocaleDateString("en-MY", {
                         day: "numeric", month: "short", year: "numeric"
@@ -149,6 +143,7 @@ export default async function DashboardPage() {
                       Leave a review →
                     </Link>
                   )}
+                  {app.status === "PENDING" && <WithdrawButton applicationId={app.id} />}
                 </div>
               </div>
             ))

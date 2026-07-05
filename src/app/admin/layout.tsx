@@ -1,12 +1,18 @@
 import { auth } from "@/auth"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-
-const ADMIN_EMAILS = ["tyngjun123@gmail.com"]
+import { isAdminEmail } from "@/lib/admin"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers()
+  const pathname = headersList.get("x-pathname") ?? ""
+
+  // Allow the login page without auth check
+  if (pathname === "/admin/login") return <>{children}</>
+
   const session = await auth()
-  if (!session?.user?.email || !ADMIN_EMAILS.includes(session.user.email)) {
-    redirect("/")
+  if (!isAdminEmail(session?.user?.email)) {
+    redirect("/admin/login")
   }
   return <>{children}</>
 }

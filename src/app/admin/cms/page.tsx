@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
@@ -8,18 +10,18 @@ import { Button } from "@/components/ui/button"
 import { saveCmsContent } from "@/app/actions/cms"
 
 const DEFAULTS: Record<string, string> = {
-  contact_email: "hello@ithire.my",
+  contact_email: "support@stacktalentx.com",
   contact_whatsapp: "https://wa.me/60123456789",
   contact_whatsapp_label: "Chat on WhatsApp →",
   contact_hours: "Mon–Fri, 9am–6pm MYT",
   contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
-  meta_contact_title: "Contact IT Hire | Malaysia's IT Job Platform",
-  meta_contact_desc: "Get in touch with the IT Hire team for job posting, billing or partnership enquiries.",
+  meta_contact_title: "Contact StackTalentx | Malaysia's IT Job Platform",
+  meta_contact_desc: "Get in touch with the StackTalentx team for job posting, billing or partnership enquiries.",
   about_tagline: "The IT job board built for Malaysia",
   about_hero: "We connect Malaysia's best tech talent with the companies building the future.",
-  about_body: "<p>IT Hire was founded in 2024 with a simple mission: make it easier for Malaysian IT professionals to find great jobs — and for companies to hire them.</p>",
-  meta_about_title: "About IT Hire | Malaysia's IT Job Platform",
-  meta_about_desc: "Learn about IT Hire — the job board built specifically for Malaysian IT professionals and the companies hiring them.",
+  about_body: "<p>StackTalentx was founded in 2024 with a simple mission: make it easier for Malaysian IT professionals to find great jobs — and for companies to hire them.</p>",
+  meta_about_title: "About StackTalentx | Malaysia's IT Job Platform",
+  meta_about_desc: "Learn about StackTalentx — the job board built specifically for Malaysian IT professionals and the companies hiring them.",
 }
 
 export default async function AdminCmsPage({

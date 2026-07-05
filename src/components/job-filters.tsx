@@ -23,13 +23,13 @@ export default function JobFilters() {
   }
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <span className="text-xs text-[#9A968C] font-semibold">Work type:</span>
+    <div className="flex items-center gap-2 overflow-x-auto md:flex-wrap scrollbar-hide pb-0.5 -mb-0.5">
+      <span className="text-xs text-[#9A968C] font-semibold shrink-0">Work type:</span>
       {WORK_TYPES.map(({ value, label }) => (
         <button
           key={value}
           onClick={() => apply(value)}
-          className={`text-sm font-semibold px-5 py-2 rounded-full border transition-colors ${
+          className={`text-sm font-semibold px-5 py-2 rounded-full border transition-colors shrink-0 ${
             current === value
               ? "bg-[#F97316] text-white border-[#F97316] shadow-[0_5px_13px_rgba(249,115,22,0.28)]"
               : "bg-white text-[#4B5563] border-[#E6E2D9] hover:border-[#F97316] hover:text-[#F97316]"

@@ -48,6 +48,8 @@ enum ListingStatus {
 
 enum ApplicationStatus {
   PENDING
+  SHORTLISTED
+  INTERVIEWING
   SUCCESS
   FAIL
 }
@@ -84,6 +86,7 @@ enum PaymentStatus {
 enum CompanyPlan {
   FREE
   PRO
+  MAX
 }
 
 // ─── Auth.js Required Models ─────────────────────────────────────────────────
@@ -104,8 +107,33 @@ model User {
   companyProfile     CompanyProfile?
   referralLink       ReferralLink?
   referralRewards    ReferralReward[] @relation("ReferrerRewards")
+  notifications      Notification[]
 
   @@map("users")
+}
+
+enum NotificationType {
+  NEW_APPLICANT
+  APPLICATION_STATUS
+  JOB_RECOMMENDATION
+  JOB_EXPIRING
+  GENERAL
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType @default(GENERAL)
+  title     String
+  body      String           @db.Text
+  link      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
 }
 
 model Account {
@@ -160,14 +188,19 @@ model IntervieweeProfile {
   instagramUrl      String?  @map("instagram_url")
   rednoteUrl        String?  @map("rednote_url")
   resumeUrl         String?  @map("resume_url")
+  onboardedAt       DateTime? @map("onboarded_at")
+  skillsPrompted    Boolean  @default(false) @map("skills_prompted")
   bankName          String?  @map("bank_name")
   bankAccountNumber String?  @map("bank_account_number")
+  jobAlertsOptOut   Boolean  @default(false) @map("job_alerts_opt_out")
+  unsubscribeToken  String?  @unique @map("unsubscribe_token")
   createdAt         DateTime @default(now()) @map("created_at")
 
   user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobPreferences   JobPreference[]
   techSkills       TechSkill[]
   applications     Application[]
+  savedJobs        SavedJob[]
   companyReviews   CompanyReview[]
   referralTracking ReferralTracking?
   referralRewards  ReferralReward[]   @relation("ReferredUserRewards")
@@ -215,6 +248,7 @@ model CompanyProfile {
   isSelfEmployed            Boolean     @default(false) @map("is_self_employed")
   plan                      CompanyPlan @default(FREE)
   planStatus                String      @default("active") @map("plan_status")
+  planExpiresAt             DateTime?   @map("plan_expires_at")
   billingStart              DateTime?   @map("billing_start")
   optedIntoJobHunterService Boolean     @default(false) @map("opted_into_job_hunter_service")
   createdAt                 DateTime    @default(now()) @map("created_at")
@@ -238,6 +272,7 @@ model JobListing {
   description     String        @db.Text
   workType        WorkType      @map("work_type")
   payType         PayType       @default(MONTHLY) @map("pay_type")
+  employmentType  String        @default("FULL_TIME") @map("employment_type")
   payRangeFrom    Int           @map("pay_range_from")
   payRangeTo      Int           @map("pay_range_to")
   sellingPoint1   String        @map("selling_point_1")
@@ -249,6 +284,9 @@ model JobListing {
   benefits        String?       @db.Text
   questions       String?       @db.Text
   hideCompanyInfo Boolean       @default(false) @map("hide_company_info")
+  requiredSkills  String[]      @default([]) @map("required_skills")
+  isHot           Boolean       @default(false) @map("is_hot")
+  priority        Int           @default(0)
   status          ListingStatus @default(DRAFT)
   createdAt       DateTime      @default(now()) @map("created_at")
   expiresAt       DateTime?     @map("expires_at")
@@ -256,8 +294,23 @@ model JobListing {
   company      CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   boostAds     BoostAd[]
+  savedBy      SavedJob[]
 
   @@map("job_listings")
+}
+
+model SavedJob {
+  id            String   @id @default(cuid())
+  intervieweeId String   @map("interviewee_id")
+  jobId         String   @map("job_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  interviewee IntervieweeProfile @relation(fields: [intervieweeId], references: [id], onDelete: Cascade)
+  jobListing  JobListing         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([intervieweeId, jobId])
+  @@index([intervieweeId])
+  @@map("saved_jobs")
 }
 
 // ─── Applications ─────────────────────────────────────────────────────────────
@@ -267,6 +320,7 @@ model Application {
   jobId          String            @map("job_id")
   intervieweeId  String            @map("interviewee_id")
   referralCode   String?           @map("referral_code")
+  answers        Json?             // [{ question, answer }] from the employer's questions
   status         ApplicationStatus @default(PENDING)
   appliedAt      DateTime          @default(now()) @map("applied_at")
   followupSentAt DateTime?         @map("followup_sent_at")
@@ -289,6 +343,7 @@ model CompanyReview {
   rating     Int
   title      String
   body       String   @db.Text
+  department String?
   createdAt  DateTime @default(now()) @map("created_at")
 
   company  CompanyProfile     @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -403,6 +458,7 @@ model BlogPost {
   authorInitials String   @default("IH") @map("author_initials")
   readTime       String   @default("5 min read") @map("read_time")
   coverGradient  String?  @map("cover_gradient")
+  coverImageUrl  String?  @map("cover_image_url")
   featured       Boolean  @default(false)
   published      Boolean  @default(false)
   metaTitle      String?  @map("meta_title")
@@ -413,10 +469,51 @@ model BlogPost {
   @@map("blog_posts")
 }
 
+model SiteConfig {
+  id              String   @id @default("singleton")
+  logoUrl         String?  @map("logo_url")
+  contactPhone    String?  @map("contact_phone")
+  contactEmail    String?  @map("contact_email")
+  facebookUrl     String?  @map("facebook_url")
+  instagramUrl    String?  @map("instagram_url")
+  linkedinUrl     String?  @map("linkedin_url")
+  twitterUrl      String?  @map("twitter_url")
+  maintenanceMode Boolean  @default(false) @map("maintenance_mode")
+  maxPlanEnabled  Boolean  @default(false) @map("max_plan_enabled")
+  proPlanEnabled  Boolean  @default(false) @map("pro_plan_enabled")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("site_config")
+}
+
 model CmsContent {
   key       String   @id
   value     String   @db.Text
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("cms_content")
+}
+
+// Editable email templates (admin CMS). Body supports {{placeholders}}.
+model EmailTemplate {
+  key       String   @id // e.g. "application_confirmation"
+  name      String
+  subject   String
+  body      String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("email_templates")
+}
+
+// One-time password codes for password reset.
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String   @map("code_hash")
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@map("password_reset_tokens")
 }

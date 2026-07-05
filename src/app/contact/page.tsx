@@ -5,13 +5,13 @@ import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 
 const CMS_DEFAULTS: Record<string, string> = {
-  contact_email: "hello@ithire.my",
+  contact_email: "support@stacktalentx.com",
   contact_whatsapp: "https://wa.me/60123456789",
   contact_whatsapp_label: "Chat on WhatsApp →",
   contact_hours: "Mon–Fri, 9am–6pm MYT",
   contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
-  meta_contact_title: "Contact IT Hire | Malaysia's IT Job Platform",
-  meta_contact_desc: "Get in touch with the IT Hire team for job posting, billing or partnership enquiries.",
+  meta_contact_title: "Contact StackTalentx | Malaysia's IT Job Platform",
+  meta_contact_desc: "Get in touch with the StackTalentx team for job posting, billing or partnership enquiries.",
 }
 
 async function getCms() {
@@ -54,7 +54,7 @@ export default async function ContactPage({
           <div className="grid grid-cols-1 lg:grid-cols-[0.92fr_1.08fr]">
 
             {/* Left info panel */}
-            <div className="p-10 border-b lg:border-b-0 lg:border-r border-[#F2EBDF]"
+            <div className="p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-[#F2EBDF]"
               style={{ background: "linear-gradient(165deg, #FFF7ED 0%, #FFEEDB 100%)" }}>
 
               <div className="inline-flex items-center gap-2 bg-white border border-[#FBDDBE] px-3.5 py-1.5 rounded-full text-[12.5px] font-bold text-[#C2410C] mb-5">
@@ -100,7 +100,7 @@ export default async function ContactPage({
             </div>
 
             {/* Right form */}
-            <div className="p-10 bg-[#FCFCFA]">
+            <div className="p-6 md:p-10 bg-[#FCFCFA]">
               {sent === "1" ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-[#ECFDF5] flex items-center justify-center text-3xl mb-5">✓</div>

@@ -34,6 +34,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           location: job.location,
           description: job.description,
           workType: job.workType,
+          employmentType: job.employmentType,
           payType: job.payType,
           payRangeFrom: job.payRangeFrom,
           payRangeTo: job.payRangeTo,
@@ -41,6 +42,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           sellingPoint2: job.sellingPoint2,
           sellingPoint3: job.sellingPoint3,
           hideCompanyInfo: job.hideCompanyInfo,
+          requiredSkills: job.requiredSkills,
         }}
       />
     </div>

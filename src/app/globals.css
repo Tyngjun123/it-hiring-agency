@@ -128,4 +128,30 @@
   html {
     @apply font-sans;
   }
+  /* Tailwind v4 Preflight no longer sets pointer cursor on buttons — restore it */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+/* Prevent iOS Safari auto-zoom on input focus (requires >= 16px font on mobile) */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }

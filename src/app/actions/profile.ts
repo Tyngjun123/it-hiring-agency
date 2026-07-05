@@ -19,9 +19,11 @@ export async function updateIntervieweeProfile(formData: FormData) {
     data: { name: formData.get("name") as string },
   })
 
+  // Single phone field doubles as WhatsApp contact.
+  const phone = (formData.get("phone") as string) || null
   const socialData = {
-    phone: (formData.get("phone") as string) || null,
-    whatsappNumber: (formData.get("whatsappNumber") as string) || null,
+    phone,
+    whatsappNumber: phone,
     linkedinUrl: (formData.get("linkedinUrl") as string) || null,
     facebookUrl: (formData.get("facebookUrl") as string) || null,
     instagramUrl: (formData.get("instagramUrl") as string) || null,
@@ -34,7 +36,16 @@ export async function updateIntervieweeProfile(formData: FormData) {
     create: { userId: session.user.id, ...socialData },
   })
 
-  redirect("/profile?saved=1")
+  redirect("/profile?toast=profile_saved")
+}
+
+export async function removeResume() {
+  const session = await getSession()
+  await prisma.intervieweeProfile.updateMany({
+    where: { userId: session.user.id },
+    data: { resumeUrl: null },
+  })
+  revalidatePath("/profile")
 }
 
 export async function addSkill(formData: FormData) {

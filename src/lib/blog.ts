@@ -12,6 +12,7 @@ export type BlogPostData = {
   authorInitials: string
   readTime: string
   cover?: string
+  coverImageUrl?: string
   featured: boolean
   date: string
 }
@@ -35,6 +36,7 @@ export async function getAllBlogPosts(): Promise<BlogPostData[]> {
     authorInitials: p.authorInitials,
     readTime: p.readTime,
     cover: p.coverGradient ?? undefined,
+    coverImageUrl: p.coverImageUrl ?? undefined,
     featured: p.featured,
     date: p.createdAt.toISOString().slice(0, 10),
   }))
@@ -49,7 +51,7 @@ export async function getAllBlogPosts(): Promise<BlogPostData[]> {
       summary: p.summary ?? "",
       content: p.content,
       category: p.category ?? "General",
-      author: p.author ?? "IT Hire Team",
+      author: p.author ?? "StackTalentx Team",
       authorInitials: p.authorInitials ?? "IH",
       readTime: p.readTime ?? "5 min read",
       cover: p.cover,
@@ -75,6 +77,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | nu
       authorInitials: dbPost.authorInitials,
       readTime: dbPost.readTime,
       cover: dbPost.coverGradient ?? undefined,
+      coverImageUrl: dbPost.coverImageUrl ?? undefined,
       featured: dbPost.featured,
       date: dbPost.createdAt.toISOString().slice(0, 10),
     }
@@ -90,7 +93,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | nu
     summary: staticPost.summary ?? "",
     content: staticPost.content,
     category: staticPost.category ?? "General",
-    author: staticPost.author ?? "IT Hire Team",
+    author: staticPost.author ?? "StackTalentx Team",
     authorInitials: staticPost.authorInitials ?? "IH",
     readTime: staticPost.readTime ?? "5 min read",
     cover: staticPost.cover,

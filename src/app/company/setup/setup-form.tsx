@@ -3,15 +3,13 @@
 import { useState } from "react"
 import { useActionState } from "react"
 import { setupCompanyProfile } from "@/app/actions/company"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 
 type Props = {
   defaultValues: {
     companyName: string
+    personalName: string
     contactEmail: string
+    accountEmail: string
     ssm: string
     linkedinUrl: string
     website: string
@@ -21,93 +19,149 @@ type Props = {
   }
 }
 
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-4">{children}</p>
+  )
+}
+
+function Field({
+  label,
+  optional,
+  children,
+}: {
+  label: string
+  optional?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-[13.5px] font-semibold text-[#3A3A3C] block">
+        {label}
+        {optional && <span className="text-[#9CA3AF] font-normal ml-1">(optional)</span>}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+const inputCls =
+  "w-full border border-[#E6E2D9] rounded-[11px] px-3.5 py-3 text-[14px] text-[#1C1C1E] placeholder-[#A8A49A] focus:outline-none focus:border-[#F97316] transition-colors bg-white"
+
 export default function CompanySetupForm({ defaultValues: d }: Props) {
   const [isSelfEmployed, setIsSelfEmployed] = useState(d.isSelfEmployed)
+  const [agreed, setAgreed] = useState(false)
   const [state, action, pending] = useActionState(setupCompanyProfile, null)
 
   return (
-    <div className="bg-white border border-[#EEEBE3] rounded-2xl p-7 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)]">
+    <form action={action} className="space-y-5">
       {state?.error && (
-        <div className="mb-5 bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-4 py-3 text-sm text-[#DC2626] font-medium">
+        <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-4 py-3 text-sm text-[#DC2626] font-semibold">
           {state.error}
         </div>
       )}
 
-      <form action={action} className="space-y-5">
-        <div className="space-y-1.5">
-          <Label htmlFor="companyName" className="text-[13.5px] font-semibold text-[#3A3A3C]">Company name *</Label>
-          <Input id="companyName" name="companyName" required placeholder="Acme Sdn Bhd" defaultValue={d.companyName}
-            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-        </div>
+      {/* Account type — at the top so it drives the rest of the form */}
+      <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)]">
+        <SectionHeader>Account type</SectionHeader>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="contactEmail" className="text-[13.5px] font-semibold text-[#3A3A3C]">Contact email *</Label>
-          <Input id="contactEmail" name="contactEmail" type="email" required placeholder="hr@yourcompany.com" defaultValue={d.contactEmail}
-            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="ssm" className="text-[13.5px] font-semibold text-[#3A3A3C]">SSM Registration No. <span className="text-[#9CA3AF] font-normal">(optional)</span></Label>
-          <Input id="ssm" name="ssm" placeholder="1234567-A" defaultValue={d.ssm}
-            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="linkedinUrl" className="text-[13.5px] font-semibold text-[#3A3A3C]">LinkedIn <span className="text-[#9CA3AF] font-normal">(optional)</span></Label>
-          <Input id="linkedinUrl" name="linkedinUrl" type="url" placeholder="https://linkedin.com/company/..." defaultValue={d.linkedinUrl}
-            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="website" className="text-[13.5px] font-semibold text-[#3A3A3C]">Website <span className="text-[#9CA3AF] font-normal">(optional)</span></Label>
-          <Input id="website" name="website" type="url" placeholder="https://yourcompany.com" defaultValue={d.website}
-            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="description" className="text-[13.5px] font-semibold text-[#3A3A3C]">About the company <span className="text-[#9CA3AF] font-normal">(optional)</span></Label>
-          <Textarea id="description" name="description" rows={3} placeholder="What does your company do?" defaultValue={d.description}
-            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
-        </div>
-
-        {/* Self-employed checkbox */}
-        <div className="pt-1 border-t border-[#F4F1EA]">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              name="isSelfEmployed"
-              checked={isSelfEmployed}
-              onChange={(e) => setIsSelfEmployed(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30 cursor-pointer"
-            />
-            <div>
-              <p className="text-[14px] font-semibold text-[#1C1C1E]">I&apos;m self-employed, planning to hire part-time</p>
-              <p className="text-[12.5px] text-[#9CA3AF] mt-0.5">We&apos;ll show your personal info and WhatsApp on listings instead of a company profile.</p>
-            </div>
-          </label>
-        </div>
-
-        {isSelfEmployed && (
-          <div className="bg-[#FFF7ED] border border-[#FBDDBE] rounded-[14px] p-5 space-y-4">
-            <p className="text-[13px] font-bold text-[#C2410C] uppercase tracking-[.04em]">Personal details</p>
-            <div className="space-y-1.5">
-              <Label htmlFor="personalName" className="text-[13.5px] font-semibold text-[#3A3A3C]">Your name</Label>
-              <Input id="personalName" name="personalName" placeholder="Your full name"
-                className="rounded-[11px] border-[#F7C99A] focus:border-[#F97316] bg-white" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="whatsappNumber" className="text-[13.5px] font-semibold text-[#3A3A3C]">WhatsApp number</Label>
-              <Input id="whatsappNumber" name="whatsappNumber" type="tel" placeholder="+60 12-345 6789" defaultValue={d.whatsappNumber}
-                className="rounded-[11px] border-[#F7C99A] focus:border-[#F97316] bg-white" />
-            </div>
+        <label className="flex items-start gap-3.5 cursor-pointer">
+          <input
+            type="checkbox"
+            name="isSelfEmployed"
+            checked={isSelfEmployed}
+            onChange={(e) => setIsSelfEmployed(e.target.checked)}
+            className="mt-0.5 w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30 cursor-pointer accent-[#F97316]"
+          />
+          <div>
+            <p className="text-[14px] font-semibold text-[#1C1C1E]">I&apos;m self-employed / hiring without a registered company (no SSM)</p>
+            <p className="text-[12.5px] text-[#9CA3AF] mt-0.5 leading-relaxed">
+              Your listings will show you as a self-employed individual with your name and WhatsApp contact, instead of a company profile.
+            </p>
           </div>
-        )}
+        </label>
+      </div>
 
-        <Button type="submit" disabled={pending}
-          className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold rounded-[11px] h-11 shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors mt-2">
-          {pending ? "Saving…" : "Save & continue →"}
-        </Button>
-      </form>
-    </div>
+      {isSelfEmployed ? (
+        /* ── Self-employed: just name + WhatsApp (+ contact email) ── */
+        <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+          <SectionHeader>Your details</SectionHeader>
+
+          <Field label="Full name *">
+            <input name="personalName" required placeholder="Your full name" defaultValue={d.personalName} className={inputCls} />
+          </Field>
+
+          <Field label="WhatsApp number *">
+            <input name="whatsappNumber" type="tel" required placeholder="+60 12-345 6789" defaultValue={d.whatsappNumber} className={inputCls} />
+          </Field>
+
+          <Field label="Contact email *">
+            <input name="contactEmail" type="email" required placeholder="you@example.com" defaultValue={d.contactEmail || d.accountEmail} className={inputCls} />
+          </Field>
+
+          <Field label="About you" optional>
+            <textarea name="description" rows={3} placeholder="What kind of help are you hiring for?" defaultValue={d.description}
+              className={`${inputCls} resize-none leading-relaxed`} />
+          </Field>
+        </div>
+      ) : (
+        /* ── Registered company ── */
+        <>
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+            <SectionHeader>Company details</SectionHeader>
+
+            <Field label="Company name *">
+              <input name="companyName" required placeholder="Acme Sdn Bhd" defaultValue={d.companyName} className={inputCls} />
+            </Field>
+
+            <Field label="Contact email *">
+              <input name="contactEmail" type="email" required placeholder="hr@yourcompany.com" defaultValue={d.contactEmail} className={inputCls} />
+            </Field>
+
+            <Field label="SSM Registration No." optional>
+              <input name="ssm" placeholder="1234567-A" defaultValue={d.ssm} className={inputCls} />
+            </Field>
+          </div>
+
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+            <SectionHeader>Online presence</SectionHeader>
+
+            <Field label="Website" optional>
+              <input name="website" type="url" placeholder="https://yourcompany.com" defaultValue={d.website} className={inputCls} />
+            </Field>
+
+            <Field label="LinkedIn" optional>
+              <input name="linkedinUrl" type="url" placeholder="https://linkedin.com/company/..." defaultValue={d.linkedinUrl} className={inputCls} />
+            </Field>
+          </div>
+
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+            <SectionHeader>About</SectionHeader>
+
+            <Field label="Company description" optional>
+              <textarea name="description" rows={4} placeholder="What does your company do? What's your tech stack? What's the culture like?" defaultValue={d.description}
+                className={`${inputCls} resize-none leading-relaxed`} />
+            </Field>
+          </div>
+        </>
+      )}
+
+      {/* PDPA consent */}
+      <label className="flex items-start gap-3 cursor-pointer px-1">
+        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
+          className="mt-0.5 w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30 shrink-0 accent-[#F97316]" />
+        <span className="text-[12.5px] text-[#6B7280] leading-relaxed">
+          I agree to the collection and sharing of company and applicant data in accordance with the{" "}
+          <a href="/privacy" target="_blank" className="font-semibold text-[#F97316] hover:text-[#EA580C]">Privacy Policy</a>
+          {" "}and{" "}
+          <a href="/terms" target="_blank" className="font-semibold text-[#F97316] hover:text-[#EA580C]">Terms</a>.
+        </span>
+      </label>
+
+      <button type="submit" disabled={pending || !agreed}
+        className="w-full bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-[15px] py-3.5 rounded-[12px] shadow-[0_8px_18px_rgba(249,115,22,0.3)] transition-colors">
+        {pending ? "Saving…" : "Save & continue →"}
+      </button>
+    </form>
   )
 }

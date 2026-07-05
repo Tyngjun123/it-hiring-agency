@@ -40,7 +40,7 @@ export const posts: Post[] = [
         <li>Remote-first companies pay roughly on par with KL on-site roles</li>
         <li>Penang's hardware-adjacent software roles are closing the gap with KL</li>
       </ul>
-      <p>Use these benchmarks as a starting point — and when you're ready, browse roles that match your range on IT Hire.</p>
+      <p>Use these benchmarks as a starting point — and when you're ready, browse roles that match your range on StackTalentx.</p>
     `,
   },
   {
@@ -57,7 +57,7 @@ export const posts: Post[] = [
       <p>Most engineers accept the first number they're offered. In a market where Malaysian tech salaries are rising fast, that means leaving significant money on the table.</p>
 
       <h2>Know your market rate first</h2>
-      <p>Before you walk into any negotiation, you need to know what the market is paying for your role, stack, and seniority level in your city. Use IT Hire's salary data, ask peers, and check offer letters from competing companies.</p>
+      <p>Before you walk into any negotiation, you need to know what the market is paying for your role, stack, and seniority level in your city. Use StackTalentx's salary data, ask peers, and check offer letters from competing companies.</p>
       <blockquote>"The candidate who knows their market rate negotiates from strength. The one who doesn't negotiates from hope."</blockquote>
 
       <h2>How to ask for more</h2>
@@ -201,19 +201,19 @@ export const posts: Post[] = [
   },
   {
     slug: "welcome-to-it-hire",
-    title: "Welcome to IT Hire — Malaysia's IT Job Platform",
+    title: "Welcome to StackTalentx — Malaysia's IT Job Platform",
     date: "2026-06-15",
     category: "Career",
-    author: "IT Hire Team",
-    authorInitials: "IT",
+    author: "StackTalentx Team",
+    authorInitials: "ST",
     readTime: "2 min read",
     cover: "repeating-linear-gradient(135deg, #FFF7ED, #FFF7ED 13px, #FFEDD5 13px, #FFEDD5 26px)",
-    summary: "We launched IT Hire to connect Malaysia's IT talent with companies that truly need them. Here's why we built it.",
+    summary: "We launched StackTalentx to connect Malaysia's IT talent with companies that truly need them. Here's why we built it.",
     content: `
       <p>Finding an IT job in Malaysia shouldn't feel like searching for a needle in a haystack. General job boards are flooded with non-tech listings, making it hard for IT professionals to find the right roles — and for companies to reach the right candidates.</p>
 
-      <h2>Why IT Hire?</h2>
-      <p>IT Hire is built exclusively for the Malaysian IT industry. Whether you're a backend developer, QA engineer, project manager, or infrastructure specialist — every job on this platform is relevant to you.</p>
+      <h2>Why StackTalentx?</h2>
+      <p>StackTalentx is built exclusively for the Malaysian IT industry. Whether you're a backend developer, QA engineer, project manager, or infrastructure specialist — every job on this platform is relevant to you.</p>
 
       <h2>For job seekers</h2>
       <ul>

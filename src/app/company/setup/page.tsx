@@ -20,8 +20,10 @@ export default async function CompanySetupPage() {
 
       <CompanySetupForm
         defaultValues={{
-          companyName: profile?.companyName ?? "",
+          companyName: profile?.isSelfEmployed ? "" : (profile?.companyName ?? ""),
+          personalName: profile?.isSelfEmployed ? (profile?.companyName ?? "") : "",
           contactEmail: profile?.contactEmail ?? "",
+          accountEmail: session.user.email ?? "",
           ssm: profile?.ssm ?? "",
           linkedinUrl: profile?.linkedinUrl ?? "",
           website: profile?.website ?? "",

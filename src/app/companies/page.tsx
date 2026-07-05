@@ -1,3 +1,5 @@
+export const revalidate = 60
+
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -35,7 +37,7 @@ export default async function CompaniesPage() {
         <div className="max-w-5xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-extrabold text-[#1C1C1E] tracking-tight">Companies hiring in IT</h1>
           <p className="text-sm text-[#6B7280] mt-1">
-            <span className="text-[#F97316] font-bold">{companies.length}</span> companies on IT Hire
+            <span className="text-[#F97316] font-bold">{companies.length}</span> companies on StackTalentx
           </p>
         </div>
       </div>

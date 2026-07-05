@@ -3,19 +3,18 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog"
+import { getSiteUrl } from "@/lib/site-url"
+import ShareButtons from "@/components/share-buttons"
 import type { Metadata } from "next"
 
-export async function generateStaticParams() {
-  const posts = await getAllBlogPosts()
-  return posts.map((p) => ({ slug: p.slug }))
-}
+export const revalidate = 300
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const post = await getBlogPostBySlug(slug)
   if (!post) return {}
   return {
-    title: post.title + " | IT Hire Blog",
+    title: post.title + " | StackTalentx Blog",
     description: post.summary,
   }
 }
@@ -89,11 +88,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
 
-            {/* Hero image placeholder */}
-            <div className="h-[260px] mx-8 md:mx-10 rounded-[16px] mb-8 flex items-center justify-center"
-              style={{ background: post.cover ?? "repeating-linear-gradient(135deg, #FFF1E1, #FFF1E1 16px, #FFE8CF 16px, #FFE8CF 32px)" }}>
-              <span className="font-mono text-[12px] text-[#C99A6B]">[ hero chart / cover image ]</span>
-            </div>
+            {/* Hero image */}
+            {post.coverImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={post.coverImageUrl}
+                alt={post.title}
+                className="w-full h-[260px] mx-0 rounded-none md:mx-8 md:w-[calc(100%-4rem)] md:rounded-[16px] object-cover mb-8"
+              />
+            ) : (
+              <div className="h-[260px] mx-8 md:mx-10 rounded-[16px] mb-8 flex items-center justify-center"
+                style={{ background: post.cover ?? "repeating-linear-gradient(135deg, #FFF1E1, #FFF1E1 16px, #FFE8CF 16px, #FFE8CF 32px)" }}>
+              </div>
+            )}
 
             {/* Body */}
             <div className="px-8 md:px-10 pb-10">
@@ -126,9 +133,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     Tech
                   </span>
                 </div>
-                <span className="text-[13px] font-bold text-[#F97316]">
-                  Share article →
-                </span>
+                <ShareButtons url={`${getSiteUrl()}/blog/${slug}`} title={post.title} variant="compact" />
               </div>
             </div>
           </article>

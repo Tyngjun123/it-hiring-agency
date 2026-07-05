@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { ADMIN_USERNAMES } from "@/lib/admin"
 import type { Role } from "@/generated/prisma/enums"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -16,11 +17,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
+
+        // Admin shortcut: a known admin username + ADMIN_PASSWORD env var.
+        // No fallback — if ADMIN_PASSWORD is unset, the admin shortcut is disabled.
+        const adminPassword = process.env.ADMIN_PASSWORD
+        const username = (credentials.email as string).trim().toLowerCase()
+        const adminEmail = ADMIN_USERNAMES[username]
+        if (adminEmail && adminPassword) {
+          const matches = await bcrypt.compare(
+            credentials.password as string,
+            // Support either a bcrypt hash or a plaintext value in the env var
+            adminPassword.startsWith("$2") ? adminPassword : await bcrypt.hash(adminPassword, 10)
+          )
+          if (!matches) return null
+
+          let adminUser = await prisma.user.findUnique({ where: { email: adminEmail } })
+          if (!adminUser) {
+            adminUser = await prisma.user.create({
+              data: { email: adminEmail, name: username === "admin" ? "Admin" : username },
+            })
+          }
+          return adminUser
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },

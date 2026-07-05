@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
@@ -13,6 +15,7 @@ const APP_STATUS_COLOR: Record<string, string> = {
 const PLAN_COLOR: Record<string, string> = {
   FREE: "bg-gray-100 text-gray-600",
   PRO: "bg-blue-100 text-blue-700",
+  MAX: "bg-orange-100 text-orange-700",
 }
 
 export default async function AdminPage() {
@@ -76,14 +79,30 @@ export default async function AdminPage() {
             <h1 className="text-2xl font-semibold text-gray-900">Admin Panel</h1>
             <p className="text-sm text-gray-500 mt-0.5">Platform overview</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2.5">
             <Link href="/admin/blog"
               className="bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-bold px-4 py-2 rounded-[11px] shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors">
               Blog CMS
             </Link>
-            <Link href="/admin/cms"
+            <Link href="/admin/jobs"
               className="border border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED] text-sm font-bold px-4 py-2 rounded-[11px] transition-colors">
+              Job Moderation
+            </Link>
+            <Link href="/admin/companies"
+              className="border border-[#E6E2D9] text-[#4B5563] hover:border-[#F97316] hover:text-[#F97316] text-sm font-bold px-4 py-2 rounded-[11px] transition-colors">
+              Company Plans
+            </Link>
+            <Link href="/admin/cms"
+              className="border border-[#E6E2D9] text-[#4B5563] hover:border-[#F97316] hover:text-[#F97316] text-sm font-bold px-4 py-2 rounded-[11px] transition-colors">
               Content CMS
+            </Link>
+            <Link href="/admin/emails"
+              className="border border-[#E6E2D9] text-[#4B5563] hover:border-[#F97316] hover:text-[#F97316] text-sm font-bold px-4 py-2 rounded-[11px] transition-colors">
+              Email Content
+            </Link>
+            <Link href="/admin/settings"
+              className="border border-[#E6E2D9] text-[#4B5563] hover:border-[#F97316] hover:text-[#F97316] text-sm font-bold px-4 py-2 rounded-[11px] transition-colors">
+              Site Settings
             </Link>
           </div>
         </div>

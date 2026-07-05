@@ -4,7 +4,12 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { applyToJob } from "@/app/actions/jobs"
+import JobCard from "@/components/job-card"
+import { getSiteUrl } from "@/lib/site-url"
+import ShareButtons from "@/components/share-buttons"
+import ApplyButton from "@/components/apply-button"
+import SaveJobButton from "@/components/save-job-button"
+import type { Metadata } from "next"
 
 const AVATAR_PALETTE = [
   { bg: "#E8FBEF", fg: "#067647" },
@@ -33,6 +38,45 @@ const PAY_TYPE_LABEL: Record<string, string> = {
   MONTHLY: "/ month", HOURLY: "/ hour", CONTRACT: "contract",
 }
 
+const EMPLOYMENT_TYPE_LABEL: Record<string, string> = {
+  FULL_TIME: "Full-time", PART_TIME: "Part-time", CONTRACT: "Contract",
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const job = await prisma.jobListing.findUnique({
+    where: { id, status: "ACTIVE" },
+    include: { company: { select: { companyName: true } } },
+  })
+  if (!job) return { title: "Job not found | StackTalentx" }
+
+  const companyName = job.hideCompanyInfo ? "a hiring company" : job.company.companyName
+  const payRange = `RM ${job.payRangeFrom.toLocaleString()}–${job.payRangeTo.toLocaleString()}`
+  const title = `${job.title} at ${companyName} | StackTalentx`
+  const description =
+    `${job.title} (${WORK_TYPE_LABEL[job.workType] ?? job.workType}, ${job.location}) — ${payRange}. ` +
+    `${job.sellingPoint1}. Apply now on StackTalentx, Malaysia's IT job board.`
+  const url = `${getSiteUrl()}/jobs/${id}`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      siteName: "StackTalentx",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  }
+}
+
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await auth()
@@ -56,15 +100,23 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!job) notFound()
 
   let alreadyApplied = false
-  if (session?.user?.id && session.user.role === "INTERVIEWEE") {
+  let isSaved = false
+  const isSeeker = session?.user?.role === "INTERVIEWEE"
+  if (session?.user?.id && isSeeker) {
     const profile = await prisma.intervieweeProfile.findUnique({
       where: { userId: session.user.id },
     })
     if (profile) {
-      const existing = await prisma.application.findUnique({
-        where: { jobId_intervieweeId: { jobId: id, intervieweeId: profile.id } },
-      })
+      const [existing, saved] = await Promise.all([
+        prisma.application.findUnique({
+          where: { jobId_intervieweeId: { jobId: id, intervieweeId: profile.id } },
+        }),
+        prisma.savedJob.findUnique({
+          where: { intervieweeId_jobId: { intervieweeId: profile.id, jobId: id } },
+        }),
+      ])
       alreadyApplied = !!existing
+      isSaved = !!saved
     }
   }
 
@@ -73,19 +125,73 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       ? (job.company.reviews.reduce((sum, r) => sum + r.rating, 0) / job.company.reviews.length).toFixed(1)
       : null
 
-  const applyAction = async () => {
-    "use server"
-    await applyToJob(id)
-  }
-
   const av = avatarFor(job.company.companyName)
   const workBadge = WORK_TYPE_STYLE[job.workType] ?? "bg-[#F3F4F6] text-[#4B5563]"
+  const jobUrl = `${getSiteUrl()}/jobs/${id}`
+  const shareTitle = `${job.title}${job.hideCompanyInfo ? "" : ` at ${job.company.companyName}`}`
+
+  // ── Google Jobs structured data (JSON-LD) ──
+  const EMPLOYMENT_TYPE_LD: Record<string, string> = { FULL_TIME: "FULL_TIME", PART_TIME: "PART_TIME", CONTRACT: "CONTRACTOR" }
+  const PAY_UNIT_LD: Record<string, string> = { MONTHLY: "MONTH", HOURLY: "HOUR", CONTRACT: "MONTH" }
+  const jobLd = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description,
+    datePosted: job.createdAt.toISOString(),
+    validThrough: (job.expiresAt ?? new Date(job.createdAt.getTime() + 60 * 86_400_000)).toISOString(),
+    employmentType: EMPLOYMENT_TYPE_LD[job.employmentType] ?? "FULL_TIME",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.hideCompanyInfo ? "Confidential" : job.company.companyName,
+      ...(!job.hideCompanyInfo && job.company.website ? { sameAs: job.company.website } : {}),
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: job.location || "Malaysia",
+        addressCountry: "MY",
+      },
+    },
+    ...(job.workType === "REMOTE"
+      ? { jobLocationType: "TELECOMMUTE", applicantLocationRequirements: { "@type": "Country", name: "Malaysia" } }
+      : {}),
+    baseSalary: {
+      "@type": "MonetaryAmount",
+      currency: "MYR",
+      value: {
+        "@type": "QuantitativeValue",
+        minValue: job.payRangeFrom,
+        maxValue: job.payRangeTo,
+        unitText: PAY_UNIT_LD[job.payType] ?? "MONTH",
+      },
+    },
+    identifier: {
+      "@type": "PropertyValue",
+      name: job.hideCompanyInfo ? "Confidential" : job.company.companyName,
+      value: job.id,
+    },
+  }
+
+  // Similar jobs — same work type or location, most recent/hot first
+  const relatedJobs = await prisma.jobListing.findMany({
+    where: {
+      status: "ACTIVE",
+      id: { not: id },
+      OR: [{ workType: job.workType }, { location: job.location }],
+    },
+    include: { company: true },
+    orderBy: [{ isHot: "desc" }, { priority: "desc" }, { createdAt: "desc" }],
+    take: 3,
+  })
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobLd) }} />
       <Navbar />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 pb-24 lg:pb-8">
 
         {/* Back */}
         <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#9CA3AF] hover:text-[#1C1C1E] transition-colors mb-6">
@@ -125,9 +231,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${workBadge}`}>
                   {WORK_TYPE_LABEL[job.workType]}
                 </span>
-                <span className="text-xs font-bold bg-[#F3F4F6] text-[#4B5563] px-2.5 py-1 rounded-full">
-                  {job.location}
+                <span className="text-xs font-bold bg-[#EFF6FF] text-[#1D4ED8] px-2.5 py-1 rounded-full">
+                  {EMPLOYMENT_TYPE_LABEL[job.employmentType] ?? "Full-time"}
                 </span>
+                {job.location && (
+                  <span className="text-xs font-bold bg-[#F3F4F6] text-[#4B5563] px-2.5 py-1 rounded-full">
+                    {job.location}
+                  </span>
+                )}
               </div>
 
               {/* Salary highlight */}
@@ -149,6 +260,20 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   </span>
                 ))}
               </div>
+
+              {/* Required tech skills */}
+              {job.requiredSkills.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2">Tech skills</p>
+                  <div className="flex flex-wrap gap-2">
+                    {job.requiredSkills.map((s) => (
+                      <span key={s} className="text-xs font-semibold bg-[#EFF6FF] text-[#1D4ED8] px-3 py-1 rounded-full">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Description */}
@@ -168,19 +293,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <div className="bg-white border border-[#EEEBE3] rounded-2xl p-5 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
               <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-3">Apply for this role</p>
 
-              {session?.user?.role === "INTERVIEWEE" ? (
-                alreadyApplied ? (
-                  <div className="bg-[#ECFDF5] border border-[#A7F3D0] rounded-xl px-4 py-3 text-sm font-bold text-[#047857] text-center">
-                    ✓ Applied
-                  </div>
-                ) : (
-                  <form action={applyAction}>
-                    <button type="submit"
-                      className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors text-sm">
-                      Apply Now
-                    </button>
-                  </form>
-                )
+              {isSeeker ? (
+                <div className="space-y-2.5">
+                  {alreadyApplied ? (
+                    <div className="bg-[#ECFDF5] border border-[#A7F3D0] rounded-xl px-4 py-3 text-sm font-bold text-[#047857] text-center">
+                      ✓ Applied
+                    </div>
+                  ) : (
+                    <ApplyButton jobId={id} jobTitle={job.title} questions={job.questions}
+                      className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors text-sm" />
+                  )}
+                  <SaveJobButton jobId={id} initialSaved={isSaved} variant="labeled" />
+                </div>
               ) : session?.user?.role === "COMPANY" ? (
                 <p className="text-xs text-[#9CA3AF] text-center">Company accounts cannot apply</p>
               ) : (
@@ -194,6 +318,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 className="block mt-3 text-center text-xs font-semibold text-[#9CA3AF] hover:text-[#F97316] transition-colors">
                 View company profile →
               </Link>
+
+              <div className="mt-4 pt-4 border-t border-[#F4F1EA]">
+                <ShareButtons url={jobUrl} title={shareTitle} variant="compact" />
+              </div>
             </div>
 
             {/* Company card */}
@@ -236,7 +364,54 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
+        {/* Similar jobs */}
+        {relatedJobs.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-base font-bold text-[#1C1C1E] mb-4">Similar jobs</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {relatedJobs.map((rj) => (
+                <JobCard
+                  key={rj.id}
+                  id={rj.id}
+                  companyId={rj.hideCompanyInfo ? undefined : rj.companyId}
+                  title={rj.title}
+                  companyName={rj.hideCompanyInfo ? null : rj.company.companyName}
+                  logoUrl={rj.hideCompanyInfo ? null : rj.company.logoUrl}
+                  location={rj.location}
+                  workType={rj.workType}
+                  payRangeFrom={rj.payRangeFrom}
+                  payRangeTo={rj.payRangeTo}
+                  sellingPoint1={rj.sellingPoint1}
+                  sellingPoint2={rj.sellingPoint2}
+                  sellingPoint3={rj.sellingPoint3}
+                  isHot={rj.isHot}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
       </main>
+
+      {/* Sticky apply bar — mobile only, hidden on lg+ */}
+      {session?.user?.role !== "COMPANY" && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white border-t border-[#F0EEE8] px-4 py-3 shadow-[0_-4px_16px_rgba(28,28,30,0.08)]">
+          {alreadyApplied ? (
+            <div className="w-full bg-[#ECFDF5] border border-[#A7F3D0] rounded-[12px] px-4 py-3 text-sm font-bold text-[#047857] text-center">
+              ✓ Applied
+            </div>
+          ) : session?.user?.role === "INTERVIEWEE" ? (
+            <ApplyButton jobId={id} jobTitle={job.title} questions={job.questions}
+              className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3.5 rounded-[12px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors text-[15px]" />
+          ) : (
+            <Link href={`/login?callbackUrl=/jobs/${id}`}
+              className="block w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-3.5 rounded-[12px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors text-[15px] text-center">
+              Sign in to Apply
+            </Link>
+          )}
+        </div>
+      )}
+
       <Footer />
     </div>
   )

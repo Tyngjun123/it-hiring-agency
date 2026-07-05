@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { saveJobPreferences } from "@/app/actions/onboarding"
 
 const JOB_TYPES = [
@@ -25,12 +23,8 @@ export default function PreferencesPage() {
   const router = useRouter()
 
   function toggle(value: string) {
-    setSelected((prev) =>
-      prev.includes(value)
-        ? prev.filter((v) => v !== value)
-        : prev.length < 3
-        ? [...prev, value]
-        : prev
+    setSelected(prev =>
+      prev.includes(value) ? prev.filter(v => v !== value) : prev.length < 3 ? [...prev, value] : prev
     )
   }
 
@@ -38,67 +32,68 @@ export default function PreferencesPage() {
     if (selected.length === 0) return
     setLoading(true)
     await saveJobPreferences(selected)
-
-    const hasDev = selected.some((s) =>
-      ["BACKEND_DEVELOPER", "FRONTEND_DEVELOPER", "FULLSTACK_DEVELOPER"].includes(s)
-    )
+    const hasDev = selected.some(s => ["BACKEND_DEVELOPER", "FRONTEND_DEVELOPER", "FULLSTACK_DEVELOPER"].includes(s))
     router.push(hasDev ? "/onboarding/skills" : "/onboarding/resume")
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-lg px-4">
-        <Card className="shadow-sm">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl">What type of role are you looking for?</CardTitle>
-            <CardDescription>Pick up to 3</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-2">
-              {JOB_TYPES.map((type) => {
-                const isSelected = selected.includes(type.value)
-                const isDisabled = !isSelected && selected.length >= 3
-                return (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => toggle(type.value)}
-                    disabled={isDisabled}
-                    className={`py-2.5 px-3 rounded-lg border text-sm text-left transition-colors ${
-                      isSelected
-                        ? "border-gray-900 bg-gray-900 text-white"
-                        : isDisabled
-                        ? "border-gray-100 text-gray-300 cursor-not-allowed"
-                        : "border-gray-200 text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    {type.label}
-                  </button>
-                )
-              })}
-            </div>
+    <div className="min-h-screen relative" style={{ background: "linear-gradient(180deg,#FFF7ED 0%,#FFFBF5 100%)" }}>
+      {/* Blurred backdrop content */}
+      <div className="filter blur-sm pointer-events-none select-none opacity-60 p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center space-y-3 py-12">
+            <h1 className="text-4xl font-extrabold text-[#1C1C1E]">Find your next role <span className="text-[#F97316]">in tech</span></h1>
+            <p className="text-[#6B7280]">The job board built only for Malaysian IT professionals.</p>
+          </div>
+        </div>
+      </div>
 
-            <p className="text-xs text-gray-400 text-center">
-              {selected.length}/3 selected
-            </p>
+      {/* Modal overlay */}
+      <div className="absolute inset-0 bg-[#1C1C1E]/50 backdrop-blur-[2px] flex items-center justify-center p-6">
+        <div className="w-full max-w-[460px] bg-white rounded-[20px] p-8 shadow-[0_30px_70px_rgba(28,28,30,.3)]">
+          <div className="text-center mb-6">
+            <h2 className="text-[22px] font-extrabold text-[#1C1C1E] tracking-tight mb-1.5">
+              What type of role are you looking for?
+            </h2>
+            <p className="text-[14px] text-[#9CA3AF]">Pick up to 3</p>
+          </div>
 
-            <Button
-              onClick={handleContinue}
-              disabled={selected.length === 0 || loading}
-              className="w-full"
-            >
-              {loading ? "Saving…" : "Continue"}
-            </Button>
+          <div className="grid grid-cols-2 gap-2.5 mb-4">
+            {JOB_TYPES.map(type => {
+              const isSelected = selected.includes(type.value)
+              const isDisabled = !isSelected && selected.length >= 3
+              return (
+                <button key={type.value} type="button" onClick={() => toggle(type.value)} disabled={isDisabled}
+                  className={`flex items-center gap-2 text-[13.5px] font-semibold px-3.5 py-2.5 rounded-[11px] border transition-all text-left ${
+                    isSelected
+                      ? "bg-[#FFF1E1] text-[#C2410C] border-[#F97316] font-bold"
+                      : isDisabled
+                      ? "bg-white text-[#D1CAC0] border-[#EAE8E2] cursor-not-allowed"
+                      : "bg-white text-[#3A3A3C] border-[#E6E2D9] hover:border-[#F97316]/50"
+                  }`}>
+                  {isSelected && <span className="text-[12px] shrink-0">✓</span>}
+                  {type.label}
+                </button>
+              )
+            })}
+          </div>
 
-            <button
-              type="button"
-              onClick={() => router.push("/onboarding/resume")}
-              className="w-full text-sm text-gray-400 hover:text-gray-600"
-            >
-              Skip for now
-            </button>
-          </CardContent>
-        </Card>
+          <p className="text-center text-[13px] font-semibold text-[#F97316] mb-4">{selected.length}/3 selected</p>
+
+          <button onClick={handleContinue} disabled={selected.length === 0 || loading}
+            className={`w-full py-3.5 rounded-[12px] text-[15px] font-bold transition-all ${
+              selected.length > 0
+                ? "bg-[#F97316] hover:bg-[#EA580C] text-white shadow-[0_8px_18px_rgba(249,115,22,0.3)]"
+                : "bg-[#D9D5CC] text-white cursor-not-allowed"
+            }`}>
+            {loading ? "Saving…" : "Continue"}
+          </button>
+
+          <button type="button" onClick={() => router.push("/onboarding/resume")}
+            className="w-full text-center text-[14px] font-semibold text-[#9CA3AF] hover:text-[#6B7280] mt-4">
+            Skip for now
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -16,10 +16,10 @@ export async function sendContactMessage(formData: FormData) {
 
   try {
     await resend.emails.send({
-      from: "IT Hire <onboarding@resend.dev>",
-      to: "tyngjun123@gmail.com",
+      from: "StackTalentx <onboarding@resend.dev>",
+      to: "support@stacktalentx.com",
       replyTo: email,
-      subject: `[IT Hire Contact] ${topic} — ${name}`,
+      subject: `[StackTalentx Contact] ${topic} — ${name}`,
       html: `
         <h2 style="margin:0 0 16px">New contact form submission</h2>
         <table style="border-collapse:collapse;width:100%">

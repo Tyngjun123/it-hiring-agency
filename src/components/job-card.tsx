@@ -1,12 +1,15 @@
 "use client"
 
+import Image from "next/image"
 import { useRouter } from "next/navigation"
+import SaveJobButton from "@/components/save-job-button"
 
 type JobCardProps = {
   id: string
   companyId?: string
   title: string
   companyName: string | null
+  logoUrl?: string | null
   location: string
   workType: string
   payRangeFrom: number
@@ -15,6 +18,9 @@ type JobCardProps = {
   sellingPoint2: string
   sellingPoint3: string
   isBoosted?: boolean
+  isHot?: boolean
+  canSave?: boolean
+  initialSaved?: boolean
 }
 
 const AVATAR_PALETTE = [
@@ -43,9 +49,9 @@ function formatPay(n: number) {
 }
 
 export default function JobCard({
-  id, companyId, title, companyName, location, workType,
+  id, companyId, title, companyName, logoUrl, location, workType,
   payRangeFrom, payRangeTo, sellingPoint1, sellingPoint2, sellingPoint3,
-  isBoosted,
+  isBoosted, isHot, canSave, initialSaved,
 }: JobCardProps) {
   const router = useRouter()
   const av = companyName ? avatarFor(companyName) : { bg: "#F3F4F6", fg: "#6B7280" }
@@ -54,16 +60,29 @@ export default function JobCard({
   return (
     <div
       onClick={() => router.push(`/jobs/${id}`)}
-      className="bg-white border border-[#EEEBE3] rounded-2xl p-5 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)] hover:shadow-[0_2px_4px_rgba(28,28,30,0.05),0_14px_34px_rgba(28,28,30,0.09)] transition-shadow cursor-pointer"
+      className="relative isolate bg-white border border-[#EEEBE3] rounded-2xl p-5 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)] hover:shadow-[0_2px_4px_rgba(28,28,30,0.05),0_14px_34px_rgba(28,28,30,0.09)] transition-shadow cursor-pointer overflow-hidden"
     >
-      <div className="flex items-start gap-3.5">
-        {/* Company avatar */}
-        <div
-          className="w-12 h-12 rounded-[13px] flex items-center justify-center font-extrabold text-lg shrink-0"
-          style={{ background: av.bg, color: av.fg }}
-        >
-          {companyName ? companyName.charAt(0).toUpperCase() : "?"}
+      {/* HOT corner ribbon */}
+      {isHot && (
+        <div className="absolute top-0 left-0 z-10 flex items-center gap-1 bg-[#F97316] text-white text-[11px] font-extrabold uppercase tracking-wide pl-2.5 pr-3 py-1 rounded-br-[12px] rounded-tl-[16px] shadow-[0_3px_8px_rgba(249,115,22,0.35)]">
+          <span className="text-[12px] leading-none">🔥</span> HOT
         </div>
+      )}
+
+      <div className={`flex items-start gap-3.5 ${isHot ? "mt-3" : ""}`}>
+        {/* Company avatar / logo */}
+        {logoUrl ? (
+          <div className="w-12 h-12 rounded-[13px] overflow-hidden border border-[#EEEBE3] shrink-0 bg-white flex items-center justify-center">
+            <Image src={logoUrl} alt={companyName ?? "Company"} width={48} height={48} className="w-full h-full object-contain p-0.5" />
+          </div>
+        ) : (
+          <div
+            className="w-12 h-12 rounded-[13px] flex items-center justify-center font-extrabold text-lg shrink-0"
+            style={{ background: av.bg, color: av.fg }}
+          >
+            {companyName ? companyName.charAt(0).toUpperCase() : "?"}
+          </div>
+        )}
 
         <div className="flex-1 min-w-0">
           {/* Title + badge */}
@@ -78,7 +97,7 @@ export default function JobCard({
                       {companyName}
                     </a>
                   ) : companyName
-                ) : "Confidential"} · {location}
+                ) : "Confidential"}{location ? ` · ${location}` : ""}
               </p>
             </div>
             {badge && (
@@ -112,7 +131,12 @@ export default function JobCard({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end mt-4 pt-3 border-t border-[#F4F1EA]">
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#F4F1EA]">
+            {canSave ? (
+              <SaveJobButton jobId={id} initialSaved={!!initialSaved} />
+            ) : (
+              <span />
+            )}
             <span className="text-[13.5px] font-bold text-[#F97316]">View job →</span>
           </div>
         </div>

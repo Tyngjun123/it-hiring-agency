@@ -1,11 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import type { BoostType, BoostStatus } from "@/generated/prisma/enums"
+import { auth } from "@/auth"
+import type { Session } from "next-auth"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import JobCard from "@/components/job-card"
 import JobSearch from "@/components/job-search"
 import JobFilters from "@/components/job-filters"
 import Pagination from "@/components/pagination"
+import OnboardingFlow, { type OnboardingStep } from "@/components/onboarding-flow"
+import JobSort from "@/components/job-sort"
+import { isAdminEmail } from "@/lib/admin"
 import { Suspense } from "react"
 
 const PAGE_SIZE = 10
@@ -15,10 +20,16 @@ type SearchParams = {
   location?: string
   workType?: string
   page?: string
+  sort?: string
 }
 
-async function getListings(q?: string, location?: string, workType?: string, page = 1) {
+async function getListings(q?: string, location?: string, workType?: string, page = 1, sort = "newest") {
   const now = new Date()
+
+  const regularOrderBy =
+    sort === "pay_high" ? [{ payRangeTo: "desc" as const }]
+    : sort === "pay_low" ? [{ payRangeFrom: "asc" as const }]
+    : [{ createdAt: "desc" as const }, { priority: "desc" as const }]
 
   const keywordFilter = q ? {
     OR: [
@@ -76,7 +87,7 @@ async function getListings(q?: string, location?: string, workType?: string, pag
   const regular = await prisma.jobListing.findMany({
     where: regularWhere,
     include: { company: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: regularOrderBy,
     skip: Math.max(0, skip),
     take: Math.max(0, take),
   })
@@ -88,6 +99,21 @@ async function getListings(q?: string, location?: string, workType?: string, pag
   return { boosted, regular, regularTotal, totalPages: Math.max(1, totalPages) }
 }
 
+async function getHeroStats() {
+  const [roles, seekers, companies] = await Promise.all([
+    prisma.jobListing.count({ where: { status: "ACTIVE" } }),
+    prisma.user.count({ where: { role: "INTERVIEWEE" } }),
+    prisma.companyProfile.count(),
+  ])
+  return { roles, seekers, companies }
+}
+
+function formatStat(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}k`
+  return String(n)
+}
+
 async function getBannerAd() {
   const now = new Date()
   return prisma.boostAd.findFirst({
@@ -97,37 +123,111 @@ async function getBannerAd() {
   })
 }
 
+async function getOnboardingStep(session: Session | null): Promise<{ step: OnboardingStep; isDev: boolean; jobTypes: string[] }> {
+  if (!session?.user?.id) return { step: null, isDev: false, jobTypes: [] }
+  if (isAdminEmail(session.user.email)) return { step: null, isDev: false, jobTypes: [] }
+
+  // Read role + profile from the DB (not the JWT). Google users set their role
+  // *after* sign-in, so the JWT can be stale and wrongly re-trigger the role popup.
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      role: true,
+      intervieweeProfile: { include: { jobPreferences: true, techSkills: true } },
+    },
+  })
+
+  const role = dbUser?.role
+  if (!role) return { step: "role", isDev: false, jobTypes: [] }
+  if (role !== "INTERVIEWEE") return { step: null, isDev: false, jobTypes: [] }
+
+  const profile = dbUser.intervieweeProfile
+
+  if (!profile || profile.jobPreferences.length === 0) return { step: "preferences", isDev: false, jobTypes: [] }
+
+  const jobTypes = profile.jobPreferences.map(p => p.jobType)
+  const isDev = jobTypes.some(jt =>
+    ["BACKEND_DEVELOPER", "FRONTEND_DEVELOPER", "FULLSTACK_DEVELOPER"].includes(jt)
+  )
+
+  // Skills step now shows for ALL job seekers (categories filtered to their roles),
+  // but only while still onboarding — don't re-prompt people who already finished.
+  if (!profile.onboardedAt && profile.techSkills.length === 0 && !profile.skillsPrompted) {
+    return { step: "skills", isDev, jobTypes }
+  }
+  // Resume is optional — onboarding is complete once they've uploaded OR explicitly finished/skipped.
+  if (!profile.resumeUrl && !profile.onboardedAt) return { step: "resume", isDev, jobTypes }
+
+  return { step: null, isDev, jobTypes }
+}
+
 export default async function HomePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const { q, location, workType, page: pageStr } = await searchParams
+  const { q, location, workType, page: pageStr, sort } = await searchParams
   const page = Math.max(1, Number(pageStr) || 1)
 
-  const [{ boosted, regular, regularTotal, totalPages }, banner] = await Promise.all([
-    getListings(q, location, workType, page),
-    getBannerAd(),
+  const session = await auth()
+
+  const [listingsResult, banner, heroStats] = await Promise.all([
+    getListings(q, location, workType, page, sort).catch(() => null),
+    getBannerAd().catch(() => null),
+    getHeroStats().catch(() => ({ roles: 0, seekers: 0, companies: 0 })),
   ])
+
+  // DB unreachable — let error.tsx show the maintenance page
+  if (!listingsResult) throw new Error("Can't reach database server")
+
+  const { boosted, regular, regularTotal, totalPages } = listingsResult
+
+  // Saved-job bookmarks for the current seeker (to show filled/empty on each card)
+  const canSave = session?.user?.role === "INTERVIEWEE"
+  let savedJobIds = new Set<string>()
+  if (canSave && session?.user?.id) {
+    const saved = await prisma.savedJob.findMany({
+      where: { interviewee: { userId: session.user.id } },
+      select: { jobId: true },
+    }).catch(() => [])
+    savedJobIds = new Set(saved.map((s) => s.jobId))
+  }
+
+  const { step: onboardingStep, jobTypes } = await getOnboardingStep(session)
 
   const total = (page === 1 ? boosted.length : 0) + regularTotal
   const isFiltered = !!(q || location || workType)
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <OnboardingFlow step={onboardingStep} jobTypes={jobTypes} />
       <Navbar />
 
       {/* Hero */}
       <div style={{ background: "linear-gradient(180deg, #FFF7ED 0%, #FFFBF5 100%)" }}
         className="border-b border-[#F2EBDF]">
-        <div className="max-w-4xl mx-auto px-4 py-12 space-y-5">
-          <div className="text-center space-y-4">
+        <div className="max-w-4xl mx-auto px-4 py-5 md:py-9 space-y-4">
+          <div className="text-center space-y-2.5">
             <div className="inline-flex items-center gap-2 bg-white border border-[#FBDDBE] px-3 py-1.5 rounded-full text-xs font-semibold text-[#C2410C]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] inline-block" />
               Tech jobs in Malaysia · Find yours today
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-[#1C1C1E] tracking-tight leading-[1.06]">
+            <h1 className="text-[27px] md:text-4xl lg:text-5xl font-extrabold text-[#1C1C1E] tracking-tight leading-[1.06]">
               Find your next role <span className="text-[#F97316]">in tech</span>
             </h1>
-            <p className="text-[#6B7280] text-base max-w-md mx-auto leading-relaxed">
+            <p className="text-[#6B7280] text-[14px] md:text-base max-w-md mx-auto leading-relaxed">
               The job board built only for Malaysian IT professionals. No recruiter spam, no fluff.
             </p>
+
+            {/* Stats */}
+            <div className="flex items-center justify-center gap-7 md:gap-10 pt-1">
+              {[
+                { value: formatStat(heroStats.roles), label: heroStats.roles === 1 ? "role" : "roles" },
+                { value: formatStat(heroStats.seekers), label: heroStats.seekers === 1 ? "seeker" : "seekers" },
+                { value: formatStat(heroStats.companies), label: heroStats.companies === 1 ? "company" : "companies" },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <p className="text-[17px] md:text-[19px] font-extrabold text-[#1C1C1E] leading-none">{s.value}</p>
+                  <p className="text-[11.5px] text-[#9CA3AF] mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
           <Suspense>
             <JobSearch />
@@ -138,11 +238,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </div>
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 space-y-5">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-5 space-y-4">
 
         {/* Banner ad */}
         {banner && page === 1 && (
-          <div className="bg-white border border-[#FBDDBE] rounded-2xl p-5 flex items-center justify-between gap-4 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+          <div className="bg-white border border-[#FBDDBE] rounded-2xl p-4 md:p-5 flex items-center justify-between gap-3 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
             <div>
               <p className="text-xs text-[#C2410C] font-semibold mb-1">Sponsored</p>
               <p className="font-bold text-[#1C1C1E]">{banner.company.companyName} is hiring</p>
@@ -157,18 +257,23 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </div>
         )}
 
-        {/* Result count */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-[#6B7280]">
+        {/* Result count + sort */}
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-[#6B7280] min-w-0">
             <span className="font-bold text-[#F97316]">{total}</span>{" "}
             {isFiltered ? `result${total !== 1 ? "s" : ""}` : `job${total !== 1 ? "s" : ""} available`}
             {q && <> for &ldquo;{q}&rdquo;</>}
             {location && <> in {location}</>}
             {workType && <> · {workType === "REMOTE" ? "Remote" : workType === "HYBRID" ? "Hybrid" : "On-site"}</>}
           </p>
-          {isFiltered && (
-            <a href="/" className="text-sm text-[#F97316] hover:underline font-semibold">Clear all</a>
-          )}
+          <div className="flex items-center gap-3 shrink-0">
+            {isFiltered && (
+              <a href="/" className="text-sm text-[#F97316] hover:underline font-semibold">Clear all</a>
+            )}
+            <Suspense>
+              <JobSort />
+            </Suspense>
+          </div>
         </div>
 
         {/* Jobs */}
@@ -183,18 +288,22 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             {boosted.map((job) => (
               <JobCard key={job.id} id={job.id} companyId={job.company.id} title={job.title}
                 companyName={job.hideCompanyInfo ? null : job.company.companyName}
+                logoUrl={job.hideCompanyInfo ? null : job.company.logoUrl}
                 location={job.location} workType={job.workType}
                 payRangeFrom={job.payRangeFrom} payRangeTo={job.payRangeTo}
                 sellingPoint1={job.sellingPoint1} sellingPoint2={job.sellingPoint2}
-                sellingPoint3={job.sellingPoint3} isBoosted />
+                sellingPoint3={job.sellingPoint3} isBoosted
+                canSave={canSave} initialSaved={savedJobIds.has(job.id)} />
             ))}
             {regular.map((job) => (
               <JobCard key={job.id} id={job.id} companyId={job.company.id} title={job.title}
                 companyName={job.hideCompanyInfo ? null : job.company.companyName}
+                logoUrl={job.hideCompanyInfo ? null : job.company.logoUrl}
                 location={job.location} workType={job.workType}
                 payRangeFrom={job.payRangeFrom} payRangeTo={job.payRangeTo}
                 sellingPoint1={job.sellingPoint1} sellingPoint2={job.sellingPoint2}
-                sellingPoint3={job.sellingPoint3} />
+                sellingPoint3={job.sellingPoint3} isHot={job.isHot}
+                canSave={canSave} initialSaved={savedJobIds.has(job.id)} />
             ))}
           </div>
         )}

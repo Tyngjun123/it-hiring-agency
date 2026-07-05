@@ -1,3 +1,5 @@
+export const revalidate = 300
+
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
@@ -29,9 +31,9 @@ export default async function BlogPage({
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 bg-[#FFF7ED] border border-[#FBDDBE] px-3.5 py-1.5 rounded-full text-[12.5px] font-bold text-[#C2410C] mb-4">
-            The IT Hire Blog
+            The StackTalentx Blog
           </div>
-          <h1 className="text-[38px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] mb-3">
+          <h1 className="text-[26px] md:text-[38px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] mb-3">
             Grow your tech career in Malaysia
           </h1>
           <p className="text-[16px] text-[#6B7280] leading-relaxed">
@@ -138,17 +140,16 @@ export default async function BlogPage({
               Tech jobs &amp; tips, every Tuesday
             </h3>
             <p className="text-[14.5px] text-[#7A6A56]">
-              Join 18,000+ Malaysian devs getting the best new roles in their inbox.
+              The best new Malaysian tech roles in your inbox — newsletter launching soon.
             </p>
           </div>
-          <form action="/api/newsletter" method="POST" className="flex gap-2.5 items-center w-full sm:w-auto">
-            <input name="email" type="email" required placeholder="you@email.com"
-              className="bg-white border border-[#F7C99A] rounded-[12px] px-4 py-3 text-[14px] text-[#1C1C1E] placeholder-[#A8A49A] focus:border-[#F97316] focus:outline-none sm:min-w-[210px] w-full" />
-            <button type="submit"
-              className="bg-[#F97316] hover:bg-[#EA580C] text-white text-[14px] font-bold px-6 py-3 rounded-[12px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] whitespace-nowrap transition-colors shrink-0">
-              Subscribe
-            </button>
-          </form>
+          <div className="flex gap-2.5 items-center w-full sm:w-auto">
+            <input type="email" disabled placeholder="you@email.com"
+              className="bg-white/60 border border-[#F7C99A] rounded-[12px] px-4 py-3 text-[14px] text-[#A8A49A] placeholder-[#C4BFB5] cursor-not-allowed sm:min-w-[210px] w-full" />
+            <span className="bg-[#FCE4CB] text-[#C2410C] text-[14px] font-bold px-6 py-3 rounded-[12px] whitespace-nowrap shrink-0">
+              Coming soon
+            </span>
+          </div>
         </div>
 
       </main>

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
@@ -8,6 +10,11 @@ import { updateIntervieweeProfile } from "@/app/actions/profile"
 import { replaceSkills } from "@/app/actions/profile"
 import TechSkillSelector from "@/components/tech-skill-selector"
 import ResumeSection from "@/components/resume-section"
+import PhoneInput from "@/components/phone-input"
+import CollapsibleCard from "@/components/collapsible-card"
+import PreferredRolesSection from "@/components/preferred-roles-section"
+import SaveJobButton from "@/components/save-job-button"
+import { JOB_TYPE_LABELS } from "@/data/tech-skills"
 
 function getInitials(name: string | null | undefined) {
   if (!name) return "?"
@@ -24,8 +31,23 @@ export default async function ProfilePage({
 
   const profile = await prisma.intervieweeProfile.findUnique({
     where: { userId: session!.user!.id! },
-    include: { techSkills: true, user: { select: { name: true, email: true } } },
+    include: {
+      techSkills: true,
+      jobPreferences: { orderBy: { order: "asc" } },
+      savedJobs: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          jobListing: {
+            include: { company: { select: { companyName: true } } },
+          },
+        },
+      },
+      user: { select: { name: true, email: true } },
+    },
   })
+
+  const preferredRoles = profile?.jobPreferences.map((p) => p.jobType) ?? []
+  const savedJobs = profile?.savedJobs ?? []
 
   const user = profile?.user ?? { name: "", email: session!.user!.email ?? "" }
   const initials = getInitials(user.name)
@@ -70,6 +92,9 @@ export default async function ProfilePage({
                   </a>
                 )}
               </div>
+
+              {/* Preferred roles — collapsible, set during onboarding · read-only */}
+              <PreferredRolesSection roles={preferredRoles.map((jt) => JOB_TYPE_LABELS[jt] ?? jt)} />
             </div>
 
             {/* Edit form — shown when tab=edit */}
@@ -83,14 +108,10 @@ export default async function ProfilePage({
                       className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="phone" className="text-xs text-[#6B7280]">Phone</Label>
-                    <Input id="phone" name="phone" defaultValue={profile?.phone ?? ""} placeholder="0123456789"
-                      className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="whatsappNumber" className="text-xs text-[#6B7280]">WhatsApp</Label>
-                    <Input id="whatsappNumber" name="whatsappNumber" defaultValue={profile?.whatsappNumber ?? ""} placeholder="60123456789"
-                      className="text-sm border-[#E6E2D9] focus:border-[#F97316] rounded-xl" />
+                    <Label htmlFor="phone" className="text-xs text-[#6B7280]">Phone / WhatsApp</Label>
+                    <PhoneInput name="phone" defaultValue={profile?.phone ?? ""} placeholder="0123456789"
+                      className="w-full text-sm border border-[#E6E2D9] focus:border-[#F97316] rounded-xl px-3 py-2 focus:outline-none" />
+                    <p className="text-[11px] text-[#9CA3AF]">Digits only. Used as your WhatsApp contact too.</p>
                   </div>
 
                   <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider pt-1">Social links</p>
@@ -135,21 +156,46 @@ export default async function ProfilePage({
               <ResumeSection resumeUrl={profile?.resumeUrl} />
             </div>
 
-            {/* Tech skills */}
-            <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-base font-bold text-[#1C1C1E]">Tech Skills</p>
-                <span className="text-xs text-[#9CA3AF]">
-                  <span className="text-[#F97316] font-bold">{profile?.techSkills.length ?? 0}</span> selected
-                </span>
-              </div>
-              <p className="text-xs text-[#9CA3AF] mb-5">Tap to add the tools and domains you work with.</p>
+            {/* Tech skills — collapsible */}
+            <CollapsibleCard
+              title="Tech Skills"
+              count={profile?.techSkills.length ?? 0}
+              description="Tap to add the tools and domains you work with."
+            >
               <TechSkillSelector
                 existing={profile?.techSkills.map((s) => ({ language: s.language, yearsExp: s.yearsExp })) ?? []}
                 onSave={replaceSkills}
                 submitLabel="Save skills"
               />
-            </div>
+            </CollapsibleCard>
+
+            {/* Saved jobs — bookmarked listings, collapsible */}
+            <CollapsibleCard
+              title="Saved Jobs"
+              count={savedJobs.length}
+              countLabel="saved"
+              description="Jobs you bookmarked to apply later."
+            >
+              {savedJobs.length > 0 ? (
+                <div className="space-y-2.5">
+                  {savedJobs.map((s) => {
+                    const j = s.jobListing
+                    const company = j.hideCompanyInfo ? "Confidential" : j.company.companyName
+                    return (
+                      <div key={s.id} className="flex items-center gap-3 border border-[#F0EEE8] rounded-[12px] px-3.5 py-3">
+                        <Link href={`/jobs/${j.id}`} className="flex-1 min-w-0">
+                          <p className="text-[14px] font-bold text-[#1C1C1E] truncate hover:text-[#F97316] transition-colors">{j.title}</p>
+                          <p className="text-[12.5px] text-[#9CA3AF] truncate">{company}{j.location ? ` · ${j.location}` : ""}</p>
+                        </Link>
+                        <SaveJobButton jobId={j.id} initialSaved />
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-[#9CA3AF]">No saved jobs yet. Tap the bookmark on any job to save it.</p>
+              )}
+            </CollapsibleCard>
 
           </div>
         </div>

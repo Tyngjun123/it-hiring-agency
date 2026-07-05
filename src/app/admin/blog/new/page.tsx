@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import Navbar from "@/components/navbar"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
@@ -6,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { createBlogPost } from "@/app/actions/cms"
 import { BLOG_CATEGORIES } from "@/data/posts"
+import ImageUploader from "@/components/admin/image-uploader"
 
 export default async function NewBlogPostPage({
   searchParams,
@@ -85,13 +88,20 @@ export function BlogPostFields({ defaults }: { defaults?: Record<string, string 
             defaultValue={d.content as string ?? ""}
             className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] font-mono text-[13px] resize-y" />
         </div>
+
+        <div className="col-span-2 space-y-1.5">
+          <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">
+            Cover image <span className="text-[#9CA3AF] font-normal">(optional)</span>
+          </Label>
+          <ImageUploader name="coverImageUrl" defaultValue={d.coverImageUrl as string ?? ""} />
+        </div>
       </div>
 
       <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Author</p>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Author name</Label>
-          <Input name="author" defaultValue={d.author as string ?? "IT Hire Team"}
+          <Input name="author" defaultValue={d.author as string ?? "StackTalentx Team"}
             className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
         </div>
         <div className="space-y-1.5">
@@ -110,7 +120,7 @@ export function BlogPostFields({ defaults }: { defaults?: Record<string, string 
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Meta title <span className="text-[#9CA3AF] font-normal">(optional, defaults to post title)</span></Label>
-          <Input name="metaTitle" placeholder="e.g. IT Salaries in KL 2025 | IT Hire" defaultValue={d.metaTitle as string ?? ""}
+          <Input name="metaTitle" placeholder="e.g. IT Salaries in KL 2025 | StackTalentx" defaultValue={d.metaTitle as string ?? ""}
             className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
         </div>
         <div className="space-y-1.5">

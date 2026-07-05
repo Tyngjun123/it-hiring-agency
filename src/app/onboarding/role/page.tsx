@@ -28,7 +28,7 @@ export default function RoleSelectionPage() {
       <div className="w-full max-w-md px-4">
         <Card className="shadow-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome to IT Hire</CardTitle>
+            <CardTitle className="text-2xl">Welcome to StackTalentx</CardTitle>
             <CardDescription>How will you be using the platform?</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
