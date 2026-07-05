@@ -43,3 +43,6 @@ next-env.d.ts
 /src/generated/prisma
 
 .vercel
+
+# Generated QA workbook (regenerate: python scripts/md-to-xlsx.py docs/QA-CHECKLIST.md)
+docs/*.xlsx

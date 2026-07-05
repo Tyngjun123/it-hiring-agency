@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { isAdminEmail } from "@/lib/admin"
 import { resend, FROM_EMAIL } from "@/lib/resend"
+import { postBlogToTelegram } from "@/lib/telegram"
 
 async function requireAdmin() {
   const session = await auth()
@@ -25,7 +26,7 @@ export async function createBlogPost(formData: FormData) {
 
   if (!slug || !title) redirect("/admin/blog/new?error=1")
 
-  await prisma.blogPost.create({
+  const post = await prisma.blogPost.create({
     data: {
       slug,
       title,
@@ -42,6 +43,9 @@ export async function createBlogPost(formData: FormData) {
       metaDesc: (formData.get("metaDesc") as string) || null,
     },
   })
+
+  // Auto-share to Telegram when created already published.
+  if (post.published) await postBlogToTelegram(post)
 
   revalidatePath("/blog")
   revalidatePath("/admin/blog")
@@ -88,7 +92,9 @@ export async function deleteBlogPost(id: string) {
 
 export async function toggleBlogPublished(id: string, published: boolean) {
   await requireAdmin()
-  await prisma.blogPost.update({ where: { id }, data: { published } })
+  const post = await prisma.blogPost.update({ where: { id }, data: { published } })
+  // Auto-share to Telegram when a draft is turned public.
+  if (published) await postBlogToTelegram(post)
   revalidatePath("/blog")
   revalidatePath("/admin/blog")
 }
