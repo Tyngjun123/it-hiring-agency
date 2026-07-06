@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { unlockResume, getPoolResumeViewUrl } from "@/app/actions/resume-pool"
+import { unlockResume } from "@/app/actions/resume-pool"
 
 export default function ResumePoolActions({
   intervieweeId,
@@ -19,12 +19,9 @@ export default function ResumePoolActions({
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  async function openResume() {
-    setBusy(true)
-    const res = await getPoolResumeViewUrl(intervieweeId)
-    setBusy(false)
-    if ("url" in res) window.open(res.url, "_blank", "noopener,noreferrer")
-    else toast.error(res.error)
+  function openResume() {
+    // Opens our watermarked, canvas-rendered viewer (not the raw PDF).
+    window.open(`/resume-view/${intervieweeId}`, "_blank", "noopener,noreferrer")
   }
 
   async function confirmUnlock() {
