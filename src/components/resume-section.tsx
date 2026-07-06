@@ -4,13 +4,21 @@ import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { saveResumeUrl } from "@/app/actions/onboarding"
-import { removeResume } from "@/app/actions/profile"
+import { removeResume, setTalentPoolConsent } from "@/app/actions/profile"
 import { createResumeUploadUrl, getResumeViewUrl } from "@/app/actions/resume"
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll"
 
-export default function ResumeSection({ resumeUrl }: { resumeUrl: string | null | undefined }) {
+export default function ResumeSection({
+  resumeUrl,
+  talentPoolOptIn = false,
+}: {
+  resumeUrl: string | null | undefined
+  talentPoolOptIn?: boolean
+}) {
   // `stored` holds the private path (or a legacy public URL).
   const [stored, setStored] = useState(resumeUrl ?? null)
+  const [inPool, setInPool] = useState(talentPoolOptIn)
+  const [poolBusy, setPoolBusy] = useState(false)
   const [viewOpen, setViewOpen] = useState(false)
   const [viewUrl, setViewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -55,6 +63,21 @@ export default function ResumeSection({ resumeUrl }: { resumeUrl: string | null 
     setStored(null)
     setUploading(false)
     toast.success("Resume removed")
+  }
+
+  async function togglePool() {
+    const next = !inPool
+    setPoolBusy(true)
+    setInPool(next) // optimistic
+    try {
+      await setTalentPoolConsent(next)
+      toast.success(next ? "Added to the Talent Pool." : "Removed from the Talent Pool.")
+    } catch {
+      setInPool(!next) // revert
+      toast.error("Could not update. Please try again.")
+    } finally {
+      setPoolBusy(false)
+    }
   }
 
   async function openViewer() {
@@ -117,6 +140,35 @@ export default function ResumeSection({ resumeUrl }: { resumeUrl: string | null 
             <button type="button" onClick={handleRemove} disabled={uploading}
               className="text-xs font-bold text-[#DC2626] hover:underline disabled:opacity-50">Remove</button>
           </div>
+        </div>
+      )}
+
+      {/* Talent Pool consent toggle — only meaningful with a résumé on file */}
+      {stored && (
+        <div className="flex items-start justify-between gap-3 mt-3 bg-white border border-[#EEEBE3] rounded-xl px-4 py-3.5">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-[#1C1C1E]">Talent Pool</p>
+            <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
+              Let verified subscribing employers discover &amp; unlock your résumé, even before you apply.
+              Turn off anytime — you&apos;ll be removed from the pool.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={inPool}
+            onClick={togglePool}
+            disabled={poolBusy}
+            className={`relative w-11 h-6 rounded-full shrink-0 transition-colors disabled:opacity-60 ${
+              inPool ? "bg-[#F97316]" : "bg-[#D6D2C8]"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                inPool ? "translate-x-5" : ""
+              }`}
+            />
+          </button>
         </div>
       )}
 

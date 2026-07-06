@@ -61,7 +61,8 @@ export default async function ResumePoolPage() {
 
   const [seekers, unlocked, applied] = await Promise.all([
     prisma.intervieweeProfile.findMany({
-      where: { resumeUrl: { not: null } },
+      // Only seekers who explicitly consented to the talent pool are listed.
+      where: { resumeUrl: { not: null }, talentPoolOptIn: true },
       select: {
         id: true,
         user: { select: { name: true } },

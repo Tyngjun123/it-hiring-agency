@@ -11,6 +11,7 @@ export default function ResumePage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
   const [agreedShare, setAgreedShare] = useState(false)
+  const [joinPool, setJoinPool] = useState(false)
   const router = useRouter()
 
   async function finishOnboarding() {
@@ -30,7 +31,7 @@ export default function ResumePage() {
     if ("error" in signed) { setError(signed.error); setUploading(false); return }
     const { error: uploadError } = await supabase.storage.from("resumes").uploadToSignedUrl(signed.path, signed.token, file)
     if (uploadError) { setError("Upload failed. Please try again."); setUploading(false); return }
-    await saveResumeUrl(signed.path)
+    await saveResumeUrl(signed.path, undefined, joinPool)
     router.push("/onboarding/complete")
   }
 
@@ -87,6 +88,17 @@ export default function ResumePage() {
               <span className="text-[12.5px] text-[#6B7280] leading-relaxed">
                 I agree to share my resume with companies I apply to, in line with the{" "}
                 <a href="/privacy" target="_blank" className="font-semibold text-[#F97316] hover:text-[#EA580C]">Privacy Policy</a>.
+              </span>
+            </label>
+          )}
+
+          {/* Talent Pool — separate, optional consent (not required to upload) */}
+          {file && (
+            <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
+              <input type="checkbox" checked={joinPool} onChange={(e) => setJoinPool(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30 shrink-0" />
+              <span className="text-[12.5px] text-[#6B7280] leading-relaxed">
+                <strong className="text-[#3A3A3C]">Optional:</strong> also let verified subscribing employers discover &amp; unlock my resume in the Talent Pool, even if I haven&apos;t applied. You can turn this off anytime in your profile.
               </span>
             </label>
           )}

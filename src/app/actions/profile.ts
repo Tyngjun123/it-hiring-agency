@@ -11,6 +11,18 @@ async function getSession() {
   return session
 }
 
+// Opt in/out of the searchable talent pool (item 3). Records a consent
+// timestamp when opting in; opting out immediately removes the seeker from the
+// pool listing and blocks new unlocks.
+export async function setTalentPoolConsent(optIn: boolean) {
+  const session = await getSession()
+  await prisma.intervieweeProfile.update({
+    where: { userId: session.user.id },
+    data: { talentPoolOptIn: optIn, talentPoolConsentAt: optIn ? new Date() : null },
+  })
+  revalidatePath("/profile")
+}
+
 export async function updateIntervieweeProfile(formData: FormData) {
   const session = await getSession()
 

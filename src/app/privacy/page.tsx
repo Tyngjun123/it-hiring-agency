@@ -3,7 +3,7 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { LogoTile, Wordmark } from "@/components/brand"
 
-export const metadata = { title: "Privacy Policy — StackTalentx", description: "How StackTalentx collects, uses, and protects your personal data in accordance with Malaysia's PDPA 2010." }
+export const metadata = { title: "Privacy Policy — StackTalentx", description: "How StackTalentx collects, uses, and protects your personal data under Malaysia's Personal Data Protection Act 2010 (as amended 2024)." }
 
 const SUMMARY_CARDS = [
   {
@@ -23,7 +23,7 @@ const SUMMARY_CARDS = [
       </svg>
     ),
     title: "How we use it",
-    body: "To match you with relevant jobs, send application updates, improve the platform, and comply with Malaysian law. We never sell your data.",
+    body: "To match you with relevant jobs, share your résumé with employers you apply to or (if you opt in) with subscribing employers via the Talent Pool, and comply with Malaysian law. We never sell your data to advertisers or data brokers.",
   },
   {
     icon: (
@@ -33,36 +33,72 @@ const SUMMARY_CARDS = [
       </svg>
     ),
     title: "Your rights",
-    body: "Under PDPA 2010, you can access, correct, or delete your personal data at any time. Contact us at support@stacktalentx.com to exercise your rights.",
+    body: "Access, correct, port, or delete your data, and withdraw consent (including leaving the Talent Pool) at any time. Contact support@stacktalentx.com to exercise your rights.",
   },
 ]
 
 const SECTIONS = [
   {
-    id: "collect", title: "Information we collect",
+    id: "controller", title: "Who we are",
     paras: [
-      "When you create an account, we collect your name, email address, and role (job seeker or employer). Job seekers may also provide a resume, job preferences, and a list of technical skills.",
-      "We automatically collect certain technical data including your IP address, browser type, device type, and pages visited. This data is used solely for platform security and performance monitoring.",
+      "StackTalentx Technologies Sdn Bhd (“StackTalentx”, “we”, “us”) operates the IT recruitment platform at stacktalentx.com and is the data controller of your personal data. This policy explains how we handle personal data under Malaysia’s Personal Data Protection Act 2010, as amended by the Personal Data Protection (Amendment) Act 2024 (“PDPA”).",
     ],
   },
   {
-    id: "use", title: "How we use your information",
+    id: "collect", title: "Information we collect",
     paras: [
-      "We use your data to operate and improve StackTalentx: matching job seekers to relevant listings, notifying employers of new applications, and personalising your experience.",
-      "We do not sell, rent, or share your personal data with third parties for marketing purposes. We may share data with trusted service providers (cloud hosting, payment processing) who are bound by strict data processing agreements.",
+      "When you create an account we collect your name, email address, and role (job seeker or employer). Job seekers may also provide a résumé/CV, phone or WhatsApp number, job preferences, technical skills, and social profile links.",
+      "If you take part in our referral or payout programmes, we may collect bank details to process payments. We treat these as confidential and use them only for that purpose.",
+      "We automatically collect limited technical data (IP address, browser type, device type, and pages visited) used solely for platform security and performance.",
+    ],
+  },
+  {
+    id: "use", title: "How we use and share your information",
+    paras: [
+      "We use your data to operate StackTalentx: matching job seekers to listings, delivering applications to employers, personalising your experience, and complying with Malaysian law.",
+      "When you apply to a job, your profile and résumé are shared with that employer so they can consider your application.",
+      "We do not sell, rent, or trade your personal data to advertisers or data brokers. Employers pay for platform services and features (such as unlocking résumés you have chosen to make available in the Talent Pool) — this is a service fee for access, not a sale of your data.",
+      "We share data with trusted service providers who process it on our behalf under contract (cloud hosting, email delivery, database and storage), and with authorities where required by law.",
+    ],
+  },
+  {
+    id: "talent-pool", title: "Talent Pool & employer access to résumés",
+    paras: [
+      "We offer a “Talent Pool” where verified employers on a paid subscription can discover and unlock job seekers’ résumés, including seekers who have not applied to them.",
+      "Your résumé is included in the Talent Pool only if you explicitly opt in. Opting in is optional and separate from applying to jobs — you can use StackTalentx to apply for roles without joining the Talent Pool.",
+      "You can withdraw this consent at any time by turning off the Talent Pool toggle in your profile, or by deleting your résumé. Once you opt out, your profile is no longer listed for new unlocks. Employers who previously unlocked or received your résumé through an application may retain the copy they already accessed.",
+      "Employers viewing a résumé through the Talent Pool see it as a watermarked, on-screen document tied to their account. Misuse of candidate data by employers is prohibited under our Terms.",
+    ],
+  },
+  {
+    id: "transfers", title: "International transfers",
+    paras: [
+      "Some of our service providers process data on servers outside Malaysia. Where this happens, we take reasonable steps, consistent with the PDPA’s cross-border transfer requirements, to ensure your data receives a comparable level of protection.",
     ],
   },
   {
     id: "retention", title: "Data retention",
     paras: [
-      "We retain your account data for as long as your account is active. If you delete your account, we remove your personal data within 30 days, except where retention is required by law.",
+      "We keep your account data for as long as your account is active. If you delete your account or résumé, we remove the corresponding personal data within 30 days, except where longer retention is required by law.",
     ],
   },
   {
-    id: "rights", title: "Your rights under PDPA 2010",
+    id: "security", title: "Data security",
     paras: [
-      "Malaysia's Personal Data Protection Act 2010 (PDPA) gives you the right to access, correct, and in some cases withdraw consent to the processing of your personal data.",
-      "To exercise any of these rights, contact our Data Protection Officer at support@stacktalentx.com. We will respond within 21 days as required by law.",
+      "Résumés are stored in a private store and served only through short-lived, access-controlled links. We apply reasonable technical and organisational measures to protect personal data against loss, misuse, and unauthorised access.",
+    ],
+  },
+  {
+    id: "rights", title: "Your rights under the PDPA",
+    paras: [
+      "You have the right to access and correct your personal data, withdraw consent to processing (including leaving the Talent Pool), request data portability, and limit or object to certain processing.",
+      "To exercise any of these rights, contact our Data Protection Officer at support@stacktalentx.com. We will respond within the timeframe required by law.",
+    ],
+  },
+  {
+    id: "breach", title: "Data breach notification",
+    paras: [
+      "If a personal data breach likely to cause significant harm occurs, we will notify the Personal Data Protection Commissioner and affected individuals as required under the PDPA (Amendment) Act 2024.",
     ],
   },
   {
@@ -74,7 +110,7 @@ const SECTIONS = [
   {
     id: "contact", title: "Contact",
     paras: [
-      "If you have questions about this policy or wish to make a complaint, please contact us at support@stacktalentx.com or write to StackTalentx Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
+      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@stacktalentx.com, or write to StackTalentx Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
     ],
   },
 ]
@@ -90,7 +126,7 @@ export default function PrivacyPage() {
         <div className="max-w-5xl mx-auto px-10 py-10">
           <p className="text-[12.5px] font-bold text-[#C2410C] uppercase tracking-[0.07em] mb-2.5">Legal</p>
           <h1 className="text-[34px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] mb-2">Privacy Policy</h1>
-          <p className="text-[14px] text-[#9CA3AF]">Last updated 1 June 2026 · Governed by Malaysia's Personal Data Protection Act 2010</p>
+          <p className="text-[14px] text-[#9CA3AF]">Last updated 6 July 2026 · Governed by Malaysia&apos;s Personal Data Protection Act 2010 (as amended by the PDP (Amendment) Act 2024)</p>
         </div>
       </div>
 

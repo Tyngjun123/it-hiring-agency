@@ -14,7 +14,7 @@ export async function setUserRole(role: "INTERVIEWEE" | "COMPANY") {
   })
 }
 
-export async function saveResumeUrl(url: string, phone?: string) {
+export async function saveResumeUrl(url: string, phone?: string, talentPoolOptIn?: boolean) {
   const session = await auth()
   if (!session?.user?.id) return { error: "Not authenticated" }
 
@@ -31,12 +31,17 @@ export async function saveResumeUrl(url: string, phone?: string) {
   // Mark onboarding complete regardless of whether a resume was provided.
   // Store null (not "") when skipped so resumeUrl stays a clean optional value.
   // Phone is optional — only update it when the user provides one.
+  // talentPoolOptIn is explicit, separate consent for the searchable talent
+  // pool — only record it (with a timestamp) when the caller passed a value.
   await prisma.intervieweeProfile.update({
     where: { id: profile.id },
     data: {
       resumeUrl: url || null,
       onboardedAt: new Date(),
       ...(phone && phone.trim() ? { phone: phone.trim() } : {}),
+      ...(talentPoolOptIn === undefined
+        ? {}
+        : { talentPoolOptIn, talentPoolConsentAt: talentPoolOptIn ? new Date() : null }),
     },
   })
 }

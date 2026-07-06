@@ -153,7 +153,7 @@ export default async function ProfilePage({
             {/* Resume / CV */}
             <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
               <p className="text-base font-bold text-[#1C1C1E] mb-4">Resume / CV</p>
-              <ResumeSection resumeUrl={profile?.resumeUrl} />
+              <ResumeSection resumeUrl={profile?.resumeUrl} talentPoolOptIn={profile?.talentPoolOptIn} />
             </div>
 
             {/* Tech skills — collapsible */}

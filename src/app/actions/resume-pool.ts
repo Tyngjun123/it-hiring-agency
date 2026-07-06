@@ -50,9 +50,12 @@ export async function unlockResume(intervieweeId: string): Promise<UnlockResult>
 
   const seeker = await prisma.intervieweeProfile.findUnique({
     where: { id: intervieweeId },
-    select: { id: true, resumeUrl: true },
+    select: { id: true, resumeUrl: true, talentPoolOptIn: true },
   })
-  if (!seeker || !seeker.resumeUrl) return { ok: false, error: "not_found" }
+  // Must have a résumé AND have consented to the talent pool.
+  if (!seeker || !seeker.resumeUrl || !seeker.talentPoolOptIn) {
+    return { ok: false, error: "not_found" }
+  }
 
   // Already unlocked → idempotent, never re-charge.
   const existing = await prisma.unlockedResume.findUnique({
