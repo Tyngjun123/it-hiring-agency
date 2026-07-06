@@ -478,6 +478,8 @@ model SiteConfig {
   instagramUrl    String?  @map("instagram_url")
   linkedinUrl     String?  @map("linkedin_url")
   twitterUrl      String?  @map("twitter_url")
+  rednoteUrl      String?  @map("rednote_url")
+  telegramUrl     String?  @map("telegram_url")
   maintenanceMode Boolean  @default(false) @map("maintenance_mode")
   maxPlanEnabled  Boolean  @default(false) @map("max_plan_enabled")
   proPlanEnabled  Boolean  @default(false) @map("pro_plan_enabled")

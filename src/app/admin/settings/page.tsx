@@ -273,6 +273,8 @@ export default async function AdminSettingsPage({
                 { name: "instagramUrl", label: "Instagram", placeholder: "https://www.instagram.com/stacktalentx", value: config?.instagramUrl ?? "" },
                 { name: "linkedinUrl", label: "LinkedIn", placeholder: "https://www.linkedin.com/company/stacktalentx", value: config?.linkedinUrl ?? "" },
                 { name: "twitterUrl", label: "Twitter / X", placeholder: "https://twitter.com/stacktalentx", value: config?.twitterUrl ?? "" },
+                { name: "rednoteUrl", label: "RedNote (小红书)", placeholder: "https://www.xiaohongshu.com/user/profile/...", value: config?.rednoteUrl ?? "" },
+                { name: "telegramUrl", label: "Telegram", placeholder: "https://t.me/ITjobfindhere", value: config?.telegramUrl ?? "" },
               ].map(({ name, label, placeholder, value }) => (
                 <div key={name} className="space-y-1.5">
                   <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">{label}</Label>

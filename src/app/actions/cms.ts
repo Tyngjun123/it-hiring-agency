@@ -134,6 +134,8 @@ export async function saveSiteSettings(formData: FormData) {
       instagramUrl: (formData.get("instagramUrl") as string) || null,
       linkedinUrl: (formData.get("linkedinUrl") as string) || null,
       twitterUrl: (formData.get("twitterUrl") as string) || null,
+      rednoteUrl: (formData.get("rednoteUrl") as string) || null,
+      telegramUrl: (formData.get("telegramUrl") as string) || null,
     },
     create: {
       id: "singleton",
@@ -144,6 +146,8 @@ export async function saveSiteSettings(formData: FormData) {
       instagramUrl: (formData.get("instagramUrl") as string) || null,
       linkedinUrl: (formData.get("linkedinUrl") as string) || null,
       twitterUrl: (formData.get("twitterUrl") as string) || null,
+      rednoteUrl: (formData.get("rednoteUrl") as string) || null,
+      telegramUrl: (formData.get("telegramUrl") as string) || null,
     },
   })
 
