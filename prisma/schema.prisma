@@ -204,6 +204,7 @@ model IntervieweeProfile {
   companyReviews   CompanyReview[]
   referralTracking ReferralTracking?
   referralRewards  ReferralReward[]   @relation("ReferredUserRewards")
+  unlockedByCompanies UnlockedResume[]
 
   @@map("interviewee_profiles")
 }
@@ -251,15 +252,34 @@ model CompanyProfile {
   planExpiresAt             DateTime?   @map("plan_expires_at")
   billingStart              DateTime?   @map("billing_start")
   optedIntoJobHunterService Boolean     @default(false) @map("opted_into_job_hunter_service")
+  resumeTokens              Int         @default(0) @map("resume_tokens")
+  resumeTokensRefreshedAt   DateTime?   @map("resume_tokens_refreshed_at")
   createdAt                 DateTime    @default(now()) @map("created_at")
 
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  jobListings JobListing[]
-  reviews     CompanyReview[]
-  payments    Payment[]
-  boostAds    BoostAd[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobListings     JobListing[]
+  reviews         CompanyReview[]
+  payments        Payment[]
+  boostAds        BoostAd[]
+  unlockedResumes UnlockedResume[]
 
   @@map("company_profiles")
+}
+
+// A company's unlocked access to one job seeker's résumé in the Resume Pool.
+// Unique per (company, seeker) so re-viewing never re-charges a token.
+model UnlockedResume {
+  id               String   @id @default(cuid())
+  companyProfileId String   @map("company_profile_id")
+  intervieweeId    String   @map("interviewee_id")
+  costTokens       Int      @default(1) @map("cost_tokens") // 0 when free (applicant)
+  unlockedAt       DateTime @default(now()) @map("unlocked_at")
+
+  companyProfile CompanyProfile     @relation(fields: [companyProfileId], references: [id], onDelete: Cascade)
+  interviewee    IntervieweeProfile @relation(fields: [intervieweeId], references: [id], onDelete: Cascade)
+
+  @@unique([companyProfileId, intervieweeId])
+  @@map("unlocked_resumes")
 }
 
 // ─── Job Listings ─────────────────────────────────────────────────────────────
