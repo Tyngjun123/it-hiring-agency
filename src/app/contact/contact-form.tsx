@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { sendContactMessage } from "@/app/actions/contact"
 
-const TOPICS = ["Post a Job", "Billing", "Job seeker support", "Partnership", "Others"]
+const TOPICS = ["Post a Job", "Billing", "Candidate support", "Partnership", "Others"]
 
 export default function ContactForm() {
   const [topic, setTopic] = useState("Post a Job")

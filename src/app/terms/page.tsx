@@ -4,10 +4,10 @@ import Link from "next/link"
 import { LogoTile, Wordmark } from "@/components/brand"
 import OnThisPage from "./on-this-page"
 
-export const metadata = { title: "Terms of Service — StackTalentx", description: "StackTalentx terms of service governing use of the platform by job seekers and employers." }
+export const metadata = { title: "Terms of Service — StackTalentx", description: "StackTalentx terms of service governing use of the platform by candidates and employers." }
 
 const SECTIONS = [
-  { id: "acceptance", label: "1. Acceptance", title: "1. Acceptance of terms", body: "By accessing or using StackTalentx (stacktalentx.com), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform. These terms apply to all visitors, job seekers and employers." },
+  { id: "acceptance", label: "1. Acceptance", title: "1. Acceptance of terms", body: "By accessing or using StackTalentx (stacktalentx.com), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform. These terms apply to all visitors, candidates and employers." },
   {
     id: "using", label: "2. Using StackTalentx", title: "2. Using StackTalentx",
     body: "StackTalentx is a job platform exclusively for technology roles in Malaysia. You agree to use the service only for lawful purposes and in line with these terms.",
@@ -17,11 +17,11 @@ const SECTIONS = [
       "Impersonate another person, company or StackTalentx itself.",
     ],
   },
-  { id: "accounts", label: "3. Accounts", title: "3. Accounts", body: "You are responsible for keeping your account credentials secure and for all activity under your account. Job seeker accounts are free. Employer accounts may require a paid subscription to access certain features." },
+  { id: "accounts", label: "3. Accounts", title: "3. Accounts", body: "You are responsible for keeping your account credentials secure and for all activity under your account. Candidate accounts are free. Employer accounts may require a paid subscription to access certain features." },
   { id: "postings", label: "4. Job postings", title: "4. Job postings", body: "Employers are solely responsible for the content and accuracy of their listings. StackTalentx reserves the right to review, edit or remove any posting that violates these terms or applicable Malaysian employment law." },
   {
     id: "resume-pool", label: "5. Resume Pool", title: "5. Resume Pool & employer obligations",
-    body: "Employers on an eligible paid subscription may unlock and view job seekers' résumés through the Resume Pool. Access is granted strictly for legitimate recruitment and hiring purposes, and only to résumés of candidates who have consented to be included. All candidate data remains protected under our Privacy Policy and Malaysia's Personal Data Protection Act 2010 (as amended). When accessing the Resume Pool you agree that you will NOT:",
+    body: "Employers on an eligible paid subscription may unlock and view candidates' résumés through the Resume Pool. Access is granted strictly for legitimate recruitment and hiring purposes, and only to résumés of candidates who have consented to be included. All candidate data remains protected under our Privacy Policy and Malaysia's Personal Data Protection Act 2010 (as amended). When accessing the Resume Pool you agree that you will NOT:",
     bullets: [
       "Use a candidate's résumé or personal data for any purpose other than evaluating and contacting them about a genuine job opportunity.",
       "Download, screenshot, print, scrape, or otherwise reproduce or extract résumés or candidate data from the platform's viewer.",

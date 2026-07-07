@@ -129,7 +129,7 @@ export default function AuthModal() {
               {(["INTERVIEWEE", "COMPANY"] as const).map((r) => (
                 <button key={r} type="button" onClick={() => setRole(r)}
                   className={`flex-1 text-[13.5px] font-semibold py-2.5 rounded-[9px] transition-all ${role === r ? "bg-[#1C1C1E] text-white" : "text-[#6B7280]"}`}>
-                  {r === "INTERVIEWEE" ? "Job Seeker" : "Company"}
+                  {r === "INTERVIEWEE" ? "Candidate" : "Employer"}
                 </button>
               ))}
             </div>

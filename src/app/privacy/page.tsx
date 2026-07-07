@@ -47,7 +47,7 @@ const SECTIONS = [
   {
     id: "collect", title: "Information we collect",
     paras: [
-      "When you create an account we collect your name, email address, and role (job seeker or employer). Job seekers may also provide a résumé/CV, phone or WhatsApp number, job preferences, technical skills, and social profile links.",
+      "When you create an account we collect your name, email address, and role (candidate or employer). Candidates may also provide a résumé/CV, phone or WhatsApp number, job preferences, technical skills, and social profile links.",
       "If you take part in our referral or payout programmes, we may collect bank details to process payments. We treat these as confidential and use them only for that purpose.",
       "We automatically collect limited technical data (IP address, browser type, device type, and pages visited) used solely for platform security and performance.",
     ],
@@ -55,7 +55,7 @@ const SECTIONS = [
   {
     id: "use", title: "How we use and share your information",
     paras: [
-      "We use your data to operate StackTalentx: matching job seekers to listings, delivering applications to employers, personalising your experience, and complying with Malaysian law.",
+      "We use your data to operate StackTalentx: matching candidates to listings, delivering applications to employers, personalising your experience, and complying with Malaysian law.",
       "When you apply to a job, your profile and résumé are shared with that employer so they can consider your application.",
       "We do not sell, rent, or trade your personal data to advertisers or data brokers. Employers pay for platform services and features (such as unlocking résumés you have chosen to make available in the Talent Pool) — this is a service fee for access, not a sale of your data.",
       "We share data with trusted service providers who process it on our behalf under contract (cloud hosting, email delivery, database and storage), and with authorities where required by law.",
@@ -64,7 +64,7 @@ const SECTIONS = [
   {
     id: "talent-pool", title: "Talent Pool & employer access to résumés",
     paras: [
-      "We offer a “Talent Pool” where verified employers on a paid subscription can discover and unlock job seekers’ résumés, including seekers who have not applied to them.",
+      "We offer a “Talent Pool” where verified employers on a paid subscription can discover and unlock candidates’ résumés, including candidates who have not applied to them.",
       "Your résumé is included in the Talent Pool only if you explicitly opt in. Opting in is optional and separate from applying to jobs — you can use StackTalentx to apply for roles without joining the Talent Pool.",
       "You can withdraw this consent at any time by turning off the Talent Pool toggle in your profile, or by deleting your résumé. Once you opt out, your profile is no longer listed for new unlocks. Employers who previously unlocked or received your résumé through an application may retain the copy they already accessed.",
       "Employers viewing a résumé through the Talent Pool see it as a watermarked, on-screen document tied to their account. Misuse of candidate data by employers is prohibited under our Terms.",

@@ -8,7 +8,7 @@ import { ensureResumeTokens } from "@/lib/resume-tokens"
 import ResumePoolActions from "@/components/resume-pool-actions"
 
 function maskName(name: string | null): string {
-  if (!name?.trim()) return "Job Seeker"
+  if (!name?.trim()) return "Talent"
   return name
     .trim()
     .split(/\s+/)
@@ -43,7 +43,7 @@ export default async function ResumePoolPage() {
           </div>
           <h1 className="text-xl font-extrabold text-[#1C1C1E] mt-4">Resume Pool is a Pro / Max feature</h1>
           <p className="text-sm text-[#6B7280] mt-2 max-w-md mx-auto">
-            Browse and unlock job seekers&apos; résumés directly. Pro includes 50 unlock tokens
+            Browse talent and unlock their résumés directly. Pro includes 50 unlock tokens
             per month, Max includes 300. Upgrade to get access.
           </p>
           <Link
@@ -92,7 +92,7 @@ export default async function ResumePoolPage() {
         <div>
           <h1 className="text-[22px] font-extrabold text-[#1C1C1E] tracking-tight">Resume Pool</h1>
           <p className="text-sm text-[#9CA3AF] mt-1">
-            Browse job seekers and unlock their résumés. Applicants who applied to your jobs are free.
+            Browse talent and unlock their résumés. Applicants who applied to your jobs are free.
           </p>
         </div>
         <div className="bg-[#FFF7ED] border border-[#FBDDBE] rounded-xl px-4 py-3 text-center shrink-0">
@@ -106,7 +106,7 @@ export default async function ResumePoolPage() {
 
       {seekers.length === 0 ? (
         <div className="bg-white border border-[#EEEBE3] rounded-2xl p-10 text-center text-sm text-[#9CA3AF]">
-          No job seeker résumés available yet.
+          No talent available yet.
         </div>
       ) : (
         <div className="space-y-3">
@@ -124,7 +124,7 @@ export default async function ResumePoolPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-bold text-[#1C1C1E] truncate">
-                      {revealed ? (s.user?.name ?? "Job Seeker") : maskName(s.user?.name ?? null)}
+                      {revealed ? (s.user?.name ?? "Talent") : maskName(s.user?.name ?? null)}
                     </p>
                     {isApplied && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#16A34A] shrink-0">

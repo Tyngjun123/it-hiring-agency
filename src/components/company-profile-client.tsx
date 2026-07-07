@@ -519,7 +519,7 @@ export default function CompanyProfileClient({
                   ) : alreadyReviewed ? (
                     <p className="text-[12.5px] text-[#9CA3AF]">You have already reviewed this company.</p>
                   ) : (
-                    <p className="text-[12.5px] text-[#9CA3AF]">Sign in as a job seeker to review.</p>
+                    <p className="text-[12.5px] text-[#9CA3AF]">Sign in as a candidate to review.</p>
                   )}
                 </div>
               )}

@@ -75,7 +75,7 @@ export default async function Footer() {
 
           {showJobSeekers && (
             <div className="space-y-3">
-              <p className="font-bold text-[#1C1C1E]">Job Seekers</p>
+              <p className="font-bold text-[#1C1C1E]">Candidates</p>
               <ul className="space-y-2 text-[#6B7280]">
                 <li><Link href="/" className="hover:text-[#F97316] transition-colors">Browse jobs</Link></li>
                 <li><Link href="/dashboard" className="hover:text-[#F97316] transition-colors">My applications</Link></li>

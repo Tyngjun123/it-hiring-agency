@@ -3,7 +3,7 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import FAQAccordion from "./faq-accordion"
 
-export const metadata = { title: "Help Center — StackTalentx", description: "Find answers to common questions about StackTalentx for job seekers and employers." }
+export const metadata = { title: "Help Center — StackTalentx", description: "Find answers to common questions about StackTalentx for candidates and employers." }
 
 export default function HelpPage() {
   return (

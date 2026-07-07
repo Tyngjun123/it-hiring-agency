@@ -157,7 +157,7 @@ export default function JobForm({ action, defaultValues: d = {}, submitLabel = "
         <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">
           Required tech skills <span className="text-[#9CA3AF] font-normal">(pick 3–5)</span>
         </Label>
-        <p className="text-[12.5px] text-[#9CA3AF]">Helps job seekers scan the role fast, and powers candidate matching alerts.</p>
+        <p className="text-[12.5px] text-[#9CA3AF]">Helps candidates scan the role fast, and powers candidate matching alerts.</p>
         {skills.map((s) => <input key={s} type="hidden" name="requiredSkills" value={s} />)}
         <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-1">
           {JOB_SKILL_OPTIONS.map((s) => {

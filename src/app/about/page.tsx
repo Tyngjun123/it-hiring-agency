@@ -22,7 +22,7 @@ const VALUES = [
   {
     icon: "🚫",
     title: "No recruiter spam",
-    body: "Job seekers control who can contact them. Companies post directly — no middlemen inflating salaries and ghosting candidates.",
+    body: "Candidates control who can contact them. Employers post directly — no middlemen inflating salaries and ghosting candidates.",
   },
   {
     icon: "⚡",
@@ -83,7 +83,7 @@ export default async function AboutPage() {
             { value: `${jobs}+`, label: "Active job listings" },
             { value: `${companies}+`, label: "Companies hiring" },
             { value: "100%", label: "IT-focused roles" },
-            { value: "Free", label: "For job seekers" },
+            { value: "Free", label: "For candidates" },
           ].map(({ value, label }) => (
             <div key={label} className="bg-white border border-[#EEEBE3] rounded-2xl p-6 text-center shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
               <p className="text-[30px] font-extrabold text-[#F97316] tracking-tight">{value}</p>
@@ -100,7 +100,7 @@ export default async function AboutPage() {
           </h2>
           <div className="space-y-4 text-[15px] text-[#4B5563] leading-relaxed">
             <p>
-              The hiring process for tech talent in Malaysia was broken. Job seekers wasted hours on generic boards full of spam. Companies paid expensive agencies and still got mismatched candidates. StackTalentx was built to fix that.
+              The hiring process for tech talent in Malaysia was broken. Candidates wasted hours on generic boards full of spam. Employers paid expensive agencies and still got mismatched candidates. StackTalentx was built to fix that.
             </p>
             <p>
               We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.

@@ -6,12 +6,12 @@ type FAQItem = { q: string; a: string; category: string }
 
 const ALL_FAQS: FAQItem[] = [
   // Job Seekers
-  { category: "Job Seekers", q: "Is StackTalentx free for job seekers?", a: "Yes — StackTalentx is completely free for job seekers. You can browse all listings, apply to roles, upload your resume and track your application status at no cost, forever." },
-  { category: "Job Seekers", q: "How do I apply for a job?", a: "Click any job listing to view full details, then hit the Apply button. You'll need to be signed in and have a completed profile. Your resume and skills are sent directly to the employer." },
-  { category: "Job Seekers", q: "How do I upload or update my resume?", a: "Go to My Profile → Resume section. You can upload a PDF or Word document (max 5 MB). Employers can download it when reviewing your application." },
-  { category: "Job Seekers", q: "Can I hide my profile from my current employer?", a: "Yes. In your profile settings, toggle 'Profile visibility' to Private. Your profile won't appear in employer searches, but you can still apply to jobs directly." },
-  { category: "Job Seekers", q: "How do I track my application status?", a: "Go to the Applications page in your dashboard. Each application shows its current status — Under Review, then Shortlisted or Interviewing as the employer progresses, and finally Hired or Not Selected. You'll get an email when the employer reaches a decision." },
-  { category: "Job Seekers", q: "What types of roles are listed on StackTalentx?", a: "Every role on StackTalentx is a technology position — frontend, backend, fullstack, mobile, DevOps, QA, product, and infrastructure roles across Malaysia, including remote and hybrid." },
+  { category: "Candidates", q: "Is StackTalentx free for candidates?", a: "Yes — StackTalentx is completely free for candidates. You can browse all listings, apply to roles, upload your resume and track your application status at no cost, forever." },
+  { category: "Candidates", q: "How do I apply for a job?", a: "Click any job listing to view full details, then hit the Apply button. You'll need to be signed in and have a completed profile. Your resume and skills are sent directly to the employer." },
+  { category: "Candidates", q: "How do I upload or update my resume?", a: "Go to My Profile → Resume section. You can upload a PDF or Word document (max 5 MB). Employers can download it when reviewing your application." },
+  { category: "Candidates", q: "Can I hide my profile from my current employer?", a: "Yes. In your profile settings, toggle 'Profile visibility' to Private. Your profile won't appear in employer searches, but you can still apply to jobs directly." },
+  { category: "Candidates", q: "How do I track my application status?", a: "Go to the Applications page in your dashboard. Each application shows its current status — Under Review, then Shortlisted or Interviewing as the employer progresses, and finally Hired or Not Selected. You'll get an email when the employer reaches a decision." },
+  { category: "Candidates", q: "What types of roles are listed on StackTalentx?", a: "Every role on StackTalentx is a technology position — frontend, backend, fullstack, mobile, DevOps, QA, product, and infrastructure roles across Malaysia, including remote and hybrid." },
 
   // Employers
   { category: "Employers", q: "How do I post a job?", a: "Register or sign in as an employer, complete your Company Profile, then click '+ Post a Job' in the navigation. Your listing goes live immediately after submission." },
@@ -33,7 +33,7 @@ const ALL_FAQS: FAQItem[] = [
   { category: "Technical", q: "I found a bug or have a feature request. How do I report it?", a: "Use the Contact Us page or email us at support@stacktalentx.com. For urgent issues, include your account email and a brief description of what happened." },
 ]
 
-const CATEGORIES = ["All", "Job Seekers", "Employers", "Billing", "Technical"]
+const CATEGORIES = ["All", "Candidates", "Employers", "Billing", "Technical"]
 
 export default function FAQAccordion() {
   const [activeCategory, setActiveCategory] = useState("All")
