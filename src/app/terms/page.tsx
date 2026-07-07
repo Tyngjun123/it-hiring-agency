@@ -65,7 +65,7 @@ export default function TermsPage() {
         <div className="px-4 md:px-10 py-6 md:py-9 max-w-[720px]">
           {/* Disclaimer */}
           <div className="bg-[#FFF7ED] rounded-[12px] px-4 py-4 text-[13.5px] text-[#8A5A2B] leading-[1.6] mb-7">
-            This is placeholder legal copy for design purposes only and does not constitute the actual terms governing use of StackTalentx. Replace with reviewed legal copy before launch.
+            These Terms of Service are effective as of 7 July 2026. If you have any questions about them, contact us at support@stacktalentx.com.
           </div>
 
           {SECTIONS.map(s => (
