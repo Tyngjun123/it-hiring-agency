@@ -13,10 +13,11 @@ type Mode = "login" | "register" | "forgot"
 const inputCls =
   "w-full border border-[#E6E2D9] rounded-[11px] px-3.5 py-3 text-[14px] text-[#1C1C1E] placeholder-[#A8A49A] focus:outline-none focus:border-[#F97316] transition-colors"
 
-const GoogleBtn = ({ disabled }: { disabled?: boolean }) => (
+const GoogleBtn = ({ blocked, onBlocked }: { blocked?: boolean; onBlocked?: () => void }) => (
   <form action={signInWithGoogle}>
-    <button type="submit" disabled={disabled}
-      className="w-full flex items-center justify-center gap-2.5 border border-[#E6E2D9] rounded-[12px] px-4 py-3 text-[14px] font-bold text-[#3A3A3C] bg-white hover:bg-[#FAFAF8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+    <button type="submit"
+      onClick={(e) => { if (blocked) { e.preventDefault(); onBlocked?.() } }}
+      className="w-full flex items-center justify-center gap-2.5 border border-[#E6E2D9] rounded-[12px] px-4 py-3 text-[14px] font-bold text-[#3A3A3C] bg-white hover:bg-[#FAFAF8] transition-colors">
       <svg className="w-5 h-5" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -41,12 +42,13 @@ export default function AuthModal() {
   const [loading, setLoading] = useState(false)
   const [role, setRole] = useState<"INTERVIEWEE" | "COMPANY">("INTERVIEWEE")
   const [agreed, setAgreed] = useState(false)
+  const [googleHint, setGoogleHint] = useState(false)
 
   useEffect(() => {
     // Reset transient state every time the modal opens — the component is mounted
     // globally and never unmounts, so without this the "loading" flag from a prior
     // (successful) sign-in stays true and leaves the button stuck on "Signing in…".
-    if (authParam) { setMode(authParam); setError(""); setLoading(false) }
+    if (authParam) { setMode(authParam); setError(""); setLoading(false); setGoogleHint(false) }
     if (roleParam === "company") setRole("COMPANY")
     else if (roleParam === "interviewee") setRole("INTERVIEWEE")
   }, [authParam, roleParam])
@@ -133,7 +135,10 @@ export default function AuthModal() {
                 </button>
               ))}
             </div>
-            <GoogleBtn disabled={!agreed} />
+            <GoogleBtn blocked={!agreed} onBlocked={() => setGoogleHint(true)} />
+            {googleHint && !agreed && (
+              <p className="text-[12px] text-[#DC2626] font-medium mt-2">Please tick the box below to agree to the Privacy Policy &amp; Terms first.</p>
+            )}
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-[#ECE9E1]" /><span className="text-[12px] text-[#B6B2A8]">or</span><div className="flex-1 h-px bg-[#ECE9E1]" />
             </div>
