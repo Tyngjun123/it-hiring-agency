@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { getSiteConfig } from "@/lib/site-config"
 import { getCmsMap } from "@/lib/cms"
 import { PRICING_FAQS, parseFaqs } from "@/data/faqs"
+import { PRICING_PLANS_DEFAULT, parsePlans } from "@/data/plans"
 
 type Plan = {
   name: string
@@ -84,6 +85,9 @@ export default async function PricingPage() {
   const config = await getSiteConfig()
   const cms = await getCmsMap()
   const pricingFaqs = parseFaqs(cms["pricing_faqs"], PRICING_FAQS)
+  // Merge CMS-editable copy over the base plans (CTA/badge/flags stay in code).
+  const editablePlans = parsePlans(cms["pricing_plans"], PRICING_PLANS_DEFAULT)
+  const plans = PLANS.map((base, i) => ({ ...base, ...(editablePlans[i] ?? {}) }))
   const maxPlanEnabled = config?.maxPlanEnabled ?? false
   const proPlanEnabled = config?.proPlanEnabled ?? false
 
@@ -100,7 +104,7 @@ export default async function PricingPage() {
 
         {/* Plan cards */}
         <div className="grid md:grid-cols-3 gap-6 items-stretch">
-          {PLANS.map((plan) => {
+          {plans.map((plan) => {
             const locked =
               (plan.flag === "pro" && !proPlanEnabled) ||
               (plan.flag === "max" && !maxPlanEnabled)

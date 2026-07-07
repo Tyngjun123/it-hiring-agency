@@ -1,7 +1,7 @@
 // Resolves the canonical site origin for absolute URLs (sitemap, OG tags, etc.)
 // Priority: explicit NEXT_PUBLIC_SITE_URL → Vercel production domain → localhost.
 // Always returns a valid, parseable URL — falls back if an env value is malformed.
-const FALLBACK_URL = "https://it-hiring-agency.vercel.app"
+const FALLBACK_URL = "https://www.techirex.com"
 
 export function getSiteUrl(): string {
   const candidates = [

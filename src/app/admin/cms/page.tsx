@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 import { saveCmsContent } from "@/app/actions/cms"
 import FaqEditor from "@/components/admin/faq-editor"
 import { HELP_FAQS, PRICING_FAQS, HELP_FAQ_CATEGORIES, parseFaqs } from "@/data/faqs"
+import PlanEditor from "@/components/admin/plan-editor"
+import { PRICING_PLANS_DEFAULT, parsePlans } from "@/data/plans"
 
 const DEFAULTS: Record<string, string> = {
   contact_email: "support@stacktalentx.com",
@@ -43,6 +45,7 @@ export default async function AdminCmsPage({
 
   const helpFaqs = parseFaqs(cms["help_faqs"], HELP_FAQS)
   const pricingFaqs = parseFaqs(cms["pricing_faqs"], PRICING_FAQS)
+  const pricingPlans = parsePlans(cms["pricing_plans"], PRICING_PLANS_DEFAULT)
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -69,13 +72,29 @@ export default async function AdminCmsPage({
           </div>
         )}
 
+        {/* Quick navigation — jump to a section */}
+        <div className="flex flex-wrap gap-2 sticky top-16 z-10 bg-[#FAFAF8]/90 backdrop-blur py-2 -my-2">
+          {[
+            { id: "cms-contact", label: "Contact" },
+            { id: "cms-about", label: "About" },
+            { id: "cms-help", label: "Help FAQ" },
+            { id: "cms-pricing-faq", label: "Pricing FAQ" },
+            { id: "cms-pricing-plans", label: "Pricing Plans" },
+          ].map((s) => (
+            <a key={s.id} href={`#${s.id}`}
+              className="text-[13px] font-bold text-[#3A3A3C] bg-white border border-[#E6E2D9] rounded-full px-3.5 py-1.5 hover:border-[#F97316] hover:text-[#F97316] transition-colors">
+              {s.label}
+            </a>
+          ))}
+        </div>
+
         <form action={saveCmsContent} className="space-y-6">
 
           {/* Contact page */}
           <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-5">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">✉</div>
-              <h2 className="font-extrabold text-[#1C1C1E]">Contact page</h2>
+              <h2 id="cms-contact" className="font-extrabold text-[#1C1C1E] scroll-mt-28">Contact page</h2>
             </div>
 
             <div className="space-y-1.5">
@@ -122,7 +141,7 @@ export default async function AdminCmsPage({
           <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-5">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">ⓘ</div>
-              <h2 className="font-extrabold text-[#1C1C1E]">About us page</h2>
+              <h2 id="cms-about" className="font-extrabold text-[#1C1C1E] scroll-mt-28">About us page</h2>
             </div>
 
             <div className="space-y-1.5">
@@ -161,7 +180,7 @@ export default async function AdminCmsPage({
           <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">❓</div>
-              <h2 className="font-extrabold text-[#1C1C1E]">Help page — FAQ</h2>
+              <h2 id="cms-help" className="font-extrabold text-[#1C1C1E] scroll-mt-28">Help page — FAQ</h2>
             </div>
             <p className="text-[12.5px] text-[#9CA3AF]">Questions shown on the Help Center, grouped by category.</p>
             <FaqEditor name="help_faqs" initial={helpFaqs} categories={HELP_FAQ_CATEGORIES} />
@@ -171,9 +190,19 @@ export default async function AdminCmsPage({
           <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">❓</div>
-              <h2 className="font-extrabold text-[#1C1C1E]">Pricing page — Common questions</h2>
+              <h2 id="cms-pricing-faq" className="font-extrabold text-[#1C1C1E] scroll-mt-28">Pricing page — Common questions</h2>
             </div>
             <FaqEditor name="pricing_faqs" initial={pricingFaqs} />
+          </div>
+
+          {/* Pricing plans */}
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">💳</div>
+              <h2 id="cms-pricing-plans" className="font-extrabold text-[#1C1C1E] scroll-mt-28">Pricing page — Plans</h2>
+            </div>
+            <p className="text-[12.5px] text-[#9CA3AF]">Edit each plan&apos;s name, price, tagline &amp; features. The button, badge and enable status stay controlled in Settings.</p>
+            <PlanEditor name="pricing_plans" initial={pricingPlans} />
           </div>
 
           <Button type="submit"
