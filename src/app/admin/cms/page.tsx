@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { saveCmsContent } from "@/app/actions/cms"
+import FaqEditor from "@/components/admin/faq-editor"
+import { HELP_FAQS, PRICING_FAQS, HELP_FAQ_CATEGORIES, parseFaqs } from "@/data/faqs"
 
 const DEFAULTS: Record<string, string> = {
   contact_email: "support@stacktalentx.com",
@@ -17,9 +19,9 @@ const DEFAULTS: Record<string, string> = {
   contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
   meta_contact_title: "Contact StackTalentx | Malaysia's IT Job Platform",
   meta_contact_desc: "Get in touch with the StackTalentx team for job posting, billing or partnership enquiries.",
-  about_tagline: "The IT job board built for Malaysia",
-  about_hero: "We connect Malaysia's best tech talent with the companies building the future.",
-  about_body: "<p>StackTalentx was founded in 2024 with a simple mission: make it easier for Malaysian IT professionals to find great jobs — and for companies to hire them.</p>",
+  about_tagline: "The job board Malaysia's tech industry deserved.",
+  about_hero: "StackTalentx is a focused job platform built exclusively for Malaysian IT professionals and the companies that hire them. No noise. No middlemen. Just great tech jobs.",
+  about_body: "<p>The hiring process for tech talent in Malaysia was broken. Candidates wasted hours on generic boards full of spam. Employers paid expensive agencies and still got mismatched candidates. StackTalentx was built to fix that.</p><p>We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.</p><p>Every product decision we make is guided by one question: does this help a Malaysian developer find a great job faster, or help a Malaysian tech team find the right person faster?</p>",
   meta_about_title: "About StackTalentx | Malaysia's IT Job Platform",
   meta_about_desc: "Learn about StackTalentx — the job board built specifically for Malaysian IT professionals and the companies hiring them.",
 }
@@ -38,6 +40,9 @@ export default async function AdminCmsPage({
   function val(key: string) {
     return cms[key] ?? DEFAULTS[key] ?? ""
   }
+
+  const helpFaqs = parseFaqs(cms["help_faqs"], HELP_FAQS)
+  const pricingFaqs = parseFaqs(cms["pricing_faqs"], PRICING_FAQS)
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -150,6 +155,25 @@ export default async function AdminCmsPage({
                   className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
               </div>
             </div>
+          </div>
+
+          {/* Help page FAQ */}
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">❓</div>
+              <h2 className="font-extrabold text-[#1C1C1E]">Help page — FAQ</h2>
+            </div>
+            <p className="text-[12.5px] text-[#9CA3AF]">Questions shown on the Help Center, grouped by category.</p>
+            <FaqEditor name="help_faqs" initial={helpFaqs} categories={HELP_FAQ_CATEGORIES} />
+          </div>
+
+          {/* Pricing common questions */}
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">❓</div>
+              <h2 className="font-extrabold text-[#1C1C1E]">Pricing page — Common questions</h2>
+            </div>
+            <FaqEditor name="pricing_faqs" initial={pricingFaqs} />
           </div>
 
           <Button type="submit"

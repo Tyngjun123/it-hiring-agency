@@ -133,6 +133,8 @@ export async function saveCmsContent(formData: FormData) {
 
   revalidatePath("/contact")
   revalidatePath("/about")
+  revalidatePath("/help")
+  revalidatePath("/pricing")
   revalidatePath("/admin/cms")
   redirect("/admin/cms?toast=cms_saved")
 }

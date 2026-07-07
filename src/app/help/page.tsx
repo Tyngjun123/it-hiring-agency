@@ -2,10 +2,14 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
 import FAQAccordion from "./faq-accordion"
+import { getCmsMap } from "@/lib/cms"
+import { HELP_FAQS, parseFaqs } from "@/data/faqs"
 
 export const metadata = { title: "Help Center — StackTalentx", description: "Find answers to common questions about StackTalentx for candidates and employers." }
 
-export default function HelpPage() {
+export default async function HelpPage() {
+  const cms = await getCmsMap()
+  const faqs = parseFaqs(cms["help_faqs"], HELP_FAQS)
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
       <Navbar />
@@ -36,7 +40,7 @@ export default function HelpPage() {
       </div>
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-12">
-        <FAQAccordion />
+        <FAQAccordion faqs={faqs} />
 
         {/* Still need help */}
         <div className="max-w-[720px] mx-auto mt-10 bg-[#FFF7ED] border border-[#FBDDBE] rounded-[16px] p-7 text-center">

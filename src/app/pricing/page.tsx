@@ -3,6 +3,8 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { getSiteConfig } from "@/lib/site-config"
+import { getCmsMap } from "@/lib/cms"
+import { PRICING_FAQS, parseFaqs } from "@/data/faqs"
 
 type Plan = {
   name: string
@@ -80,6 +82,8 @@ const BOOST_FEATURES = [
 
 export default async function PricingPage() {
   const config = await getSiteConfig()
+  const cms = await getCmsMap()
+  const pricingFaqs = parseFaqs(cms["pricing_faqs"], PRICING_FAQS)
   const maxPlanEnabled = config?.maxPlanEnabled ?? false
   const proPlanEnabled = config?.proPlanEnabled ?? false
 
@@ -202,12 +206,7 @@ export default async function PricingPage() {
         {/* FAQ */}
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-[#1C1C1E]">Common questions</h2>
-          {[
-            { q: "How do I pay?", a: "We currently accept manual bank transfer (Maybank). Contact us after payment with your reference number and we'll activate your plan within 1 business day." },
-            { q: "Can I cancel anytime?", a: "Yes. Pro and Max run month-to-month with no lock-in. Contact us before your next billing date to cancel." },
-            { q: "What happens when I hit the listing limit?", a: "Your existing listings stay active. On Free you just can't post new ones until you upgrade or close a listing; Pro covers up to 30 postings/month and Max is unlimited." },
-            { q: "Is the Boost add-on separate from my plan?", a: "Yes. Any company can buy a Boost for an individual listing at RM 100 / 30 days. The Max plan also includes 10 boost credits every month." },
-          ].map(({ q, a }) => (
+          {pricingFaqs.map(({ q, a }) => (
             <div key={q} className="bg-white border border-[#EEEBE3] rounded-xl p-5">
               <p className="font-bold text-[#1C1C1E] text-sm">{q}</p>
               <p className="text-sm text-[#6B7280] mt-1.5">{a}</p>

@@ -4,6 +4,15 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import { getCmsMap } from "@/lib/cms"
+
+// Fallbacks match the live copy so the page is unchanged until edited in the CMS.
+const ABOUT_TAGLINE = "The job board Malaysia's tech industry deserved."
+const ABOUT_HERO = "StackTalentx is a focused job platform built exclusively for Malaysian IT professionals and the companies that hire them. No noise. No middlemen. Just great tech jobs."
+const ABOUT_BODY =
+  "<p>The hiring process for tech talent in Malaysia was broken. Candidates wasted hours on generic boards full of spam. Employers paid expensive agencies and still got mismatched candidates. StackTalentx was built to fix that.</p>" +
+  "<p>We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.</p>" +
+  "<p>Every product decision we make is guided by one question: does this help a Malaysian developer find a great job faster, or help a Malaysian tech team find the right person faster?</p>"
 
 async function getStats() {
   const [companies, jobs] = await Promise.all([
@@ -44,6 +53,10 @@ const TEAM = [
 
 export default async function AboutPage() {
   const { companies, jobs } = await getStats()
+  const cms = await getCmsMap()
+  const aboutTagline = cms["about_tagline"] ?? ABOUT_TAGLINE
+  const aboutHero = cms["about_hero"] ?? ABOUT_HERO
+  const aboutBody = cms["about_body"] ?? ABOUT_BODY
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
@@ -57,10 +70,10 @@ export default async function AboutPage() {
             About StackTalentx
           </div>
           <h1 className="text-[28px] md:text-[42px] lg:text-[52px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] leading-[1.08]">
-            The job board Malaysia's<br className="hidden md:block" /> tech industry deserved.
+            {aboutTagline}
           </h1>
           <p className="text-[17px] text-[#7A6A56] leading-relaxed max-w-xl mx-auto">
-            StackTalentx is a focused job platform built exclusively for Malaysian IT professionals and the companies that hire them. No noise. No middlemen. Just great tech jobs.
+            {aboutHero}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link href="/"
@@ -98,17 +111,8 @@ export default async function AboutPage() {
           <h2 className="text-[26px] font-extrabold text-[#1C1C1E] tracking-tight leading-[1.2] mb-5">
             Make finding and hiring tech talent in Malaysia feel effortless.
           </h2>
-          <div className="space-y-4 text-[15px] text-[#4B5563] leading-relaxed">
-            <p>
-              The hiring process for tech talent in Malaysia was broken. Candidates wasted hours on generic boards full of spam. Employers paid expensive agencies and still got mismatched candidates. StackTalentx was built to fix that.
-            </p>
-            <p>
-              We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.
-            </p>
-            <p>
-              Every product decision we make is guided by one question: does this help a Malaysian developer find a great job faster, or help a Malaysian tech team find the right person faster?
-            </p>
-          </div>
+          <div className="space-y-4 text-[15px] text-[#4B5563] leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: aboutBody }} />
         </div>
 
         {/* Values */}
