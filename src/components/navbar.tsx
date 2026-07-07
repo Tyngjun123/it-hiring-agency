@@ -6,6 +6,7 @@ import { getSiteConfig } from "@/lib/site-config"
 import { isAdminEmail } from "@/lib/admin"
 import MobileNav from "@/components/mobile-nav"
 import SignInButton from "@/components/auth/sign-in-button"
+import SignUpButton from "@/components/auth/sign-up-button"
 import PostJobButton from "@/components/auth/post-job-button"
 import NotificationBell from "@/components/notification-bell"
 import { LogoTile, Wordmark, BRAND_NAME } from "@/components/brand"
@@ -137,8 +138,9 @@ export default async function Navbar() {
           ) : (
             <>
               <SignInButton className="text-sm font-semibold text-[#3A3A3C] hover:text-[#1C1C1E] transition-colors cursor-pointer" />
+              <SignUpButton className="bg-[#F97316] text-white text-sm font-bold px-4 py-2 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] hover:bg-[#EA580C] transition-colors cursor-pointer" />
               <PostJobButton
-                className="bg-[#F97316] text-white text-sm font-bold px-4 py-2 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] hover:bg-[#EA580C] transition-colors cursor-pointer">
+                className="border border-[#E6E2D9] text-[#3A3A3C] text-sm font-bold px-4 py-2 rounded-[11px] hover:border-[#F97316] hover:text-[#F97316] transition-colors cursor-pointer">
                 Post a Job
               </PostJobButton>
             </>
