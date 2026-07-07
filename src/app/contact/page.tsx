@@ -9,7 +9,8 @@ const CMS_DEFAULTS: Record<string, string> = {
   contact_whatsapp: "https://wa.me/60123456789",
   contact_whatsapp_label: "Chat on WhatsApp →",
   contact_hours: "Mon–Fri, 9am–6pm MYT",
-  contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
+  contact_heading: "We'd love to hear from you",
+  contact_intro: "Questions about posting a job, your account, or partnering with us? Our KL-based team usually replies within one business day.",
   meta_contact_title: "Contact TechireX | Malaysia's IT Job Platform",
   meta_contact_desc: "Get in touch with the TechireX team for job posting, billing or partnership enquiries.",
 }
@@ -62,10 +63,10 @@ export default async function ContactPage({
               </div>
 
               <h1 className="text-[33px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] leading-[1.12] mb-3">
-                We&apos;d love to hear from you
+                {cms.contact_heading}
               </h1>
               <p className="text-[15px] text-[#7A6A56] leading-relaxed mb-8">
-                Questions about posting a job, your account, or partnering with us? Our KL-based team usually replies within one business day.
+                {cms.contact_intro}
               </p>
 
               {/* Info cards */}
@@ -90,13 +91,6 @@ export default async function ContactPage({
                 ))}
               </div>
 
-              {/* Office */}
-              <div className="mt-7 pt-6 border-t border-[#FAD9B8]">
-                <p className="text-[13px] font-bold text-[#9A968C] uppercase tracking-[.05em] mb-3">Office</p>
-                <p className="text-[14.5px] text-[#3A3A3C] leading-relaxed whitespace-pre-line">
-                  {cms.contact_address}
-                </p>
-              </div>
             </div>
 
             {/* Right form */}

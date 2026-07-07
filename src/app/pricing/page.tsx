@@ -88,6 +88,13 @@ export default async function PricingPage() {
   // Merge CMS-editable copy over the base plans (CTA/badge/flags stay in code).
   const editablePlans = parsePlans(cms["pricing_plans"], PRICING_PLANS_DEFAULT)
   const plans = PLANS.map((base, i) => ({ ...base, ...(editablePlans[i] ?? {}) }))
+  const boost = {
+    title: cms["boost_title"] ?? "Boost a Job Listing",
+    desc: cms["boost_desc"] ?? "Pin any listing to the top of search results for 30 days. Max plan includes 10 boost credits monthly.",
+    price: cms["boost_price"] ?? "RM 100",
+    period: cms["boost_period"] ?? "per listing / 30 days",
+    features: cms["boost_features"]?.split("\n").map((s) => s.trim()).filter(Boolean) ?? BOOST_FEATURES,
+  }
   const maxPlanEnabled = config?.maxPlanEnabled ?? false
   const proPlanEnabled = config?.proPlanEnabled ?? false
 
@@ -185,16 +192,16 @@ export default async function PricingPage() {
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <p className="text-xs font-bold text-[#C2410C] uppercase tracking-wide">Add-on · No subscription needed</p>
-              <h2 className="text-xl font-extrabold text-[#1C1C1E] mt-1">Boost a Job Listing</h2>
-              <p className="text-sm text-[#6B7280] mt-1">Pin any listing to the top of search results for 30 days. Max plan includes 10 boost credits monthly.</p>
+              <h2 className="text-xl font-extrabold text-[#1C1C1E] mt-1">{boost.title}</h2>
+              <p className="text-sm text-[#6B7280] mt-1">{boost.desc}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-3xl font-extrabold text-[#1C1C1E]">RM 100</p>
-              <p className="text-sm text-[#9CA3AF]">per listing / 30 days</p>
+              <p className="text-3xl font-extrabold text-[#1C1C1E]">{boost.price}</p>
+              <p className="text-sm text-[#9CA3AF]">{boost.period}</p>
             </div>
           </div>
           <ul className="grid sm:grid-cols-2 gap-2.5">
-            {BOOST_FEATURES.map((f) => (
+            {boost.features.map((f) => (
               <li key={f} className="flex items-start gap-2.5 text-sm text-[#3A3A3C]">
                 <span className="text-[#F97316] mt-0.5 shrink-0">★</span> {f}
               </li>

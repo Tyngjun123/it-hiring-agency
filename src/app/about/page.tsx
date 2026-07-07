@@ -5,6 +5,11 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { getCmsMap } from "@/lib/cms"
+import {
+  ABOUT_VALUES_DEFAULT, ABOUT_TEAM_DEFAULT, TEAM_COLORS, parseList,
+  ABOUT_MISSION_HEADING_DEFAULT, ABOUT_JOIN_HEADING_DEFAULT, ABOUT_JOIN_BODY_DEFAULT,
+  type Value, type Member,
+} from "@/data/about"
 
 // Fallbacks match the live copy so the page is unchanged until edited in the CMS.
 const ABOUT_TAGLINE = "The job board Malaysia's tech industry deserved."
@@ -22,34 +27,6 @@ async function getStats() {
   return { companies, jobs }
 }
 
-const VALUES = [
-  {
-    icon: "🇲🇾",
-    title: "Built for Malaysia",
-    body: "We know the local market — Klang Valley commutes, EPF contributions, ringgit salary ranges. No generic job board nonsense.",
-  },
-  {
-    icon: "🚫",
-    title: "No recruiter spam",
-    body: "Candidates control who can contact them. Employers post directly — no middlemen inflating salaries and ghosting candidates.",
-  },
-  {
-    icon: "⚡",
-    title: "Fast & focused",
-    body: "Post a job in 3 minutes. Apply in one click. Track status in real time. We cut every step that doesn't add value.",
-  },
-  {
-    icon: "🔍",
-    title: "IT-only, always",
-    body: "Every listing, every filter, every tag is built around tech roles. Developers, PMs, QA, DevOps — this is your board.",
-  },
-]
-
-const TEAM = [
-  { name: "Marcus Tan", role: "Founder & CEO", initials: "MT", bg: "#FFF1E1", fg: "#C2410C" },
-  { name: "Engineering", role: "Backend · Frontend · DevOps", initials: "⚙", bg: "#EFF6FF", fg: "#1D4ED8" },
-  { name: "Growth", role: "Marketing · Partnerships", initials: "📈", bg: "#F0FDF4", fg: "#16A34A" },
-]
 
 export default async function AboutPage() {
   const { companies, jobs } = await getStats()
@@ -57,6 +34,11 @@ export default async function AboutPage() {
   const aboutTagline = cms["about_tagline"] ?? ABOUT_TAGLINE
   const aboutHero = cms["about_hero"] ?? ABOUT_HERO
   const aboutBody = cms["about_body"] ?? ABOUT_BODY
+  const aboutMissionHeading = cms["about_mission_heading"] ?? ABOUT_MISSION_HEADING_DEFAULT
+  const aboutJoinHeading = cms["about_join_heading"] ?? ABOUT_JOIN_HEADING_DEFAULT
+  const aboutJoinBody = cms["about_join_body"] ?? ABOUT_JOIN_BODY_DEFAULT
+  const values = parseList<Value>(cms["about_values"], ABOUT_VALUES_DEFAULT, (x) => !!x && typeof (x as Value).title === "string")
+  const team = parseList<Member>(cms["about_team"], ABOUT_TEAM_DEFAULT, (x) => !!x && typeof (x as Member).name === "string")
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
@@ -109,7 +91,7 @@ export default async function AboutPage() {
         <div className="bg-white border border-[#EEEBE3] rounded-2xl p-8 md:p-10 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
           <p className="text-[11px] font-bold text-[#F97316] uppercase tracking-[.08em] mb-3">Our mission</p>
           <h2 className="text-[26px] font-extrabold text-[#1C1C1E] tracking-tight leading-[1.2] mb-5">
-            Make finding and hiring tech talent in Malaysia feel effortless.
+            {aboutMissionHeading}
           </h2>
           <div className="space-y-4 text-[15px] text-[#4B5563] leading-relaxed"
             dangerouslySetInnerHTML={{ __html: aboutBody }} />
@@ -120,7 +102,7 @@ export default async function AboutPage() {
           <p className="text-[11px] font-bold text-[#F97316] uppercase tracking-[.08em] mb-2">What we stand for</p>
           <h2 className="text-[24px] font-extrabold text-[#1C1C1E] tracking-tight mb-8">Our values</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {VALUES.map(({ icon, title, body }) => (
+            {values.map(({ icon, title, body }) => (
               <div key={title} className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
                 <div className="text-3xl mb-4">{icon}</div>
                 <h3 className="text-[16px] font-extrabold text-[#1C1C1E] mb-2">{title}</h3>
@@ -135,10 +117,10 @@ export default async function AboutPage() {
           <p className="text-[11px] font-bold text-[#F97316] uppercase tracking-[.08em] mb-2">The people</p>
           <h2 className="text-[24px] font-extrabold text-[#1C1C1E] tracking-tight mb-8">Who we are</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TEAM.map(({ name, role, initials, bg, fg }) => (
-              <div key={name} className="bg-white border border-[#EEEBE3] rounded-2xl p-6 text-center shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
+            {team.map(({ name, role, initials }, ti) => (
+              <div key={ti} className="bg-white border border-[#EEEBE3] rounded-2xl p-6 text-center shadow-[0_1px_2px_rgba(28,28,30,0.03),0_10px_26px_rgba(28,28,30,0.05)]">
                 <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl font-extrabold"
-                  style={{ background: bg, color: fg }}>
+                  style={{ background: TEAM_COLORS[ti % TEAM_COLORS.length].bg, color: TEAM_COLORS[ti % TEAM_COLORS.length].fg }}>
                   {initials}
                 </div>
                 <p className="text-[16px] font-extrabold text-[#1C1C1E]">{name}</p>
@@ -152,10 +134,10 @@ export default async function AboutPage() {
         <div className="rounded-2xl p-10 text-center border border-[#FBDDBE]"
           style={{ background: "linear-gradient(120deg, #FFF7ED, #FFEAD3)" }}>
           <h2 className="text-[26px] font-extrabold text-[#1C1C1E] tracking-tight mb-3">
-            Want to join our team?
+            {aboutJoinHeading}
           </h2>
           <p className="text-[15px] text-[#7A6A56] mb-7 max-w-md mx-auto leading-relaxed">
-            We&apos;re always looking for talented people to help build Malaysia&apos;s IT job platform. Tell us how you&apos;d like to contribute.
+            {aboutJoinBody}
           </p>
           <div className="flex items-center justify-center">
             <Link href="/contact"
