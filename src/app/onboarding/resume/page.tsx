@@ -11,7 +11,7 @@ export default function ResumePage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
   const [agreedShare, setAgreedShare] = useState(false)
-  const [joinPool, setJoinPool] = useState(false)
+  const [joinPool, setJoinPool] = useState(true) // Standard by default (visible + uncheckable)
   const router = useRouter()
 
   async function finishOnboarding() {
@@ -98,7 +98,7 @@ export default function ResumePage() {
               <input type="checkbox" checked={joinPool} onChange={(e) => setJoinPool(e.target.checked)}
                 className="mt-0.5 w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30 shrink-0" />
               <span className="text-[12.5px] text-[#6B7280] leading-relaxed">
-                <strong className="text-[#3A3A3C]">Optional:</strong> also let verified subscribing employers discover &amp; unlock my resume in the Talent Pool, even if I haven&apos;t applied. You can turn this off anytime in your profile.
+                Let verified subscribing employers discover &amp; unlock my resume in the Talent Pool, so they can reach out even before I apply. <strong className="text-[#3A3A3C]">On by default</strong> — untick to keep your resume visible only to jobs you apply to. You can change this anytime in your profile.
               </span>
             </label>
           )}

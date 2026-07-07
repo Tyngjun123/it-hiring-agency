@@ -188,7 +188,7 @@ model IntervieweeProfile {
   instagramUrl      String?  @map("instagram_url")
   rednoteUrl        String?  @map("rednote_url")
   resumeUrl         String?  @map("resume_url")
-  talentPoolOptIn     Boolean   @default(false) @map("talent_pool_opt_in")
+  talentPoolOptIn     Boolean   @default(true) @map("talent_pool_opt_in")
   talentPoolConsentAt DateTime? @map("talent_pool_consent_at")
   onboardedAt       DateTime? @map("onboarded_at")
   skillsPrompted    Boolean  @default(false) @map("skills_prompted")
