@@ -45,7 +45,7 @@ export default async function AdminLoginPage({
             Admin Sign In
           </h1>
           <p className="text-center text-[13.5px] text-[#9CA3AF] mb-6">
-            StackTalentx — restricted access
+            TechireX — restricted access
           </p>
 
           <form action={adminLoginAction} className="space-y-4">

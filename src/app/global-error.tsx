@@ -73,7 +73,7 @@ export default function GlobalError({
               We&apos;ll be right back
             </h1>
             <p style={{ fontSize: 15, color: "#6B7280", lineHeight: 1.6, margin: "0 0 28px" }}>
-              StackTalentx is undergoing a quick bit of maintenance. We&apos;ll be back up shortly.
+              TechireX is undergoing a quick bit of maintenance. We&apos;ll be back up shortly.
             </p>
 
             <button

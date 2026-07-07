@@ -81,7 +81,7 @@ export default async function UnsubscribePage({
               contact us at support@stacktalentx.com.
             </p>
             <Link href="/" className="inline-block bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-[14px] px-6 py-3 rounded-[12px] transition-colors">
-              Go to StackTalentx
+              Go to TechireX
             </Link>
           </>
         )}

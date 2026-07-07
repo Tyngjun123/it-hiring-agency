@@ -48,14 +48,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id, status: "ACTIVE" },
     include: { company: { select: { companyName: true } } },
   })
-  if (!job) return { title: "Job not found | StackTalentx" }
+  if (!job) return { title: "Job not found | TechireX" }
 
   const companyName = job.hideCompanyInfo ? "a hiring company" : job.company.companyName
   const payRange = `RM ${job.payRangeFrom.toLocaleString()}–${job.payRangeTo.toLocaleString()}`
-  const title = `${job.title} at ${companyName} | StackTalentx`
+  const title = `${job.title} at ${companyName} | TechireX`
   const description =
     `${job.title} (${WORK_TYPE_LABEL[job.workType] ?? job.workType}, ${job.location}) — ${payRange}. ` +
-    `${job.sellingPoint1}. Apply now on StackTalentx, Malaysia's IT job board.`
+    `${job.sellingPoint1}. Apply now on TechireX, Malaysia's IT job board.`
   const url = `${getSiteUrl()}/jobs/${id}`
 
   return {
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       url,
       type: "website",
-      siteName: "StackTalentx",
+      siteName: "TechireX",
     },
     twitter: {
       card: "summary",

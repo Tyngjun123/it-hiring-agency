@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await getBlogPostBySlug(slug)
   if (!post) return {}
   return {
-    title: post.title + " | StackTalentx Blog",
+    title: post.title + " | TechireX Blog",
     description: post.summary,
   }
 }

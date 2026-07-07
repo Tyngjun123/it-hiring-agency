@@ -68,7 +68,7 @@ function RoleStep() {
     <Modal>
       <div className="px-8 pt-8 pb-6 text-center border-b border-[#F4F1EA]">
         <div className="mx-auto mb-4 w-fit"><LogoTile size={52} variant="onDark" /></div>
-        <h2 className="text-[22px] font-extrabold text-[#1C1C1E] tracking-tight mb-1">Welcome to StackTalentx</h2>
+        <h2 className="text-[22px] font-extrabold text-[#1C1C1E] tracking-tight mb-1">Welcome to TechireX</h2>
         <p className="text-[14px] text-[#9CA3AF]">How will you be using the platform?</p>
       </div>
 

@@ -17,13 +17,13 @@ const DEFAULTS: Record<string, string> = {
   contact_whatsapp_label: "Chat on WhatsApp →",
   contact_hours: "Mon–Fri, 9am–6pm MYT",
   contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
-  meta_contact_title: "Contact StackTalentx | Malaysia's IT Job Platform",
-  meta_contact_desc: "Get in touch with the StackTalentx team for job posting, billing or partnership enquiries.",
+  meta_contact_title: "Contact TechireX | Malaysia's IT Job Platform",
+  meta_contact_desc: "Get in touch with the TechireX team for job posting, billing or partnership enquiries.",
   about_tagline: "The job board Malaysia's tech industry deserved.",
-  about_hero: "StackTalentx is a focused job platform built exclusively for Malaysian IT professionals and the companies that hire them. No noise. No middlemen. Just great tech jobs.",
-  about_body: "<p>The hiring process for tech talent in Malaysia was broken. Candidates wasted hours on generic boards full of spam. Employers paid expensive agencies and still got mismatched candidates. StackTalentx was built to fix that.</p><p>We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.</p><p>Every product decision we make is guided by one question: does this help a Malaysian developer find a great job faster, or help a Malaysian tech team find the right person faster?</p>",
-  meta_about_title: "About StackTalentx | Malaysia's IT Job Platform",
-  meta_about_desc: "Learn about StackTalentx — the job board built specifically for Malaysian IT professionals and the companies hiring them.",
+  about_hero: "TechireX is a focused job platform built exclusively for Malaysian IT professionals and the companies that hire them. No noise. No middlemen. Just great tech jobs.",
+  about_body: "<p>The hiring process for tech talent in Malaysia was broken. Candidates wasted hours on generic boards full of spam. Employers paid expensive agencies and still got mismatched candidates. TechireX was built to fix that.</p><p>We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.</p><p>Every product decision we make is guided by one question: does this help a Malaysian developer find a great job faster, or help a Malaysian tech team find the right person faster?</p>",
+  meta_about_title: "About TechireX | Malaysia's IT Job Platform",
+  meta_about_desc: "Learn about TechireX — the job board built specifically for Malaysian IT professionals and the companies hiring them.",
 }
 
 export default async function AdminCmsPage({

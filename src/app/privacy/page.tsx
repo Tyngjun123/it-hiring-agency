@@ -3,7 +3,7 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { LogoTile, Wordmark } from "@/components/brand"
 
-export const metadata = { title: "Privacy Policy — StackTalentx", description: "How StackTalentx collects, uses, and protects your personal data under Malaysia's Personal Data Protection Act 2010 (as amended 2024)." }
+export const metadata = { title: "Privacy Policy — TechireX", description: "How TechireX collects, uses, and protects your personal data under Malaysia's Personal Data Protection Act 2010 (as amended 2024)." }
 
 const SUMMARY_CARDS = [
   {
@@ -41,7 +41,7 @@ const SECTIONS = [
   {
     id: "controller", title: "Who we are",
     paras: [
-      "StackTalentx Technologies Sdn Bhd (“StackTalentx”, “we”, “us”) operates the IT recruitment platform at stacktalentx.com and is the data controller of your personal data. This policy explains how we handle personal data under Malaysia’s Personal Data Protection Act 2010, as amended by the Personal Data Protection (Amendment) Act 2024 (“PDPA”).",
+      "TechireX Technologies Sdn Bhd (“TechireX”, “we”, “us”) operates the IT recruitment platform at stacktalentx.com and is the data controller of your personal data. This policy explains how we handle personal data under Malaysia’s Personal Data Protection Act 2010, as amended by the Personal Data Protection (Amendment) Act 2024 (“PDPA”).",
     ],
   },
   {
@@ -55,7 +55,7 @@ const SECTIONS = [
   {
     id: "use", title: "How we use and share your information",
     paras: [
-      "We use your data to operate StackTalentx: matching candidates to listings, delivering applications to employers, personalising your experience, and complying with Malaysian law.",
+      "We use your data to operate TechireX: matching candidates to listings, delivering applications to employers, personalising your experience, and complying with Malaysian law.",
       "When you apply to a job, your profile and résumé are shared with that employer so they can consider your application.",
       "We do not sell, rent, or trade your personal data to advertisers or data brokers. Employers pay for platform services and features (such as unlocking résumés you have chosen to make available in the Talent Pool) — this is a service fee for access, not a sale of your data.",
       "We share data with trusted service providers who process it on our behalf under contract (cloud hosting, email delivery, database and storage), and with authorities where required by law.",
@@ -65,7 +65,7 @@ const SECTIONS = [
     id: "talent-pool", title: "Talent Pool & employer access to résumés",
     paras: [
       "We offer a “Talent Pool” where verified employers on a paid subscription can discover and unlock candidates’ résumés, including candidates who have not applied to them.",
-      "Your résumé is included in the Talent Pool only if you explicitly opt in. Opting in is optional and separate from applying to jobs — you can use StackTalentx to apply for roles without joining the Talent Pool.",
+      "Your résumé is included in the Talent Pool only if you explicitly opt in. Opting in is optional and separate from applying to jobs — you can use TechireX to apply for roles without joining the Talent Pool.",
       "You can withdraw this consent at any time by turning off the Talent Pool toggle in your profile, or by deleting your résumé. Once you opt out, your profile is no longer listed for new unlocks. Employers who previously unlocked or received your résumé through an application may retain the copy they already accessed.",
       "Employers viewing a résumé through the Talent Pool see it as a watermarked, on-screen document tied to their account. Misuse of candidate data by employers is prohibited under our Terms.",
     ],
@@ -110,7 +110,7 @@ const SECTIONS = [
   {
     id: "contact", title: "Contact",
     paras: [
-      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@stacktalentx.com, or write to StackTalentx Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
+      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@stacktalentx.com, or write to TechireX Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
     ],
   },
 ]

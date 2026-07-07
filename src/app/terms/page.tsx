@@ -4,21 +4,21 @@ import Link from "next/link"
 import { LogoTile, Wordmark } from "@/components/brand"
 import OnThisPage from "./on-this-page"
 
-export const metadata = { title: "Terms of Service — StackTalentx", description: "StackTalentx terms of service governing use of the platform by candidates and employers." }
+export const metadata = { title: "Terms of Service — TechireX", description: "TechireX terms of service governing use of the platform by candidates and employers." }
 
 const SECTIONS = [
-  { id: "acceptance", label: "1. Acceptance", title: "1. Acceptance of terms", body: "By accessing or using StackTalentx (stacktalentx.com), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform. These terms apply to all visitors, candidates and employers." },
+  { id: "acceptance", label: "1. Acceptance", title: "1. Acceptance of terms", body: "By accessing or using TechireX (stacktalentx.com), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform. These terms apply to all visitors, candidates and employers." },
   {
-    id: "using", label: "2. Using StackTalentx", title: "2. Using StackTalentx",
-    body: "StackTalentx is a job platform exclusively for technology roles in Malaysia. You agree to use the service only for lawful purposes and in line with these terms.",
+    id: "using", label: "2. Using TechireX", title: "2. Using TechireX",
+    body: "TechireX is a job platform exclusively for technology roles in Malaysia. You agree to use the service only for lawful purposes and in line with these terms.",
     bullets: [
       "Post false, misleading or discriminatory job listings.",
       "Scrape, copy or redistribute listings or candidate data.",
-      "Impersonate another person, company or StackTalentx itself.",
+      "Impersonate another person, company or TechireX itself.",
     ],
   },
   { id: "accounts", label: "3. Accounts", title: "3. Accounts", body: "You are responsible for keeping your account credentials secure and for all activity under your account. Candidate accounts are free. Employer accounts may require a paid subscription to access certain features." },
-  { id: "postings", label: "4. Job postings", title: "4. Job postings", body: "Employers are solely responsible for the content and accuracy of their listings. StackTalentx reserves the right to review, edit or remove any posting that violates these terms or applicable Malaysian employment law." },
+  { id: "postings", label: "4. Job postings", title: "4. Job postings", body: "Employers are solely responsible for the content and accuracy of their listings. TechireX reserves the right to review, edit or remove any posting that violates these terms or applicable Malaysian employment law." },
   {
     id: "resume-pool", label: "5. Resume Pool", title: "5. Resume Pool & employer obligations",
     body: "Employers on an eligible paid subscription may unlock and view candidates' résumés through the Resume Pool. Access is granted strictly for legitimate recruitment and hiring purposes, and only to résumés of candidates who have consented to be included. All candidate data remains protected under our Privacy Policy and Malaysia's Personal Data Protection Act 2010 (as amended). When accessing the Resume Pool you agree that you will NOT:",
@@ -29,10 +29,10 @@ const SECTIONS = [
       "Contact candidates for marketing, spam, or any non-recruitment purpose.",
       "Retain candidate data longer than necessary for the relevant hiring decision, or otherwise process it in breach of the PDPA.",
     ],
-    note: "Breach of these obligations may result in immediate suspension or termination of your account, forfeiture of subscription fees paid, and may expose you to liability under Malaysian law. StackTalentx may investigate suspected misuse and report it to the relevant authorities.",
+    note: "Breach of these obligations may result in immediate suspension or termination of your account, forfeiture of subscription fees paid, and may expose you to liability under Malaysian law. TechireX may investigate suspected misuse and report it to the relevant authorities.",
   },
   { id: "payments", label: "6. Payments", title: "6. Payments", body: "Paid plans are billed in Malaysian Ringgit (MYR) and renew automatically unless cancelled. All fees are inclusive of applicable taxes. Refunds are handled per our billing policy." },
-  { id: "liability", label: "7. Liability", title: "7. Limitation of liability", body: "StackTalentx is provided on an 'as is' basis. To the fullest extent permitted under Malaysian law, StackTalentx shall not be liable for indirect, incidental or consequential damages arising from your use of the platform." },
+  { id: "liability", label: "7. Liability", title: "7. Limitation of liability", body: "TechireX is provided on an 'as is' basis. To the fullest extent permitted under Malaysian law, TechireX shall not be liable for indirect, incidental or consequential damages arising from your use of the platform." },
 ]
 
 export default function TermsPage() {

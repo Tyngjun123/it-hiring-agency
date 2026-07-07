@@ -55,7 +55,7 @@ export const DEFAULT_TEMPLATES: EmailTemplateDef[] = [
   {
     key: "password_reset_otp",
     name: "Password reset code (OTP)",
-    subject: "Your StackTalentx password reset code",
+    subject: "Your TechireX password reset code",
     body:
       `<p>Hi,</p>` +
       `<p>Your password reset code is:</p>` +
@@ -69,7 +69,7 @@ export const DEFAULT_TEMPLATES: EmailTemplateDef[] = [
     subject: "{{count}} new candidate(s) matching your jobs",
     body:
       `<p>Hi {{companyName}},</p>` +
-      `<p>{{count}} new job seeker(s) matching your job requirements just joined StackTalentx:</p>` +
+      `<p>{{count}} new job seeker(s) matching your job requirements just joined TechireX:</p>` +
       `{{matchList}}` +
       `<p><a href="{{siteUrl}}/company/jobs">View your jobs →</a></p>`,
     placeholders: ["companyName", "count", "matchList", "siteUrl"],
@@ -86,7 +86,7 @@ function wrap(inner: string): string {
     `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1C1C1E;line-height:1.6;">` +
     inner +
     `<br/><hr style="border:none;border-top:1px solid #eee;margin:20px 0;"/>` +
-    `<p style="color:#888;font-size:12px;">StackTalentx · Malaysian IT Job Platform</p>` +
+    `<p style="color:#888;font-size:12px;">TechireX · Malaysian IT Job Platform</p>` +
     `</div>`
   )
 }

@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
           <p>Applicant: <strong>${app.interviewee.user.name ?? app.interviewee.user.email}</strong></p>
           <p><a href="${process.env.AUTH_URL}/company/jobs/${app.jobId}/applicants">Review applicant →</a></p>
           <br/>
-          <p style="color:#888;font-size:12px;">StackTalentx · Malaysian IT Job Platform</p>
+          <p style="color:#888;font-size:12px;">TechireX · Malaysian IT Job Platform</p>
         `,
       })
 

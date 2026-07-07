@@ -2,7 +2,7 @@
 // orange background variant (white loader/climber). This does NOT wire a splash
 // into the real app; it's just viewable at /splash-preview to judge the design.
 export const metadata = {
-  title: "Splash preview — StackTalentx",
+  title: "Splash preview — TechireX",
   robots: { index: false, follow: false },
 }
 

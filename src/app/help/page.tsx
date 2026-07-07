@@ -5,7 +5,7 @@ import FAQAccordion from "./faq-accordion"
 import { getCmsMap } from "@/lib/cms"
 import { HELP_FAQS, parseFaqs } from "@/data/faqs"
 
-export const metadata = { title: "Help Center — StackTalentx", description: "Find answers to common questions about StackTalentx for candidates and employers." }
+export const metadata = { title: "Help Center — TechireX", description: "Find answers to common questions about TechireX for candidates and employers." }
 
 export default async function HelpPage() {
   const cms = await getCmsMap()

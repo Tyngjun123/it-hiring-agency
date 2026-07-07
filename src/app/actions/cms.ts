@@ -51,7 +51,7 @@ export async function createBlogPost(formData: FormData) {
       summary: (formData.get("summary") as string) || "",
       content: (formData.get("content") as string) || "",
       category: (formData.get("category") as string) || "General",
-      author: (formData.get("author") as string) || "StackTalentx Team",
+      author: (formData.get("author") as string) || "TechireX Team",
       authorInitials: (formData.get("authorInitials") as string) || "IH",
       readTime: (formData.get("readTime") as string) || "5 min read",
       coverImageUrl: (formData.get("coverImageUrl") as string) || null,
@@ -80,7 +80,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
       summary: (formData.get("summary") as string) || "",
       content: (formData.get("content") as string) || "",
       category: (formData.get("category") as string) || "General",
-      author: (formData.get("author") as string) || "StackTalentx Team",
+      author: (formData.get("author") as string) || "TechireX Team",
       authorInitials: (formData.get("authorInitials") as string) || "IH",
       readTime: (formData.get("readTime") as string) || "5 min read",
       coverImageUrl: (formData.get("coverImageUrl") as string) || null,
@@ -265,12 +265,12 @@ export async function sendTestEmail(formData: FormData) {
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to,
-      subject: "✅ StackTalentx — Test email",
+      subject: "✅ TechireX — Test email",
       html: `
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:24px">
           <h2 style="margin:0 0 12px;color:#1C1C1E">It works! 🎉</h2>
           <p style="font-size:15px;line-height:1.6;color:#3A3A3C;margin:0 0 12px">
-            This is a test email from your StackTalentx admin panel. If you're reading this,
+            This is a test email from your TechireX admin panel. If you're reading this,
             your sending domain is verified and emails are being delivered correctly.
           </p>
           <p style="font-size:13px;color:#9CA3AF;margin:0">

@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: "StackTalentx — Find IT Jobs in Malaysia",
+  title: "TechireX — Find IT Jobs in Malaysia",
   description: "The niche job platform for IT professionals in Malaysia.",
 };
 

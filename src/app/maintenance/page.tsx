@@ -9,7 +9,7 @@ export default function MaintenancePage() {
           We&#39;ll be right back
         </h1>
         <p className="text-[16px] text-[#6B7280] leading-relaxed mb-8">
-          StackTalentx is undergoing scheduled maintenance. We&#39;ll be back online shortly. Sorry for the inconvenience.
+          TechireX is undergoing scheduled maintenance. We&#39;ll be back online shortly. Sorry for the inconvenience.
         </p>
         <p className="text-sm text-[#9CA3AF]">
           Questions? Email us at{" "}

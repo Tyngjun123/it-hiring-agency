@@ -31,7 +31,7 @@ export default async function BlogPage({
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 bg-[#FFF7ED] border border-[#FBDDBE] px-3.5 py-1.5 rounded-full text-[12.5px] font-bold text-[#C2410C] mb-4">
-            The StackTalentx Blog
+            The TechireX Blog
           </div>
           <h1 className="text-[26px] md:text-[38px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] mb-3">
             Grow your tech career in Malaysia

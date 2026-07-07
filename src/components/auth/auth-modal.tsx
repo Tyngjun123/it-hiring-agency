@@ -99,7 +99,7 @@ export default function AuthModal() {
         ) : mode === "login" ? (
           <>
             <h2 className="text-[22px] font-extrabold text-[#1C1C1E] mb-1">Welcome back</h2>
-            <p className="text-[13.5px] text-[#6B7280] mb-5">Sign in to your StackTalentx account.</p>
+            <p className="text-[13.5px] text-[#6B7280] mb-5">Sign in to your TechireX account.</p>
             {registered && (
               <div className="mb-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl px-4 py-3 text-sm text-[#15803D] font-semibold">
                 Account created! Please sign in.
@@ -126,7 +126,7 @@ export default function AuthModal() {
         ) : (
           <>
             <h2 className="text-[22px] font-extrabold text-[#1C1C1E] mb-1">Create account</h2>
-            <p className="text-[13.5px] text-[#6B7280] mb-4">Join StackTalentx — Malaysia&apos;s IT job platform.</p>
+            <p className="text-[13.5px] text-[#6B7280] mb-4">Join TechireX — Malaysia&apos;s IT job platform.</p>
             <div className="flex gap-2 bg-[#F4F2EC] rounded-[12px] p-[5px] mb-4">
               {(["INTERVIEWEE", "COMPANY"] as const).map((r) => (
                 <button key={r} type="button" onClick={() => setRole(r)}

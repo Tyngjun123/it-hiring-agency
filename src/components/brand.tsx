@@ -1,7 +1,7 @@
-// StackTalentx brand assets — climber-on-ascending-stack logo.
+// TechireX brand assets — climber-on-ascending-stack logo.
 // Light contexts: dark tile + orange figure. Dark/orange contexts: orange tile + white figure.
 
-export const BRAND_NAME = "StackTalentx"
+export const BRAND_NAME = "TechireX"
 
 const LIGHT_STEPS: [string, string, string] = [
   "rgba(255,255,255,.32)",

@@ -10,8 +10,8 @@ const CMS_DEFAULTS: Record<string, string> = {
   contact_whatsapp_label: "Chat on WhatsApp →",
   contact_hours: "Mon–Fri, 9am–6pm MYT",
   contact_address: "Level 12, Menara Tech\nJalan Sultan Ismail, 50250\nKuala Lumpur, Malaysia",
-  meta_contact_title: "Contact StackTalentx | Malaysia's IT Job Platform",
-  meta_contact_desc: "Get in touch with the StackTalentx team for job posting, billing or partnership enquiries.",
+  meta_contact_title: "Contact TechireX | Malaysia's IT Job Platform",
+  meta_contact_desc: "Get in touch with the TechireX team for job posting, billing or partnership enquiries.",
 }
 
 async function getCms() {

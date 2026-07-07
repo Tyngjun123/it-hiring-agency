@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 
 // Branded preview image shown when the site link is shared (WhatsApp, X, LinkedIn, etc.)
-export const alt = "StackTalentx — Find IT Jobs in Malaysia"
+export const alt = "TechireX — Find IT Jobs in Malaysia"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 

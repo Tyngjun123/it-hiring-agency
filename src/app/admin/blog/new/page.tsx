@@ -101,7 +101,7 @@ export function BlogPostFields({ defaults }: { defaults?: Record<string, string 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Author name</Label>
-          <Input name="author" defaultValue={d.author as string ?? "StackTalentx Team"}
+          <Input name="author" defaultValue={d.author as string ?? "TechireX Team"}
             className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
         </div>
         <div className="space-y-1.5">
@@ -120,7 +120,7 @@ export function BlogPostFields({ defaults }: { defaults?: Record<string, string 
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Meta title <span className="text-[#9CA3AF] font-normal">(optional, defaults to post title)</span></Label>
-          <Input name="metaTitle" placeholder="e.g. IT Salaries in KL 2025 | StackTalentx" defaultValue={d.metaTitle as string ?? ""}
+          <Input name="metaTitle" placeholder="e.g. IT Salaries in KL 2025 | TechireX" defaultValue={d.metaTitle as string ?? ""}
             className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
         </div>
         <div className="space-y-1.5">

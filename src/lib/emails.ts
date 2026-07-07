@@ -122,10 +122,10 @@ export async function sendJobMatchDigest({
     <p style="font-size:14px;margin-top:18px;"><a href="${siteUrl}" style="color:#F97316;font-weight:700;text-decoration:none;">Browse all jobs →</a></p>
     <hr style="border:none;border-top:1px solid #eee;margin:24px 0 14px;"/>
     <p style="color:#9CA3AF;font-size:12px;">
-      You're receiving this because you're a StackTalentx member.
+      You're receiving this because you're a TechireX member.
       <a href="${unsubscribeUrl}" style="color:#9CA3AF;text-decoration:underline;">Unsubscribe from job alerts</a>.
     </p>
-    <p style="color:#B6B2A8;font-size:11px;">StackTalentx · Malaysian IT Job Platform</p>
+    <p style="color:#B6B2A8;font-size:11px;">TechireX · Malaysian IT Job Platform</p>
   </div>`
 
   await resend.emails.send({

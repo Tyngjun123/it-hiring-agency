@@ -19,7 +19,7 @@ export async function sendContactMessage(formData: FormData) {
       from: FROM_EMAIL,
       to: "support@stacktalentx.com",
       replyTo: email,
-      subject: `[StackTalentx Contact] ${topic} — ${name}`,
+      subject: `[TechireX Contact] ${topic} — ${name}`,
       html: `
         <h2 style="margin:0 0 16px">New contact form submission</h2>
         <table style="border-collapse:collapse;width:100%">
