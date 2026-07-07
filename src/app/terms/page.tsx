@@ -19,8 +19,20 @@ const SECTIONS = [
   },
   { id: "accounts", label: "3. Accounts", title: "3. Accounts", body: "You are responsible for keeping your account credentials secure and for all activity under your account. Job seeker accounts are free. Employer accounts may require a paid subscription to access certain features." },
   { id: "postings", label: "4. Job postings", title: "4. Job postings", body: "Employers are solely responsible for the content and accuracy of their listings. StackTalentx reserves the right to review, edit or remove any posting that violates these terms or applicable Malaysian employment law." },
-  { id: "payments", label: "5. Payments", title: "5. Payments", body: "Paid plans are billed in Malaysian Ringgit (MYR) and renew automatically unless cancelled. All fees are inclusive of applicable taxes. Refunds are handled per our billing policy." },
-  { id: "liability", label: "6. Liability", title: "6. Limitation of liability", body: "StackTalentx is provided on an 'as is' basis. To the fullest extent permitted under Malaysian law, StackTalentx shall not be liable for indirect, incidental or consequential damages arising from your use of the platform." },
+  {
+    id: "resume-pool", label: "5. Resume Pool", title: "5. Resume Pool & employer obligations",
+    body: "Employers on an eligible paid subscription may unlock and view job seekers' résumés through the Resume Pool. Access is granted strictly for legitimate recruitment and hiring purposes, and only to résumés of candidates who have consented to be included. All candidate data remains protected under our Privacy Policy and Malaysia's Personal Data Protection Act 2010 (as amended). When accessing the Resume Pool you agree that you will NOT:",
+    bullets: [
+      "Use a candidate's résumé or personal data for any purpose other than evaluating and contacting them about a genuine job opportunity.",
+      "Download, screenshot, print, scrape, or otherwise reproduce or extract résumés or candidate data from the platform's viewer.",
+      "Redistribute, publish, share, sell, or transfer candidate data to any third party (including other employers or agencies).",
+      "Contact candidates for marketing, spam, or any non-recruitment purpose.",
+      "Retain candidate data longer than necessary for the relevant hiring decision, or otherwise process it in breach of the PDPA.",
+    ],
+    note: "Breach of these obligations may result in immediate suspension or termination of your account, forfeiture of subscription fees paid, and may expose you to liability under Malaysian law. StackTalentx may investigate suspected misuse and report it to the relevant authorities.",
+  },
+  { id: "payments", label: "6. Payments", title: "6. Payments", body: "Paid plans are billed in Malaysian Ringgit (MYR) and renew automatically unless cancelled. All fees are inclusive of applicable taxes. Refunds are handled per our billing policy." },
+  { id: "liability", label: "7. Liability", title: "7. Limitation of liability", body: "StackTalentx is provided on an 'as is' basis. To the fullest extent permitted under Malaysian law, StackTalentx shall not be liable for indirect, incidental or consequential damages arising from your use of the platform." },
 ]
 
 export default function TermsPage() {
@@ -34,7 +46,7 @@ export default function TermsPage() {
         <div className="max-w-5xl mx-auto px-10 py-10">
           <p className="text-[12.5px] font-bold text-[#C2410C] uppercase tracking-[0.07em] mb-2.5">Legal</p>
           <h1 className="text-[34px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] mb-2">Terms of Service</h1>
-          <p className="text-[14px] text-[#9CA3AF]">Last updated 1 June 2026</p>
+          <p className="text-[14px] text-[#9CA3AF]">Last updated 7 July 2026</p>
         </div>
       </div>
 
@@ -69,6 +81,9 @@ export default function TermsPage() {
                     </div>
                   ))}
                 </div>
+              )}
+              {s.note && (
+                <p className="text-[14px] leading-[1.7] text-[#8A5A2B] bg-[#FFF7ED] rounded-[10px] px-4 py-3 mt-4">{s.note}</p>
               )}
             </div>
           ))}
