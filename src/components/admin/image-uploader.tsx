@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { supabase } from "@/lib/supabase"
+import { createImageUploadUrl } from "@/app/actions/cms"
 
 export default function ImageUploader({
   name,
@@ -24,16 +25,21 @@ export default function ImageUploader({
     setError("")
     setUploading(true)
     const ext = file.name.split(".").pop() ?? "jpg"
-    const path = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error: uploadError } = await supabase.storage
-      .from("images")
-      .upload(path, file, { upsert: true })
-    if (uploadError) {
-      setError("Upload failed. Make sure the 'images' bucket exists in Supabase Storage.")
+    const signed = await createImageUploadUrl(ext)
+    if ("error" in signed) {
+      setError(signed.error)
       setUploading(false)
       return
     }
-    const { data } = supabase.storage.from("images").getPublicUrl(path)
+    const { error: uploadError } = await supabase.storage
+      .from("images")
+      .uploadToSignedUrl(signed.path, signed.token, file)
+    if (uploadError) {
+      setError("Upload failed. Please try again.")
+      setUploading(false)
+      return
+    }
+    const { data } = supabase.storage.from("images").getPublicUrl(signed.path)
     setUrl(data.publicUrl)
     setUploading(false)
   }

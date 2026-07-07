@@ -7,6 +7,8 @@ import { revalidatePath, revalidateTag } from "next/cache"
 import { isAdminEmail } from "@/lib/admin"
 import { resend, FROM_EMAIL } from "@/lib/resend"
 import { postBlogToTelegram } from "@/lib/telegram"
+import { supabaseAdmin } from "@/lib/supabase-admin"
+import { randomUUID } from "crypto"
 
 async function requireAdmin() {
   const session = await auth()
@@ -14,6 +16,22 @@ async function requireAdmin() {
     redirect("/")
   }
   return session
+}
+
+// ── Blog images ───────────────────────────────────────────────────────────────
+
+// Admin-only signed upload URL for blog cover images. The client uploads
+// directly to the private-write "images" bucket with this token — no anon
+// insert policy needed. The bucket is public for reads.
+export async function createImageUploadUrl(
+  ext: string
+): Promise<{ path: string; token: string } | { error: string }> {
+  await requireAdmin()
+  const safeExt = (ext || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "jpg"
+  const path = `blog/${Date.now()}-${randomUUID()}.${safeExt}`
+  const { data, error } = await supabaseAdmin.storage.from("images").createSignedUploadUrl(path)
+  if (error || !data) return { error: "Could not start upload. Please try again." }
+  return { path: data.path, token: data.token }
 }
 
 // ── Blog ──────────────────────────────────────────────────────────────────────
