@@ -70,7 +70,7 @@ export function LogoTile({
   )
 }
 
-// "StackTalent" + accent "x".
+// "Techire" + accent "X".
 export function Wordmark({
   className = "",
   xColor = "#F97316",
@@ -80,7 +80,7 @@ export function Wordmark({
 }) {
   return (
     <span className={className}>
-      StackTalent<span style={{ color: xColor }}>x</span>
+      Techire<span style={{ color: xColor }}>X</span>
     </span>
   )
 }
