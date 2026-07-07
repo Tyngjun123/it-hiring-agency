@@ -4,7 +4,14 @@ import { PrismaPg } from "@prisma/adapter-pg"
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
 function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+  // On Vercel Preview (staging) deployments, prefer a dedicated staging DB when
+  // provided — keeps staging writes off the production database. Falls back to
+  // DATABASE_URL everywhere else (production, local dev).
+  const connectionString =
+    process.env.VERCEL_ENV === "preview" && process.env.STAGING_DATABASE_URL
+      ? process.env.STAGING_DATABASE_URL
+      : process.env.DATABASE_URL!
+  const adapter = new PrismaPg({ connectionString })
   return new PrismaClient({ adapter })
 }
 
