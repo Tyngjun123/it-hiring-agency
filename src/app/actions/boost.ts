@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { resend, FROM_EMAIL } from "@/lib/resend"
+import { billplzConfigured, createBill } from "@/lib/billplz"
 
 const ADMIN_EMAIL = "support@techirex.com"
 
@@ -20,17 +21,33 @@ export async function requestBoost(jobId: string, boostType: "PINNED_SEARCH" | "
 
   const amount = boostType === "HOMEPAGE_BANNER" ? 200 : 100
 
-  await prisma.payment.create({
+  const payment = await prisma.payment.create({
     data: {
       companyId: profile.id,
       type: "BOOST_AD",
       amount,
-      // encode job info in billplzRef until Billplz is integrated
       billplzRef: `BOOST|${jobId}|${boostType}`,
       status: "PENDING",
     },
   })
 
+  // Billplz: create a bill and send the user to the payment page.
+  if (billplzConfigured()) {
+    const bill = await createBill({
+      amountRM: amount,
+      name: profile.companyName,
+      email: profile.contactEmail,
+      description: `Boost — ${job.title}`,
+      reference: payment.id,
+    })
+    if ("url" in bill) {
+      await prisma.payment.update({ where: { id: payment.id }, data: { billplzBillId: bill.id } })
+      redirect(bill.url)
+    }
+    redirect(`/company/jobs/${jobId}/boost?error=payment`)
+  }
+
+  // Fallback (Billplz not configured): notify admin for manual approval.
   resend.emails.send({
     from: FROM_EMAIL,
     to: ADMIN_EMAIL,
@@ -60,7 +77,7 @@ async function requestUpgrade(targetPlan: "PRO" | "MAX") {
 
   const amount = targetPlan === "MAX" ? 400 : 200
 
-  await prisma.payment.create({
+  const payment = await prisma.payment.create({
     data: {
       companyId: profile.id,
       type: "SUBSCRIPTION",
@@ -69,6 +86,21 @@ async function requestUpgrade(targetPlan: "PRO" | "MAX") {
       status: "PENDING",
     },
   })
+
+  if (billplzConfigured()) {
+    const bill = await createBill({
+      amountRM: amount,
+      name: profile.companyName,
+      email: profile.contactEmail,
+      description: `${targetPlan} plan — ${profile.companyName}`,
+      reference: payment.id,
+    })
+    if ("url" in bill) {
+      await prisma.payment.update({ where: { id: payment.id }, data: { billplzBillId: bill.id } })
+      redirect(bill.url)
+    }
+    redirect("/company/billing?error=payment")
+  }
 
   resend.emails.send({
     from: FROM_EMAIL,

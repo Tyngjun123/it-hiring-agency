@@ -444,10 +444,11 @@ model ReferralReward {
 model Payment {
   id         String        @id @default(cuid())
   companyId  String        @map("company_id")
-  type       PaymentType
-  amount     Decimal       @db.Decimal(10, 2)
-  billplzRef String?       @map("billplz_ref")
-  status     PaymentStatus @default(PENDING)
+  type         PaymentType
+  amount       Decimal       @db.Decimal(10, 2)
+  billplzRef   String?       @map("billplz_ref")
+  billplzBillId String?      @map("billplz_bill_id")
+  status       PaymentStatus @default(PENDING)
   createdAt  DateTime      @default(now()) @map("created_at")
 
   company CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)

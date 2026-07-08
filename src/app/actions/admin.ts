@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { isAdminEmail } from "@/lib/admin"
+import { fulfillPayment } from "@/lib/fulfill-payment"
 
 async function verifyAdmin() {
   const session = await auth()
@@ -14,51 +15,7 @@ async function verifyAdmin() {
 
 export async function approvePayment(paymentId: string) {
   await verifyAdmin()
-
-  const payment = await prisma.payment.findUnique({
-    where: { id: paymentId },
-    include: { company: true },
-  })
-  if (!payment || payment.status !== "PENDING") return
-
-  if (payment.type === "SUBSCRIPTION") {
-    // Ref format: "SUB|<PLAN>|<companyId>". Older refs ("SUB|<companyId>") default to PRO.
-    const refPlan = payment.billplzRef?.split("|")[1]
-    const targetPlan = refPlan === "MAX" ? "MAX" : "PRO"
-    await prisma.companyProfile.update({
-      where: { id: payment.companyId },
-      data: { plan: targetPlan, billingStart: new Date(), planStatus: "active" },
-    })
-  }
-
-  if (payment.type === "BOOST_AD" && payment.billplzRef) {
-    // Parse "BOOST|jobId|boostType"
-    const [, jobId, boostType] = payment.billplzRef.split("|")
-    if (jobId && boostType) {
-      const now = new Date()
-      const expiresAt = new Date(now)
-      expiresAt.setDate(expiresAt.getDate() + 30)
-
-      await prisma.boostAd.create({
-        data: {
-          jobListingId: jobId,
-          companyId: payment.companyId,
-          boostType: boostType as "PINNED_SEARCH" | "HOMEPAGE_BANNER",
-          pricePaid: payment.amount,
-          startsAt: now,
-          expiresAt,
-          status: "ACTIVE",
-          paymentRef: paymentId,
-        },
-      })
-    }
-  }
-
-  await prisma.payment.update({
-    where: { id: paymentId },
-    data: { status: "PAID" },
-  })
-
+  await fulfillPayment(paymentId) // shared with the Billplz webhook
   revalidatePath("/admin")
   redirect("/admin?toast=payment_approved")
 }
