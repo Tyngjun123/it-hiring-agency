@@ -299,7 +299,7 @@ export default async function AdminSettingsPage({
             </div>
             <div className="space-y-1.5">
               <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Contact email</Label>
-              <Input name="contactEmail" type="email" placeholder="support@stacktalentx.com" defaultValue={config?.contactEmail ?? ""}
+              <Input name="contactEmail" type="email" placeholder="support@techirex.com" defaultValue={config?.contactEmail ?? ""}
                 className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
             </div>
           </div>

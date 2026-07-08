@@ -17,7 +17,7 @@ export async function sendContactMessage(formData: FormData) {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: "support@stacktalentx.com",
+      to: "support@techirex.com",
       replyTo: email,
       subject: `[TechireX Contact] ${topic} — ${name}`,
       html: `

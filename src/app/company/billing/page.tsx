@@ -241,7 +241,7 @@ export default async function BillingPage({
           <ol className="text-[13.5px] text-[#6B7280] space-y-2 list-decimal list-inside mb-5">
             <li>Click <strong className="text-[#1C1C1E]">Upgrade to Pro</strong> to register your request</li>
             <li>Transfer <strong className="text-[#1C1C1E]">RM 200</strong> to the account below</li>
-            <li>Email receipt to <a href="mailto:support@stacktalentx.com" className="text-[#F97316] hover:underline">support@stacktalentx.com</a></li>
+            <li>Email receipt to <a href="mailto:support@techirex.com" className="text-[#F97316] hover:underline">support@techirex.com</a></li>
             <li>We'll activate within 1 business day</li>
           </ol>
           <div className="bg-[#FAFAF8] border border-[#EEEBE3] rounded-[12px] p-4 font-mono text-[13px] space-y-2">

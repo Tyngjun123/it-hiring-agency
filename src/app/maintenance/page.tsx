@@ -13,8 +13,8 @@ export default function MaintenancePage() {
         </p>
         <p className="text-sm text-[#9CA3AF]">
           Questions? Email us at{" "}
-          <a href="mailto:support@stacktalentx.com" className="text-[#F97316] font-semibold hover:underline">
-            support@stacktalentx.com
+          <a href="mailto:support@techirex.com" className="text-[#F97316] font-semibold hover:underline">
+            support@techirex.com
           </a>
         </p>
       </div>

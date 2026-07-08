@@ -54,7 +54,7 @@ export default async function BoostPage({
 
         {requested === "1" && (
           <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
-            Boost request received. Send payment receipt to <a href="mailto:support@stacktalentx.com" className="underline">support@stacktalentx.com</a> and we'll activate within 1 business day.
+            Boost request received. Send payment receipt to <a href="mailto:support@techirex.com" className="underline">support@techirex.com</a> and we'll activate within 1 business day.
           </div>
         )}
 
@@ -114,7 +114,7 @@ export default async function BoostPage({
               <ol className="list-decimal list-inside space-y-1">
                 <li>Click a boost option above</li>
                 <li>Transfer the amount to our bank account</li>
-                <li>Email receipt to <a href="mailto:support@stacktalentx.com" className="text-blue-600 hover:underline">support@stacktalentx.com</a></li>
+                <li>Email receipt to <a href="mailto:support@techirex.com" className="text-blue-600 hover:underline">support@techirex.com</a></li>
                 <li>Boost activates within 1 business day</li>
               </ol>
             </div>

@@ -16,7 +16,7 @@ import ListEditor from "@/components/admin/list-editor"
 import { ABOUT_VALUES_DEFAULT, ABOUT_TEAM_DEFAULT, parseList, type Value, type Member } from "@/data/about"
 
 const DEFAULTS: Record<string, string> = {
-  contact_email: "support@stacktalentx.com",
+  contact_email: "support@techirex.com",
   contact_whatsapp: "https://wa.me/60123456789",
   contact_whatsapp_label: "Chat on WhatsApp →",
   contact_hours: "Mon–Fri, 9am–6pm MYT",

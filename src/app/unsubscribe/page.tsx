@@ -78,7 +78,7 @@ export default async function UnsubscribePage({
             <h1 className="text-[20px] font-extrabold text-[#1C1C1E] mb-2">Link not recognised</h1>
             <p className="text-[14px] text-[#6B7280] leading-relaxed mb-6">
               This unsubscribe link looks invalid or has expired. If you keep getting unwanted emails,
-              contact us at support@stacktalentx.com.
+              contact us at support@techirex.com.
             </p>
             <Link href="/" className="inline-block bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-[14px] px-6 py-3 rounded-[12px] transition-colors">
               Go to TechireX

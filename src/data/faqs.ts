@@ -25,7 +25,7 @@ export const HELP_FAQS: Faq[] = [
   { category: "Technical", q: "Why can't I log in to my account?", a: "Check that you're using the correct email address. If you signed up with Google, use 'Continue with Google' — not email/password. If you've forgotten your password, use the Forgot password link on the login page." },
   { category: "Technical", q: "Is my personal data secure?", a: "Yes. All data is encrypted in transit (HTTPS) and at rest. We comply with Malaysia's Personal Data Protection Act 2010 (PDPA). We never sell your personal data to third parties." },
   { category: "Technical", q: "What browsers does TechireX support?", a: "TechireX works on all modern browsers — Chrome, Edge, Firefox, and Safari (latest two versions). For the best experience, keep your browser up to date." },
-  { category: "Technical", q: "I found a bug or have a feature request. How do I report it?", a: "Use the Contact Us page or email us at support@stacktalentx.com. For urgent issues, include your account email and a brief description of what happened." },
+  { category: "Technical", q: "I found a bug or have a feature request. How do I report it?", a: "Use the Contact Us page or email us at support@techirex.com. For urgent issues, include your account email and a brief description of what happened." },
 ]
 
 export const PRICING_FAQS: Faq[] = [

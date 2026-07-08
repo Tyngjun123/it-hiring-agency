@@ -53,7 +53,7 @@ export default async function HelpPage() {
               className="bg-[#F97316] hover:bg-[#EA580C] text-white text-[14px] font-bold px-6 py-3 rounded-[11px] shadow-[0_6px_15px_rgba(249,115,22,0.3)] transition-colors">
               Contact us
             </Link>
-            <a href="mailto:support@stacktalentx.com"
+            <a href="mailto:support@techirex.com"
               className="bg-white text-[#C2410C] border-[1.5px] border-[#F7C99A] hover:bg-[#FFF7ED] text-[14px] font-bold px-6 py-3 rounded-[11px] transition-colors">
               Email support
             </a>

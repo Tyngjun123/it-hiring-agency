@@ -95,8 +95,8 @@ export default function GlobalError({
 
           <p style={{ marginTop: 28, fontSize: 13, color: "#B6B2A8" }}>
             Questions? Email us at{" "}
-            <a href="mailto:support@stacktalentx.com" style={{ color: "#F97316" }}>
-              support@stacktalentx.com
+            <a href="mailto:support@techirex.com" style={{ color: "#F97316" }}>
+              support@techirex.com
             </a>
           </p>
         </div>

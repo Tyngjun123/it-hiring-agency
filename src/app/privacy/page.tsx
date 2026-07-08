@@ -33,7 +33,7 @@ const SUMMARY_CARDS = [
       </svg>
     ),
     title: "Your rights",
-    body: "Access, correct, port, or delete your data, and withdraw consent (including leaving the Talent Pool) at any time. Contact support@stacktalentx.com to exercise your rights.",
+    body: "Access, correct, port, or delete your data, and withdraw consent (including leaving the Talent Pool) at any time. Contact support@techirex.com to exercise your rights.",
   },
 ]
 
@@ -92,7 +92,7 @@ const SECTIONS = [
     id: "rights", title: "Your rights under the PDPA",
     paras: [
       "You have the right to access and correct your personal data, withdraw consent to processing (including leaving the Talent Pool), request data portability, and limit or object to certain processing.",
-      "To exercise any of these rights, contact our Data Protection Officer at support@stacktalentx.com. We will respond within the timeframe required by law.",
+      "To exercise any of these rights, contact our Data Protection Officer at support@techirex.com. We will respond within the timeframe required by law.",
     ],
   },
   {
@@ -110,7 +110,7 @@ const SECTIONS = [
   {
     id: "contact", title: "Contact",
     paras: [
-      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@stacktalentx.com, or write to TechireX Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
+      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@techirex.com, or write to TechireX Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
     ],
   },
 ]

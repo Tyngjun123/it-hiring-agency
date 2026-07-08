@@ -6,7 +6,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { resend, FROM_EMAIL } from "@/lib/resend"
 
-const ADMIN_EMAIL = "support@stacktalentx.com"
+const ADMIN_EMAIL = "support@techirex.com"
 
 export async function requestBoost(jobId: string, boostType: "PINNED_SEARCH" | "HOMEPAGE_BANNER") {
   const session = await auth()
