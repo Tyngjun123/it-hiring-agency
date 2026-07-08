@@ -59,8 +59,8 @@ export default function OpengraphImage() {
               color: "#fff",
             }}
           >
-            <span style={{ display: "flex" }}>StackTalent</span>
-            <span style={{ display: "flex", color: "#F97316" }}>x</span>
+            <span style={{ display: "flex" }}>Techire</span>
+            <span style={{ display: "flex", color: "#F97316" }}>X</span>
           </div>
         </div>
 

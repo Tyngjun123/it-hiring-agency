@@ -46,7 +46,7 @@ export default function GlobalError({
               />
             </div>
             <span style={{ fontSize: 22, fontWeight: 800, color: "#1C1C1E", letterSpacing: "-0.03em" }}>
-              StackTalent<span style={{ color: "#F97316" }}>x</span>
+              Techire<span style={{ color: "#F97316" }}>X</span>
             </span>
           </div>
 

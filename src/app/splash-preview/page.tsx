@@ -23,7 +23,7 @@ export default function SplashPreviewPage() {
       {/* Centered wordmark */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
         <div style={{ fontSize: 30, fontWeight: 800, color: "#fff", letterSpacing: "-.035em" }}>
-          StackTalent<span style={{ color: "#1C1C1E" }}>x</span>
+          Techire<span style={{ color: "#1C1C1E" }}>X</span>
         </div>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,.85)", fontWeight: 500 }}>
           Find your next role in tech
