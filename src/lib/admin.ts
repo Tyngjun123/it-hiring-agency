@@ -5,6 +5,7 @@
 export const ADMIN_USERNAMES: Record<string, string> = {
   admin: "tyngjun123@gmail.com",
   kahou123: "kahou123@ithire.my",
+  cy: "cy@techirex.com",
 }
 
 // Optional extra admins via env (comma-separated emails), merged with the above.
