@@ -72,6 +72,28 @@ export function verifyCallbackSignature(params: Record<string, string>): boolean
   return safeEqual(computed, params.x_signature)
 }
 
+// TEMP DIAGNOSTIC: returns the pieces used to verify a callback signature so we
+// can see exactly why a webhook is rejected. Never logs the secret key itself.
+export function debugCallbackSignature(params: Record<string, string>) {
+  const source = Object.keys(params)
+    .filter((k) => k !== "x_signature")
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    .map((k) => `${k}${params[k]}`)
+    .join("|")
+  const computed = XSIGN
+    ? crypto.createHmac("sha256", XSIGN).update(source).digest("hex")
+    : null
+  return {
+    hasKey: !!XSIGN,
+    keyLen: XSIGN?.length ?? 0,
+    receivedKeys: Object.keys(params).sort(),
+    source,
+    computed,
+    received: params.x_signature ?? null,
+    match: !!computed && computed === params.x_signature,
+  }
+}
+
 // Verifies the browser redirect params: billplz[id], billplz[paid], etc. The
 // signed keys drop the brackets (billplz[id] -> billplzid).
 export function verifyRedirectSignature(params: Record<string, string>): boolean {
