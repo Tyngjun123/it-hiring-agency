@@ -59,27 +59,31 @@ function safeEqual(a: string, b: string): boolean {
   return ba.length === bb.length && crypto.timingSafeEqual(ba, bb)
 }
 
-// Verifies the webhook (callback) X-Signature: all params except x_signature,
-// keys sorted ascending case-insensitive, each "key"+"value", joined by "|".
+// Builds the Billplz X-Signature source string. Per Billplz's official spec
+// (billplz-php XSignature), each param becomes "<key><value>", and the RESULTING
+// STRINGS are sorted byte-wise (SORT_STRING) — NOT the keys — then joined by "|".
+function billplzSource(pairs: Array<[string, string]>): string {
+  return pairs.map(([k, v]) => `${k}${v}`).sort().join("|")
+}
+
+// Verifies the webhook (callback) X-Signature over all params except x_signature.
 export function verifyCallbackSignature(params: Record<string, string>): boolean {
   if (!XSIGN || !params.x_signature) return false
-  const source = Object.keys(params)
+  const pairs = Object.keys(params)
     .filter((k) => k !== "x_signature")
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-    .map((k) => `${k}${params[k]}`)
-    .join("|")
-  const computed = crypto.createHmac("sha256", XSIGN).update(source).digest("hex")
+    .map((k) => [k, params[k]] as [string, string])
+  const computed = crypto.createHmac("sha256", XSIGN).update(billplzSource(pairs)).digest("hex")
   return safeEqual(computed, params.x_signature)
 }
 
 // TEMP DIAGNOSTIC: returns the pieces used to verify a callback signature so we
 // can see exactly why a webhook is rejected. Never logs the secret key itself.
 export function debugCallbackSignature(params: Record<string, string>) {
-  const source = Object.keys(params)
-    .filter((k) => k !== "x_signature")
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-    .map((k) => `${k}${params[k]}`)
-    .join("|")
+  const source = billplzSource(
+    Object.keys(params)
+      .filter((k) => k !== "x_signature")
+      .map((k) => [k, params[k]] as [string, string])
+  )
   const computed = XSIGN
     ? crypto.createHmac("sha256", XSIGN).update(source).digest("hex")
     : null
@@ -99,12 +103,9 @@ export function debugCallbackSignature(params: Record<string, string>) {
 export function verifyRedirectSignature(params: Record<string, string>): boolean {
   const sig = params["billplz[x_signature]"]
   if (!XSIGN || !sig) return false
-  const source = Object.keys(params)
+  const pairs = Object.keys(params)
     .filter((k) => k.startsWith("billplz[") && k !== "billplz[x_signature]")
     .map((k) => [k.replace(/^billplz\[(.+)\]$/, "billplz$1"), params[k]] as [string, string])
-    .sort((a, b) => a[0].toLowerCase().localeCompare(b[0].toLowerCase()))
-    .map(([k, v]) => `${k}${v}`)
-    .join("|")
-  const computed = crypto.createHmac("sha256", XSIGN).update(source).digest("hex")
+  const computed = crypto.createHmac("sha256", XSIGN).update(billplzSource(pairs)).digest("hex")
   return safeEqual(computed, sig)
 }
