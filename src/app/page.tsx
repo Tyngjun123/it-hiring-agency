@@ -219,7 +219,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div className="flex items-center justify-center gap-7 md:gap-10 pt-1">
               {[
                 { value: formatStat(heroStats.roles), label: heroStats.roles === 1 ? "role" : "roles" },
-                { value: formatStat(heroStats.seekers), label: heroStats.seekers === 1 ? "seeker" : "seekers" },
+                { value: formatStat(heroStats.seekers), label: heroStats.seekers === 1 ? "candidate" : "candidates" },
                 { value: formatStat(heroStats.companies), label: heroStats.companies === 1 ? "company" : "companies" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
