@@ -45,7 +45,7 @@ export default function SplashPreviewPage() {
             <path d="M17.5 26 L13 33" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
           </svg>
         </div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,.75)", letterSpacing: ".04em" }}>stacktalentx.com</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,.75)", letterSpacing: ".04em" }}>techirex.com</div>
       </div>
     </div>
   )

@@ -8,7 +8,7 @@ import { getSiteConfig } from "@/lib/site-config"
 
 const BANK_DETAILS = {
   bank: "Maybank",
-  accountName: "TechireX Sdn Bhd",
+  accountName: "TJ Tech Consulting",
   accountNumber: "1234 5678 9012",
   amount: "RM 200.00",
   reference: "PRO-{your company name}",

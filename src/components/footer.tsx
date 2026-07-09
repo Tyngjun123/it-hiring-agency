@@ -148,7 +148,7 @@ export default async function Footer() {
             )}
           </div>
           <p className="text-xs text-[#B6B2A8]">
-            © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved. · Malaysia
+            © {new Date().getFullYear()} {BRAND_NAME}, operated by TJ Tech Consulting. All rights reserved. · Malaysia
           </p>
         </div>
       </div>

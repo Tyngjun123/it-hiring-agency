@@ -41,7 +41,7 @@ const SECTIONS = [
   {
     id: "controller", title: "Who we are",
     paras: [
-      "TechireX Technologies Sdn Bhd (“TechireX”, “we”, “us”) operates the IT recruitment platform at stacktalentx.com and is the data controller of your personal data. This policy explains how we handle personal data under Malaysia’s Personal Data Protection Act 2010, as amended by the Personal Data Protection (Amendment) Act 2024 (“PDPA”).",
+      "TJ Tech Consulting (“TechireX”, “we”, “us”) operates the IT recruitment platform at techirex.com and is the data controller of your personal data. This policy explains how we handle personal data under Malaysia’s Personal Data Protection Act 2010, as amended by the Personal Data Protection (Amendment) Act 2024 (“PDPA”).",
     ],
   },
   {
@@ -110,7 +110,7 @@ const SECTIONS = [
   {
     id: "contact", title: "Contact",
     paras: [
-      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@techirex.com, or write to TechireX Technologies Sdn Bhd, Kuala Lumpur, Malaysia.",
+      "For any questions or complaints about this policy or your personal data, contact our Data Protection Officer at support@techirex.com, or write to TJ Tech Consulting, Kuala Lumpur, Malaysia.",
     ],
   },
 ]
