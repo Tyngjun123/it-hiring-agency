@@ -4,7 +4,7 @@ import Link from "next/link"
 import { LogoTile, Wordmark } from "@/components/brand"
 import OnThisPage from "./on-this-page"
 
-export const metadata = { title: "Terms of Service — TechireX", description: "TechireX terms of service governing use of the platform by candidates and employers." }
+export const metadata = { title: "Terms of Service — TechireX", description: "TechireX terms of service governing use of the platform by candidates and employers.", alternates: { canonical: "/terms" } }
 
 const SECTIONS = [
   { id: "acceptance", label: "1. Acceptance", title: "1. Acceptance of terms", body: "By accessing or using TechireX (techirex.com), you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform. These terms apply to all visitors, candidates and employers." },
