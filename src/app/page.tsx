@@ -12,6 +12,13 @@ import OnboardingFlow, { type OnboardingStep } from "@/components/onboarding-flo
 import JobSort from "@/components/job-sort"
 import { isAdminEmail } from "@/lib/admin"
 import { Suspense } from "react"
+import { buildPageMetadata, getPageSchema } from "@/lib/seo"
+import { RawJsonLd } from "@/components/json-ld"
+import type { Metadata } from "next"
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("home")
+}
 
 const PAGE_SIZE = 10
 
@@ -194,8 +201,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const total = (page === 1 ? boosted.length : 0) + regularTotal
   const isFiltered = !!(q || location || workType)
 
+  const homeSchema = await getPageSchema("home")
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <RawJsonLd json={homeSchema} />
       <OnboardingFlow step={onboardingStep} jobTypes={jobTypes} />
       <Navbar />
 

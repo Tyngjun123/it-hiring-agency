@@ -15,6 +15,8 @@ export type BlogPostData = {
   coverImageUrl?: string
   featured: boolean
   date: string
+  metaTitle?: string
+  metaDesc?: string
 }
 
 export async function getAllBlogPosts(): Promise<BlogPostData[]> {
@@ -39,6 +41,8 @@ export async function getAllBlogPosts(): Promise<BlogPostData[]> {
     coverImageUrl: p.coverImageUrl ?? undefined,
     featured: p.featured,
     date: p.createdAt.toISOString().slice(0, 10),
+    metaTitle: p.metaTitle ?? undefined,
+    metaDesc: p.metaDesc ?? undefined,
   }))
 
   // Merge static posts that haven't been migrated to DB yet
@@ -80,6 +84,8 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | nu
       coverImageUrl: dbPost.coverImageUrl ?? undefined,
       featured: dbPost.featured,
       date: dbPost.createdAt.toISOString().slice(0, 10),
+      metaTitle: dbPost.metaTitle ?? undefined,
+      metaDesc: dbPost.metaDesc ?? undefined,
     }
   }
 

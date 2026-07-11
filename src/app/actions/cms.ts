@@ -73,9 +73,27 @@ export async function createBlogPost(formData: FormData) {
 export async function updateBlogPost(id: string, formData: FormData) {
   await requireAdmin()
 
+  const existing = await prisma.blogPost.findUnique({ where: { id } })
+  if (!existing) redirect("/admin/blog")
+
+  // Slug is now editable — normalize to a URL-safe form and enforce uniqueness.
+  const slug =
+    (formData.get("slug") as string)?.trim().toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") ?? ""
+  if (!slug) redirect(`/admin/blog/${id}/edit?error=slug`)
+
+  if (slug !== existing.slug) {
+    const clash = await prisma.blogPost.findUnique({ where: { slug } })
+    if (clash) redirect(`/admin/blog/${id}/edit?error=slug_taken`)
+  }
+
   await prisma.blogPost.update({
     where: { id },
     data: {
+      slug,
       title: (formData.get("title") as string).trim(),
       summary: (formData.get("summary") as string) || "",
       content: (formData.get("content") as string) || "",
@@ -92,7 +110,8 @@ export async function updateBlogPost(id: string, formData: FormData) {
   })
 
   revalidatePath("/blog")
-  revalidatePath(`/blog/${id}`)
+  revalidatePath(`/blog/${existing.slug}`)
+  if (slug !== existing.slug) revalidatePath(`/blog/${slug}`)
   revalidatePath("/admin/blog")
   redirect("/admin/blog?toast=blog_saved")
 }

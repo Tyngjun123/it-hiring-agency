@@ -14,6 +14,7 @@ import PlanEditor from "@/components/admin/plan-editor"
 import { PRICING_PLANS_DEFAULT, parsePlans } from "@/data/plans"
 import ListEditor from "@/components/admin/list-editor"
 import { ABOUT_VALUES_DEFAULT, ABOUT_TEAM_DEFAULT, parseList, type Value, type Member } from "@/data/about"
+import { SEO_PAGES } from "@/lib/seo"
 
 const DEFAULTS: Record<string, string> = {
   contact_email: "support@techirex.com",
@@ -88,6 +89,7 @@ export default async function AdminCmsPage({
         {/* Quick navigation — jump to a section */}
         <div className="flex flex-wrap gap-2 sticky top-16 z-10 bg-[#FAFAF8]/90 backdrop-blur py-2 -my-2">
           {[
+            { id: "cms-seo", label: "SEO & Meta" },
             { id: "cms-contact", label: "Contact" },
             { id: "cms-about", label: "About" },
             { id: "cms-help", label: "Help FAQ" },
@@ -102,6 +104,49 @@ export default async function AdminCmsPage({
         </div>
 
         <form action={saveCmsContent} className="space-y-6">
+
+          {/* SEO & Meta — all pages */}
+          <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-5">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-[9px] bg-[#FFF7ED] text-[#F97316] flex items-center justify-center text-sm font-bold">🔎</div>
+              <h2 id="cms-seo" className="font-extrabold text-[#1C1C1E] scroll-mt-28">SEO &amp; Meta — all pages</h2>
+            </div>
+            <p className="text-[12.5px] text-[#9CA3AF] -mt-2">
+              Page title &amp; meta description for search results, plus optional custom schema markup (JSON-LD) injected into each page.
+              Leave a field blank to use the default. Canonical URLs are set automatically for every page and blog post.
+            </p>
+
+            {Object.values(SEO_PAGES).map((p) => (
+              <div key={p.path} className="border border-[#F1EDE4] rounded-[14px] p-4 space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[13.5px] font-extrabold text-[#1C1C1E]">{p.label}</span>
+                  <span className="text-[11.5px] font-mono text-[#9CA3AF]">{p.path}</span>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-[#3A3A3C]">Page title</Label>
+                  <Input name={p.titleKey} defaultValue={cms[p.titleKey] ?? ""} placeholder={p.title}
+                    className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-[#3A3A3C]">Meta description</Label>
+                  <Textarea name={p.descKey} rows={2} maxLength={200} defaultValue={cms[p.descKey] ?? ""} placeholder={p.desc}
+                    className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px] font-semibold text-[#3A3A3C]">
+                    Custom schema markup <span className="text-[#9CA3AF] font-normal">(JSON-LD, optional)</span>
+                  </Label>
+                  <Textarea name={p.schemaKey} rows={3} defaultValue={cms[p.schemaKey] ?? ""}
+                    placeholder={'{ "@context": "https://schema.org", "@type": "FAQPage", ... }'}
+                    className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] font-mono text-[12px] resize-y" />
+                </div>
+              </div>
+            ))}
+            <p className="text-[11.5px] text-[#9CA3AF]">
+              Paste JSON only (the <code className="font-mono">{"{ ... }"}</code> object). Organization, WebSite,
+              JobPosting and BlogPosting schema are already generated automatically — use this box only for extras.
+            </p>
+          </div>
 
           {/* Contact page */}
           <div className="bg-white border border-[#EEEBE3] rounded-2xl p-6 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)] space-y-5">
@@ -140,19 +185,7 @@ export default async function AdminCmsPage({
               <Textarea name="contact_intro" rows={3} defaultValue={val("contact_intro")}
                 className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
             </div>
-            <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">SEO</p>
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Page title</Label>
-                <Input name="meta_contact_title" defaultValue={val("meta_contact_title")}
-                  className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Meta description</Label>
-                <Textarea name="meta_contact_desc" rows={2} maxLength={160} defaultValue={val("meta_contact_desc")}
-                  className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
-              </div>
-            </div>
+            <p className="text-[11.5px] text-[#9CA3AF]">Page title &amp; meta description are in the SEO &amp; Meta section above.</p>
           </div>
 
           {/* About page */}
@@ -204,19 +237,7 @@ export default async function AdminCmsPage({
               <Textarea name="about_join_body" rows={2} defaultValue={val("about_join_body")}
                 className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
             </div>
-            <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">SEO</p>
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Page title</Label>
-                <Input name="meta_about_title" defaultValue={val("meta_about_title")}
-                  className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316]" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Meta description</Label>
-                <Textarea name="meta_about_desc" rows={2} maxLength={160} defaultValue={val("meta_about_desc")}
-                  className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
-              </div>
-            </div>
+            <p className="text-[11.5px] text-[#9CA3AF]">Page title &amp; meta description are in the SEO &amp; Meta section above.</p>
           </div>
 
           {/* Help page FAQ */}

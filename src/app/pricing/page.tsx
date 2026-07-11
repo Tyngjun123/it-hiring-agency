@@ -4,6 +4,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { getSiteConfig } from "@/lib/site-config"
 import { getCmsMap } from "@/lib/cms"
+import { buildPageMetadata, getPageSchema } from "@/lib/seo"
+import { RawJsonLd } from "@/components/json-ld"
+import type { Metadata } from "next"
 import { PRICING_FAQS, parseFaqs } from "@/data/faqs"
 import { PRICING_PLANS_DEFAULT, parsePlans } from "@/data/plans"
 
@@ -81,9 +84,14 @@ const BOOST_FEATURES = [
   "Per listing — no subscription needed",
 ]
 
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("pricing")
+}
+
 export default async function PricingPage() {
   const config = await getSiteConfig()
   const cms = await getCmsMap()
+  const pricingSchema = await getPageSchema("pricing")
   const pricingFaqs = parseFaqs(cms["pricing_faqs"], PRICING_FAQS)
   // Merge CMS-editable copy over the base plans (CTA/badge/flags stay in code).
   const editablePlans = parsePlans(cms["pricing_plans"], PRICING_PLANS_DEFAULT)
@@ -100,6 +108,7 @@ export default async function PricingPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <RawJsonLd json={pricingSchema} />
       <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-16 space-y-12">

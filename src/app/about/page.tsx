@@ -5,6 +5,9 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { getCmsMap } from "@/lib/cms"
+import { buildPageMetadata, getPageSchema } from "@/lib/seo"
+import { RawJsonLd } from "@/components/json-ld"
+import type { Metadata } from "next"
 import {
   ABOUT_VALUES_DEFAULT, ABOUT_TEAM_DEFAULT, TEAM_COLORS, parseList,
   ABOUT_MISSION_HEADING_DEFAULT, ABOUT_JOIN_HEADING_DEFAULT, ABOUT_JOIN_BODY_DEFAULT,
@@ -28,9 +31,14 @@ async function getStats() {
 }
 
 
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("about")
+}
+
 export default async function AboutPage() {
   const { companies, jobs } = await getStats()
   const cms = await getCmsMap()
+  const aboutSchema = await getPageSchema("about")
   const aboutTagline = cms["about_tagline"] ?? ABOUT_TAGLINE
   const aboutHero = cms["about_hero"] ?? ABOUT_HERO
   const aboutBody = cms["about_body"] ?? ABOUT_BODY
@@ -42,6 +50,7 @@ export default async function AboutPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <RawJsonLd json={aboutSchema} />
       <Navbar />
 
       {/* Hero */}

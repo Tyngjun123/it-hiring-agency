@@ -4,14 +4,21 @@ import Link from "next/link"
 import FAQAccordion from "./faq-accordion"
 import { getCmsMap } from "@/lib/cms"
 import { HELP_FAQS, parseFaqs } from "@/data/faqs"
+import { buildPageMetadata, getPageSchema } from "@/lib/seo"
+import { RawJsonLd } from "@/components/json-ld"
+import type { Metadata } from "next"
 
-export const metadata = { title: "Help Center — TechireX", description: "Find answers to common questions about TechireX for candidates and employers." }
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("help")
+}
 
 export default async function HelpPage() {
   const cms = await getCmsMap()
   const faqs = parseFaqs(cms["help_faqs"], HELP_FAQS)
+  const helpSchema = await getPageSchema("help")
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <RawJsonLd json={helpSchema} />
       <Navbar />
 
       {/* Hero + search */}

@@ -5,6 +5,13 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { BLOG_CATEGORIES } from "@/data/posts"
 import { getAllBlogPosts } from "@/lib/blog"
+import { buildPageMetadata, getPageSchema } from "@/lib/seo"
+import { RawJsonLd } from "@/components/json-ld"
+import type { Metadata } from "next"
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("blog")
+}
 
 export default async function BlogPage({
   searchParams,
@@ -22,8 +29,11 @@ export default async function BlogPage({
       ? allPosts.filter((p) => !p.featured)
       : allPosts.filter((p) => p.category === activeCat)
 
+  const blogSchema = await getPageSchema("blog")
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <RawJsonLd json={blogSchema} />
       <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10 pb-16">
@@ -58,13 +68,20 @@ export default async function BlogPage({
         {/* Featured post (only on "All") */}
         {activeCat === "All" && featured && (
           <div className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr] bg-white border border-[#EEEBE3] rounded-[18px] overflow-hidden mb-7 shadow-[0_1px_2px_rgba(28,28,30,.03),0_10px_26px_rgba(28,28,30,.05)]">
-            {/* Cover placeholder */}
+            {/* Cover */}
             <div className="min-h-[220px] md:min-h-[290px] relative flex items-end p-6"
-              style={{ background: featured.cover ?? "repeating-linear-gradient(135deg, #FFF1E1, #FFF1E1 13px, #FFE8CF 13px, #FFE8CF 26px)" }}>
-              <span className="absolute top-4 left-4 bg-white text-[#C2410C] text-[11.5px] font-bold px-3 py-1.5 rounded-full">
+              style={featured.coverImageUrl ? { background: "#F6F4EE" } : { background: featured.cover ?? "repeating-linear-gradient(135deg, #FFF1E1, #FFF1E1 13px, #FFE8CF 13px, #FFE8CF 26px)" }}>
+              {featured.coverImageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={featured.coverImageUrl} alt={featured.title}
+                  className="absolute inset-0 w-full h-full object-contain" />
+              )}
+              <span className="absolute top-4 left-4 z-10 bg-white text-[#C2410C] text-[11.5px] font-bold px-3 py-1.5 rounded-full shadow-sm">
                 Featured
               </span>
-              <span className="font-mono text-[12px] text-[#C99A6B]">[ cover image ]</span>
+              {!featured.coverImageUrl && (
+                <span className="font-mono text-[12px] text-[#C99A6B]">[ cover image ]</span>
+              )}
             </div>
             {/* Content */}
             <div className="p-8 flex flex-col justify-center">
@@ -107,10 +124,18 @@ export default async function BlogPage({
               <Link key={post.slug} href={`/blog/${post.slug}`}
                 className="bg-white border border-[#EEEBE3] rounded-[16px] overflow-hidden shadow-[0_1px_2px_rgba(28,28,30,.03),0_8px_22px_rgba(28,28,30,.045)] hover:shadow-[0_2px_4px_rgba(28,28,30,.05),0_12px_30px_rgba(28,28,30,.08)] transition-shadow group">
                 {/* Cover */}
-                <div className="h-[150px] relative flex items-end p-3"
-                  style={{ background: post.cover ?? "repeating-linear-gradient(135deg, #F6F4EE, #F6F4EE 13px, #EDEAE3 13px, #EDEAE3 26px)" }}>
-                  <span className="font-mono text-[11px] text-[rgba(28,28,30,0.32)]">[ image ]</span>
-                </div>
+                {post.coverImageUrl ? (
+                  <div className="relative aspect-[1200/630] bg-[#F6F4EE]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={post.coverImageUrl} alt={post.title}
+                      className="absolute inset-0 w-full h-full object-contain" />
+                  </div>
+                ) : (
+                  <div className="h-[150px] relative flex items-end p-3"
+                    style={{ background: post.cover ?? "repeating-linear-gradient(135deg, #F6F4EE, #F6F4EE 13px, #EDEAE3 13px, #EDEAE3 26px)" }}>
+                    <span className="font-mono text-[11px] text-[rgba(28,28,30,0.32)]">[ image ]</span>
+                  </div>
+                )}
                 {/* Content */}
                 <div className="p-5">
                   <p className="text-[11.5px] font-bold text-[#F97316] uppercase tracking-[.06em] mb-2">
