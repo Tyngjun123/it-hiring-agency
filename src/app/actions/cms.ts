@@ -63,10 +63,10 @@ export async function createBlogPost(formData: FormData) {
     },
   })
 
-  // Auto-share to social channels when created already published.
+  // Auto-share to social channels when created already published (per checkbox).
   if (post.published) {
-    await postBlogToTelegram(post)
-    await postBlogToFacebook(post)
+    if (formData.get("shareTelegram") === "on") await postBlogToTelegram(post)
+    if (formData.get("shareFacebook") === "on") await postBlogToFacebook(post)
   }
 
   revalidatePath("/blog")
@@ -94,7 +94,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
     if (clash) redirect(`/admin/blog/${id}/edit?error=slug_taken`)
   }
 
-  await prisma.blogPost.update({
+  const updated = await prisma.blogPost.update({
     where: { id },
     data: {
       slug,
@@ -112,6 +112,13 @@ export async function updateBlogPost(id: string, formData: FormData) {
       metaDesc: (formData.get("metaDesc") as string) || null,
     },
   })
+
+  // Auto-share only when a draft is first published (avoids re-sharing on every
+  // edit of an already-live post), respecting the per-post checkboxes.
+  if (updated.published && !existing.published) {
+    if (formData.get("shareTelegram") === "on") await postBlogToTelegram(updated)
+    if (formData.get("shareFacebook") === "on") await postBlogToFacebook(updated)
+  }
 
   revalidatePath("/blog")
   revalidatePath(`/blog/${existing.slug}`)
