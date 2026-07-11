@@ -144,6 +144,22 @@ export function BlogPostFields({ defaults }: { defaults?: Record<string, string 
         </label>
       </div>
 
+      <div className="pt-1">
+        <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-2">Auto-share when published</p>
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="shareTelegram" defaultChecked={d.shareTelegram !== false}
+              className="w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30" />
+            <span className="text-[13.5px] font-semibold text-[#3A3A3C]">一并发去 Telegram</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="shareFacebook" defaultChecked={d.shareFacebook !== false}
+              className="w-4 h-4 rounded border-[#D1C9BB] text-[#F97316] focus:ring-[#F97316]/30" />
+            <span className="text-[13.5px] font-semibold text-[#3A3A3C]">一并发去 Facebook Page</span>
+          </label>
+        </div>
+      </div>
+
       <Button type="submit"
         className="w-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold rounded-[11px] h-11 shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-colors">
         Save post
