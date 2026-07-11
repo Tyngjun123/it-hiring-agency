@@ -7,6 +7,7 @@ import { revalidatePath, revalidateTag } from "next/cache"
 import { isAdminEmail } from "@/lib/admin"
 import { resend, FROM_EMAIL } from "@/lib/resend"
 import { postBlogToTelegram } from "@/lib/telegram"
+import { postBlogToFacebook } from "@/lib/facebook"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { randomUUID } from "crypto"
 
@@ -62,8 +63,11 @@ export async function createBlogPost(formData: FormData) {
     },
   })
 
-  // Auto-share to Telegram when created already published.
-  if (post.published) await postBlogToTelegram(post)
+  // Auto-share to social channels when created already published.
+  if (post.published) {
+    await postBlogToTelegram(post)
+    await postBlogToFacebook(post)
+  }
 
   revalidatePath("/blog")
   revalidatePath("/admin/blog")
@@ -130,8 +134,11 @@ export async function deleteBlogPost(id: string) {
 export async function toggleBlogPublished(id: string, published: boolean) {
   await requireAdmin()
   const post = await prisma.blogPost.update({ where: { id }, data: { published } })
-  // Auto-share to Telegram when a draft is turned public.
-  if (published) await postBlogToTelegram(post)
+  // Auto-share to social channels when a draft is turned public.
+  if (published) {
+    await postBlogToTelegram(post)
+    await postBlogToFacebook(post)
+  }
   revalidatePath("/blog")
   revalidatePath("/admin/blog")
 }
