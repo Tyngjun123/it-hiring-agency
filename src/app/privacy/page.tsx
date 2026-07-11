@@ -3,7 +3,7 @@ import Footer from "@/components/footer"
 import Link from "next/link"
 import { LogoTile, Wordmark } from "@/components/brand"
 
-export const metadata = { title: "Privacy Policy — TechireX", description: "How TechireX collects, uses, and protects your personal data under Malaysia's Personal Data Protection Act 2010 (as amended 2024)." }
+export const metadata = { title: "Privacy Policy — TechireX", description: "How TechireX collects, uses, and protects your personal data under Malaysia's Personal Data Protection Act 2010 (as amended 2024).", alternates: { canonical: "/privacy" } }
 
 const SUMMARY_CARDS = [
   {
