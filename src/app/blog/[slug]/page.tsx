@@ -5,6 +5,7 @@ import Link from "next/link"
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog"
 import { getSiteUrl } from "@/lib/site-url"
 import ShareButtons from "@/components/share-buttons"
+import { JsonLd } from "@/components/json-ld"
 import type { Metadata } from "next"
 
 export const revalidate = 300
@@ -13,9 +14,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const post = await getBlogPostBySlug(slug)
   if (!post) return {}
+  const title = post.metaTitle?.trim() || `${post.title} | TechireX Blog`
+  const description = post.metaDesc?.trim() || post.summary
   return {
-    title: post.title + " | TechireX Blog",
-    description: post.summary,
+    title,
+    description,
+    alternates: { canonical: `/blog/${slug}` },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `/blog/${slug}`,
+      siteName: "TechireX",
+      ...(post.coverImageUrl ? { images: [post.coverImageUrl] } : {}),
+    },
   }
 }
 
@@ -29,8 +41,26 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     .filter((p) => p.slug !== slug && p.category === post.category)
     .slice(0, 3)
 
+  const siteUrl = getSiteUrl()
+  const blogPostingSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.summary,
+    ...(post.coverImageUrl ? { image: post.coverImageUrl } : {}),
+    datePublished: post.date,
+    author: { "@type": "Person", name: post.author },
+    publisher: {
+      "@type": "Organization",
+      name: "TechireX",
+      logo: { "@type": "ImageObject", url: `${siteUrl}/icon.png` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}/blog/${slug}` },
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <JsonLd data={blogPostingSchema} />
       <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10 pb-16">
@@ -88,14 +118,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
 
-            {/* Hero image */}
+            {/* Hero image — full image shown, never cropped (letterboxed) */}
             {post.coverImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={post.coverImageUrl}
-                alt={post.title}
-                className="w-full h-[260px] mx-0 rounded-none md:mx-8 md:w-[calc(100%-4rem)] md:rounded-[16px] object-cover mb-8"
-              />
+              <div className="mx-0 md:mx-8 mb-8 rounded-none md:rounded-[16px] overflow-hidden bg-[#F6F4EE]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.coverImageUrl}
+                  alt={post.title}
+                  className="w-full max-h-[440px] object-contain"
+                />
+              </div>
             ) : (
               <div className="h-[260px] mx-8 md:mx-10 rounded-[16px] mb-8 flex items-center justify-center"
                 style={{ background: post.cover ?? "repeating-linear-gradient(135deg, #FFF1E1, #FFF1E1 16px, #FFE8CF 16px, #FFE8CF 32px)" }}>

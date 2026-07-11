@@ -59,7 +59,7 @@ export default function ImageUploader({
       {url ? (
         <div className="relative rounded-[11px] overflow-hidden border border-[#E6E2D9]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="Cover preview" className="w-full h-44 object-cover" />
+          <img src={url} alt="Cover preview" className="w-full h-44 object-contain bg-[#F6F4EE]" />
           <button
             type="button"
             onClick={() => setUrl("")}
@@ -96,7 +96,7 @@ export default function ImageUploader({
             <>
               <div className="text-3xl mb-2">🖼️</div>
               <p className="text-sm font-semibold text-[#6B7280]">Drag & drop or click to upload</p>
-              <p className="text-xs text-[#9CA3AF] mt-1">PNG, JPG, WebP · Recommended: 1200×630px</p>
+              <p className="text-xs text-[#9CA3AF] mt-1">PNG, JPG, WebP · Best at 1200×630px · shown in full, never cropped</p>
             </>
           )}
         </div>

@@ -2,6 +2,8 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import ContactForm from "./contact-form"
 import { prisma } from "@/lib/prisma"
+import { buildPageMetadata, getPageSchema } from "@/lib/seo"
+import { RawJsonLd } from "@/components/json-ld"
 import type { Metadata } from "next"
 
 const CMS_DEFAULTS: Record<string, string> = {
@@ -25,11 +27,7 @@ async function getCms() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const cms = await getCms()
-  return {
-    title: cms.meta_contact_title,
-    description: cms.meta_contact_desc,
-  }
+  return buildPageMetadata("contact")
 }
 
 export default async function ContactPage({
@@ -39,6 +37,7 @@ export default async function ContactPage({
 }) {
   const { sent, error } = await searchParams
   const cms = await getCms()
+  const contactSchema = await getPageSchema("contact")
 
   const INFO_CARDS = [
     { icon: "✉", label: "EMAIL", value: cms.contact_email, href: `mailto:${cms.contact_email}` },
@@ -48,6 +47,7 @@ export default async function ContactPage({
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+      <RawJsonLd json={contactSchema} />
       <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10">

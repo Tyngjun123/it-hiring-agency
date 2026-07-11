@@ -10,6 +10,7 @@ import MaintenancePage from "./maintenance/page";
 import AuthModal from "@/components/auth/auth-modal";
 import ToastBridge from "@/components/toast-bridge";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
+import { JsonLd } from "@/components/json-ld";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -43,6 +44,7 @@ export default async function RootLayout({
 
   let showMaintenance = false
   let waHref: string | null = null
+  let siteSchema: Record<string, unknown>[] | null = null
 
   if (!bypass) {
     try {
@@ -53,6 +55,31 @@ export default async function RootLayout({
       }
       const waNumber = config?.contactPhone?.replace(/[^\d]/g, "")
       if (waNumber) waHref = `https://wa.me/${waNumber}`
+
+      // Site-wide structured data (Organization + WebSite) for search engines.
+      const siteUrl = getSiteUrl()
+      const sameAs = [
+        config?.facebookUrl,
+        config?.instagramUrl,
+        config?.linkedinUrl,
+        config?.twitterUrl,
+      ].filter((u): u is string => !!u)
+      siteSchema = [
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "TechireX",
+          url: siteUrl,
+          logo: config?.logoUrl || `${siteUrl}/icon.png`,
+          ...(sameAs.length ? { sameAs } : {}),
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "TechireX",
+          url: siteUrl,
+        },
+      ]
     } catch {
       // If DB is unavailable, don't block the page
     }
@@ -69,6 +96,7 @@ export default async function RootLayout({
       className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {siteSchema && !showMaintenance && <JsonLd data={siteSchema} />}
         <Providers>{showMaintenance ? <MaintenancePage /> : children}</Providers>
         {!showMaintenance && (
           <Suspense fallback={null}>

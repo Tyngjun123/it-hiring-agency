@@ -10,8 +10,15 @@ import { updateBlogPost } from "@/app/actions/cms"
 import { BLOG_CATEGORIES } from "@/data/posts"
 import ImageUploader from "@/components/admin/image-uploader"
 
-export default async function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditBlogPostPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ error?: string }>
+}) {
   const { id } = await params
+  const { error } = await searchParams
   const post = await prisma.blogPost.findUnique({ where: { id } })
   if (!post) notFound()
 
@@ -30,6 +37,14 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
           <p className="text-sm text-[#9CA3AF]">/blog/{post.slug}</p>
         </div>
 
+        {error && (
+          <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-4 py-3 text-sm text-[#B91C1C] font-medium">
+            {error === "slug_taken"
+              ? "That slug is already used by another post. Pick a different one."
+              : "Slug can't be empty."}
+          </div>
+        )}
+
         <div className="bg-white border border-[#EEEBE3] rounded-2xl p-7 shadow-[0_1px_2px_rgba(28,28,30,.03),0_6px_16px_rgba(28,28,30,.04)]">
           <form action={action} className="space-y-5">
 
@@ -42,9 +57,9 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
 
               <div className="space-y-1.5">
                 <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Slug</Label>
-                <Input value={post.slug} readOnly
-                  className="rounded-[11px] border-[#E6E2D9] bg-[#F4F1EA] font-mono text-sm text-[#9CA3AF] cursor-not-allowed" />
-                <p className="text-[11px] text-[#9CA3AF]">Slug cannot be changed after creation (affects URLs)</p>
+                <Input name="slug" defaultValue={post.slug} required
+                  className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] font-mono text-sm" />
+                <p className="text-[11px] text-[#9CA3AF]">Used in the URL (/blog/…). Changing it changes the post&apos;s address — old links will 404.</p>
               </div>
 
               <div className="space-y-1.5">
