@@ -2,17 +2,24 @@
 
 import { useState } from "react"
 import { HELP_FAQS, type Faq } from "@/data/faqs"
+import { useHelpSearch } from "./help-search"
 
 export default function FAQAccordion({ faqs = HELP_FAQS }: { faqs?: Faq[] }) {
   const [activeCategory, setActiveCategory] = useState("All")
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const { query } = useHelpSearch()
 
   // Categories derived from the FAQs actually present (so admin edits flow through).
   const categories = ["All", ...Array.from(new Set(faqs.map((f) => f.category).filter((c): c is string => !!c)))]
 
+  // Text search across question + answer, then narrow by the active category.
+  const q = query.trim().toLowerCase()
+  const searched = q
+    ? faqs.filter((f) => f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q))
+    : faqs
   const filtered = activeCategory === "All"
-    ? faqs
-    : faqs.filter((f) => f.category === activeCategory)
+    ? searched
+    : searched.filter((f) => f.category === activeCategory)
 
   return (
     <div>
@@ -32,6 +39,12 @@ export default function FAQAccordion({ faqs = HELP_FAQS }: { faqs?: Faq[] }) {
 
       {/* Accordion */}
       <div className="max-w-[720px] mx-auto flex flex-col gap-3">
+        {filtered.length === 0 && (
+          <div className="text-center py-10 bg-white border border-[#EEEBE3] rounded-[14px]">
+            <p className="text-[15px] font-bold text-[#1C1C1E]">No results{q ? ` for “${query.trim()}”` : ""}</p>
+            <p className="text-[13.5px] text-[#9CA3AF] mt-1">Try a different keyword, or contact our support team.</p>
+          </div>
+        )}
         {filtered.map((faq, i) => {
           const isOpen = openIndex === i
           return (
