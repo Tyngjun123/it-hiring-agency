@@ -57,27 +57,31 @@ export default async function RootLayout({
       if (waNumber) waHref = `https://wa.me/${waNumber}`
 
       // Site-wide structured data (Organization + WebSite) for search engines.
-      const siteUrl = getSiteUrl()
-      const sameAs = [
-        config?.facebookUrl,
-        config?.instagramUrl,
-        config?.linkedinUrl,
-        config?.twitterUrl,
-      ].filter((u): u is string => !!u)
       siteSchema = [
         {
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "TechireX",
-          url: siteUrl,
-          logo: config?.logoUrl || `${siteUrl}/icon.png`,
-          ...(sameAs.length ? { sameAs } : {}),
+          url: "https://www.techirex.com",
+          logo: "https://www.techirex.com/icon.png",
+          foundingDate: "2026",
+          areaServed: "MY",
+          sameAs: [
+            "https://www.facebook.com/share/18zvF2rudP/?mibextid=wwXIfr",
+            "https://xhslink.com/m/7H0qvMEFREG",
+            "https://t.me/ITjobfindhere",
+          ],
         },
         {
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "TechireX",
-          url: siteUrl,
+          url: "https://www.techirex.com",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://www.techirex.com/?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
         },
       ]
     } catch {
