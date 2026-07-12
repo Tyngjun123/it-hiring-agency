@@ -17,6 +17,7 @@ export type BlogPostData = {
   date: string
   metaTitle?: string
   metaDesc?: string
+  customSchema?: string
 }
 
 export async function getAllBlogPosts(): Promise<BlogPostData[]> {
@@ -70,6 +71,10 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | nu
   // Check DB first
   const dbPost = await prisma.blogPost.findUnique({ where: { slug, published: true } })
   if (dbPost) {
+    // Per-post custom JSON-LD schema is stored in CmsContent, keyed by post id.
+    const schemaRow = await prisma.cmsContent.findUnique({
+      where: { key: `schema_post_${dbPost.id}` },
+    })
     return {
       id: dbPost.id,
       slug: dbPost.slug,
@@ -86,6 +91,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | nu
       date: dbPost.createdAt.toISOString().slice(0, 10),
       metaTitle: dbPost.metaTitle ?? undefined,
       metaDesc: dbPost.metaDesc ?? undefined,
+      customSchema: schemaRow?.value?.trim() || undefined,
     }
   }
 

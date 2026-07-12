@@ -63,6 +63,16 @@ export async function createBlogPost(formData: FormData) {
     },
   })
 
+  // Per-post custom JSON-LD schema (stored in CmsContent, keyed by post id).
+  const postSchema = (formData.get("postSchema") as string)?.trim()
+  if (postSchema) {
+    await prisma.cmsContent.upsert({
+      where: { key: `schema_post_${post.id}` },
+      update: { value: postSchema },
+      create: { key: `schema_post_${post.id}`, value: postSchema },
+    })
+  }
+
   // Auto-share to social channels when created already published (per checkbox).
   if (post.published) {
     if (formData.get("shareTelegram") === "on") await postBlogToTelegram(post)
@@ -113,6 +123,18 @@ export async function updateBlogPost(id: string, formData: FormData) {
     },
   })
 
+  // Per-post custom JSON-LD schema (stored in CmsContent, keyed by post id).
+  const postSchema = (formData.get("postSchema") as string)?.trim()
+  if (postSchema) {
+    await prisma.cmsContent.upsert({
+      where: { key: `schema_post_${id}` },
+      update: { value: postSchema },
+      create: { key: `schema_post_${id}`, value: postSchema },
+    })
+  } else {
+    await prisma.cmsContent.deleteMany({ where: { key: `schema_post_${id}` } })
+  }
+
   // Auto-share only when a draft is first published (avoids re-sharing on every
   // edit of an already-live post), respecting the per-post checkboxes.
   if (updated.published && !existing.published) {
@@ -132,6 +154,7 @@ export async function deleteBlogPost(id: string) {
   const post = await prisma.blogPost.findUnique({ where: { id } })
   if (post) {
     await prisma.blogPost.delete({ where: { id } })
+    await prisma.cmsContent.deleteMany({ where: { key: `schema_post_${id}` } })
     revalidatePath("/blog")
     revalidatePath(`/blog/${post.slug}`)
     revalidatePath("/admin/blog")

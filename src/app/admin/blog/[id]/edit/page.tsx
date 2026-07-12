@@ -22,6 +22,8 @@ export default async function EditBlogPostPage({
   const post = await prisma.blogPost.findUnique({ where: { id } })
   if (!post) notFound()
 
+  const schemaRow = await prisma.cmsContent.findUnique({ where: { key: `schema_post_${id}` } })
+
   const action = updateBlogPost.bind(null, id)
 
   return (
@@ -125,6 +127,15 @@ export default async function EditBlogPostPage({
                 <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">Meta description</Label>
                 <Textarea name="metaDesc" rows={2} maxLength={160} defaultValue={post.metaDesc ?? ""}
                   className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">
+                  Custom schema markup <span className="text-[#9CA3AF] font-normal">(JSON-LD, optional)</span>
+                </Label>
+                <Textarea name="postSchema" rows={4} defaultValue={schemaRow?.value ?? ""}
+                  placeholder={'{ "@context": "https://schema.org", "@type": "BlogPosting", ... }'}
+                  className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] font-mono text-[12px] resize-y" />
+                <p className="text-[11px] text-[#9CA3AF]">Paste JSON only. Leave blank to use the auto-generated BlogPosting schema; filling it replaces that for this post.</p>
               </div>
             </div>
 

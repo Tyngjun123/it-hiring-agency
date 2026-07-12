@@ -5,7 +5,7 @@ import Link from "next/link"
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog"
 import { getSiteUrl } from "@/lib/site-url"
 import ShareButtons from "@/components/share-buttons"
-import { JsonLd } from "@/components/json-ld"
+import { JsonLd, RawJsonLd } from "@/components/json-ld"
 import type { Metadata } from "next"
 
 export const revalidate = 300
@@ -60,7 +60,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
-      <JsonLd data={blogPostingSchema} />
+      {/* Custom per-post schema replaces the auto BlogPosting when the admin sets one. */}
+      {post.customSchema
+        ? <RawJsonLd json={post.customSchema} />
+        : <JsonLd data={blogPostingSchema} />}
       <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10 pb-16">

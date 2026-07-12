@@ -129,6 +129,15 @@ export function BlogPostFields({ defaults }: { defaults?: Record<string, string 
             defaultValue={d.metaDesc as string ?? ""}
             className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] resize-none" />
         </div>
+        <div className="space-y-1.5">
+          <Label className="text-[13.5px] font-semibold text-[#3A3A3C]">
+            Custom schema markup <span className="text-[#9CA3AF] font-normal">(JSON-LD, optional)</span>
+          </Label>
+          <Textarea name="postSchema" rows={4} placeholder={'{ "@context": "https://schema.org", "@type": "BlogPosting", ... }'}
+            defaultValue={d.postSchema as string ?? ""}
+            className="rounded-[11px] border-[#E6E2D9] focus:border-[#F97316] font-mono text-[12px] resize-y" />
+          <p className="text-[11px] text-[#9CA3AF]">Paste JSON only. Leave blank to use the auto-generated BlogPosting schema; filling it replaces that for this post.</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-6 pt-1">
