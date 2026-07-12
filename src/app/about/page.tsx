@@ -3,7 +3,6 @@ export const revalidate = 3600
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
-import { prisma } from "@/lib/prisma"
 import { getCmsMap } from "@/lib/cms"
 import { buildPageMetadata, getPageSchema } from "@/lib/seo"
 import { RawJsonLd } from "@/components/json-ld"
@@ -22,21 +21,11 @@ const ABOUT_BODY =
   "<p>We're a team of Malaysian developers and operators who got frustrated with the status quo. So we built the platform we always wanted — focused exclusively on IT, with transparent salaries, a clean application flow, and zero middlemen.</p>" +
   "<p>Every product decision we make is guided by one question: does this help a Malaysian developer find a great job faster, or help a Malaysian tech team find the right person faster?</p>"
 
-async function getStats() {
-  const [companies, jobs] = await Promise.all([
-    prisma.companyProfile.count(),
-    prisma.jobListing.count({ where: { status: "ACTIVE" } }),
-  ])
-  return { companies, jobs }
-}
-
-
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata("about")
 }
 
 export default async function AboutPage() {
-  const { companies, jobs } = await getStats()
   const cms = await getCmsMap()
   const aboutSchema = await getPageSchema("about")
   const aboutTagline = cms["about_tagline"] ?? ABOUT_TAGLINE
@@ -84,8 +73,8 @@ export default async function AboutPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { value: `${jobs}+`, label: "Active job listings" },
-            { value: `${companies}+`, label: "Companies hiring" },
+            { value: "Flat fee", label: "No agency commission" },
+            { value: "Vetted", label: "Candidates from our pool" },
             { value: "100%", label: "IT-focused roles" },
             { value: "Free", label: "For candidates" },
           ].map(({ value, label }) => (
