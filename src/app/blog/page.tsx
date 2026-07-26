@@ -2,6 +2,7 @@ export const revalidate = 300
 
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import BlogCover from "@/components/blog-cover"
 import Link from "next/link"
 import { BLOG_CATEGORIES } from "@/data/posts"
 import { getAllBlogPosts } from "@/lib/blog"
@@ -72,8 +73,7 @@ export default async function BlogPage({
             <div className="min-h-[220px] md:min-h-[290px] relative flex items-end p-6"
               style={featured.coverImageUrl ? { background: "#F6F4EE" } : { background: featured.cover ?? "repeating-linear-gradient(135deg, #FFF1E1, #FFF1E1 13px, #FFE8CF 13px, #FFE8CF 26px)" }}>
               {featured.coverImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={featured.coverImageUrl} alt={featured.title}
+                <BlogCover src={featured.coverImageUrl} alt={featured.title}
                   className="absolute inset-0 w-full h-full object-contain" />
               )}
               <span className="absolute top-4 left-4 z-10 bg-white text-[#C2410C] text-[11.5px] font-bold px-3 py-1.5 rounded-full shadow-sm">
@@ -126,9 +126,8 @@ export default async function BlogPage({
                 {/* Cover */}
                 {post.coverImageUrl ? (
                   <div className="relative aspect-[1200/630] bg-[#F6F4EE]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.coverImageUrl} alt={post.title}
-                      className="absolute inset-0 w-full h-full object-contain" />
+                    <BlogCover src={post.coverImageUrl} alt={post.title}
+                      className="absolute inset-0 w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="h-[150px] relative flex items-end p-3"

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none" role="img" aria-label="TechireX Blog">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF7ED"/>
+      <stop offset="1" stop-color="#FFE8CF"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="500" y1="250" x2="700" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F97316"/>
+      <stop offset="1" stop-color="#C2410C"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- subtle diagonal texture -->
+  <g stroke="#F7C99A" stroke-width="2" opacity="0.35">
+    <line x1="-60" y1="120" x2="120" y2="-60"/>
+    <line x1="-60" y1="220" x2="220" y2="-60"/>
+    <line x1="980" y1="690" x2="1260" y2="410"/>
+    <line x1="1080" y1="690" x2="1260" y2="510"/>
+  </g>
+
+  <!-- brand badge -->
+  <rect x="510" y="196" width="180" height="180" rx="44" fill="url(#badge)"/>
+  <g fill="#FFFFFF">
+    <!-- code brackets </> -->
+    <path d="M573 268l-26 27 26 27" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M627 268l26 27-26 27" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <line x1="608" y1="258" x2="592" y2="332" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="600" y="446" text-anchor="middle" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="60" font-weight="800" letter-spacing="-1.5" fill="#1C1C1E">TechireX</text>
+
+  <!-- subtitle -->
+  <text x="600" y="486" text-anchor="middle" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="24" font-weight="600" letter-spacing="0.5" fill="#C2410C">Tech careers in Malaysia</text>
+</svg>

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog"
 import { getSiteUrl } from "@/lib/site-url"
 import ShareButtons from "@/components/share-buttons"
+import BlogCover from "@/components/blog-cover"
 import { JsonLd, RawJsonLd } from "@/components/json-ld"
 import type { Metadata } from "next"
 
@@ -124,8 +125,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {/* Hero image — full image shown, never cropped (letterboxed) */}
             {post.coverImageUrl ? (
               <div className="mx-0 md:mx-8 mb-8 rounded-none md:rounded-[16px] overflow-hidden bg-[#F6F4EE]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <BlogCover
                   src={post.coverImageUrl}
                   alt={post.title}
                   className="w-full max-h-[440px] object-contain"
