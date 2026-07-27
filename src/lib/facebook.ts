@@ -31,10 +31,22 @@ export async function postBlogToFacebook(post: FacebookBlogPost): Promise<void> 
       method: "POST",
       body,
     })
+    const detail = await res.text().catch(() => "")
     if (!res.ok) {
-      const detail = await res.text().catch(() => "")
-      console.error(`Facebook post failed (${res.status}):`, detail)
+      // Full Graph API error body — includes error.code / error.message so you
+      // can tell an App-mode/permission block from a bad token or unpublished page.
+      console.error(`[facebook] post FAILED (${res.status}) for /blog/${post.slug}:`, detail)
+      return
     }
+    // Success — response is { "id": "<pageId>_<postId>" }. Log it so a publish
+    // can be confirmed from server logs and opened at facebook.com/<id>.
+    let postId = ""
+    try {
+      postId = (JSON.parse(detail) as { id?: string }).id ?? ""
+    } catch {
+      /* non-JSON success body — fall through with empty id */
+    }
+    console.log(`[facebook] post published: id=${postId || "(unknown)"} for /blog/${post.slug} — ${detail}`)
   } catch (err) {
     console.error("Facebook post threw:", err)
   }
